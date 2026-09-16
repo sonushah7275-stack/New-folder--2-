@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "DM Serif Display", "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+
+  --color-tejova-deep-green: #1F4D3B;
+  --color-tejova-deep-green-dark: #16382A;
+  --color-tejova-sage: #668F6B;
+  --color-tejova-sage-light: #A7B99F;
+  --color-tejova-brown: #886F4F;
+  --color-tejova-brown-light: #A38A67;
+  --color-tejova-ivory: #F7F3E9;
+  --color-tejova-ivory-light: #FAF8F3;
+  --color-tejova-charcoal: #1F1F1F;
+  --color-tejova-gray: #687280;
+}
+
+/* Custom Base Styles */
+html {
+  scroll-behavior: smooth;
+  font-family: var(--font-sans);
+  background-color: var(--color-tejova-ivory);
+  color: var(--color-tejova-charcoal);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F7F3E9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #668F6B;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1F4D3B;
+}
+
+/* Luxury Editorial Typography Helper Classes */
+.font-serif-heading {
+  font-family: 'DM Serif Display', 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-sans-body {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Button & Link Hover Animations */
+.tejova-btn-primary {
+  background-color: #1F4D3B;
+  color: #FFFFFF;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tejova-btn-primary:hover {
+  background-color: #16382A;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px -5px rgba(31, 77, 59, 0.25);
+}
+
+.tejova-btn-secondary {
+  border: 1px solid #1F4D3B;
+  color: #1F4D3B;
+  background-color: transparent;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tejova-btn-secondary:hover {
+  background-color: #1F4D3B;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.tejova-btn-light {
+  background-color: #FFFFFF;
+  color: #1F4D3B;
+  border: 1px solid #E5E7EB;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tejova-btn-light:hover {
+  border-color: #1F4D3B;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Image Zoom Effect Container */
+.img-zoom-container {
+  overflow: hidden;
+}
+
+.img-zoom-container img {
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.img-zoom-container:hover img {
+  transform: scale(1.06);
+}
+
+/* Subtle Glassmorphism Card Overlay */
+.tejova-glass {
+  background: rgba(247, 243, 233, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}

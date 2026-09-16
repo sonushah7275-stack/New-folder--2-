@@ -1,0 +1,66 @@
+import React from 'react';
+import { TextReveal } from '../common/TextReveal';
+import { Button } from '../common/Button';
+
+export const NourishmentSection = () => {
+  return (
+    <section className="py-20 md:py-28 bg-[#F7F3E9] border-t border-gray-200/50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          
+          {/* Left Text */}
+          <div className="lg:col-span-5 space-y-6 order-2 lg:order-1">
+            <TextReveal delay={0.1}>
+              <span className="text-xs uppercase tracking-[0.2em] text-[#668F6B] font-semibold block">
+                Pillar 02
+              </span>
+            </TextReveal>
+
+            <TextReveal delay={0.2}>
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#1F4D3B]">
+                Nourishment
+              </h2>
+              <h3 className="text-lg text-[#668F6B] font-serif italic mt-1">
+                Real Food. Lasting Health.
+              </h3>
+            </TextReveal>
+
+            <TextReveal delay={0.3}>
+              <p className="text-base text-[#687280] font-light leading-relaxed">
+                Whole foods, natural nutrition and conscious eating fuel your body, balance your mind and support long-term cellular health.
+              </p>
+            </TextReveal>
+
+            <TextReveal delay={0.4} className="pt-2">
+              <Button to="/nourishment" variant="secondary" icon>
+                Explore Nourishment
+              </Button>
+            </TextReveal>
+          </div>
+
+          {/* Right Wide Image */}
+          <div className="lg:col-span-7 relative order-1 lg:order-2">
+            <TextReveal>
+              <div className="aspect-[16/10] overflow-hidden rounded-xs shadow-md">
+                <img
+                  src="https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=1200&auto=format&fit=crop"
+                  alt="Fresh organic whole food bowl symbolizing natural nourishment"
+                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                />
+              </div>
+            </TextReveal>
+
+            {/* Accent badge */}
+            <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-md px-5 py-3 rounded-xs border border-gray-200 hidden sm:block">
+              <span className="text-xs uppercase tracking-wider text-[#668F6B] font-semibold block">Conscious Food</span>
+              <span className="text-xs text-[#1F4D3B]">Microbiome & metabolic balance</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+  );
+};
