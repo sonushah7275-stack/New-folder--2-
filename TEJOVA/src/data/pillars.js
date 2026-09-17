@@ -7,7 +7,7 @@ export const pillars = [
     description: "Feel more energized, focused and alive with nature's most powerful adaptogenic ingredients. Vitality isn't just about energy — it's about your whole self.",
     longDescription: "Our approach to Vitality restores physical endurance, bio-energetic alignment, and daily physical resilience. By leveraging adaptogenic botanicals, targeted movement practices, and natural restorative sleep, we empower you to reclaim your intrinsic natural power.",
     image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1200&auto=format&fit=crop",
-    heroImage: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=1600&auto=format&fit=crop",
+    heroImage: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=1600&auto=format&fit=crop",
     slug: "vitality",
     link: "/vitality",
     highlights: [

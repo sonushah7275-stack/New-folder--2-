@@ -41,10 +41,10 @@ export const OtpVerification = () => {
   return (
     <div className="space-y-6">
       {verified ? (
-        <div className="bg-[#FAF8F3] p-6 rounded-xs border border-[#1F4D3B]/20 text-center space-y-4">
-          <CheckCircle className="w-10 h-10 text-[#1F4D3B] mx-auto" />
-          <h3 className="font-serif text-2xl text-[#1F4D3B]">Account Verified!</h3>
-          <p className="text-xs text-[#687280] font-light">Your email address has been successfully verified.</p>
+        <div className="bg-[#FAF9F6] p-6 rounded-xs border border-[#B87333]/30 text-center space-y-4">
+          <CheckCircle className="w-10 h-10 text-[#B87333] mx-auto" />
+          <h3 className="font-serif text-2xl text-[#0A2342]">Account Verified!</h3>
+          <p className="text-xs text-[#5C6B73] font-light">Your email address has been successfully verified.</p>
           <Button variant="primary" onClick={() => navigate('/')} className="w-full">
             Explore TEJOVA
           </Button>
@@ -52,7 +52,7 @@ export const OtpVerification = () => {
       ) : (
         <form onSubmit={handleVerify} className="space-y-6">
           <div className="text-center">
-            <p className="text-xs text-[#687280] font-light mb-6">
+            <p className="text-xs text-[#5C6B73] font-light mb-6">
               We've sent a 6-digit verification code to your email.
             </p>
 
@@ -67,7 +67,7 @@ export const OtpVerification = () => {
                   value={digit}
                   onChange={(e) => handleChange(idx, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(idx, e)}
-                  className="w-10 h-12 sm:w-12 sm:h-14 text-center font-mono text-xl font-semibold bg-[#FAF8F3] border border-gray-300 rounded-xs text-[#1F4D3B] focus:outline-none focus:border-[#1F4D3B] focus:ring-1 focus:ring-[#1F4D3B]"
+                  className="w-10 h-12 sm:w-12 sm:h-14 text-center font-mono text-xl font-semibold bg-[#F5F3EF] border border-[#B87333]/30 rounded-xs text-[#0A2342] focus:outline-none focus:border-[#0A2342] focus:ring-1 focus:ring-[#0A2342]"
                 />
               ))}
             </div>
@@ -81,7 +81,7 @@ export const OtpVerification = () => {
             <button
               type="button"
               onClick={handleResend}
-              className="text-xs font-semibold text-[#668F6B] hover:text-[#1F4D3B] transition-colors"
+              className="text-xs font-semibold text-[#B87333] hover:text-[#0A2342] transition-colors"
             >
               {resent ? 'Verification Code Resent!' : 'Didn\'t receive code? Resend Code'}
             </button>

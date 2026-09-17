@@ -12,15 +12,10 @@ const sequence = [
 
 export const EntryExperience = () => {
   const [index, setIndex] = useState(0);
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(() => !sessionStorage.getItem('tejova_entry_seen'));
 
   useEffect(() => {
-    // Check session storage to only show once per visit if desired, or play short intro
-    const hasSeen = sessionStorage.getItem('tejova_entry_seen');
-    if (hasSeen) {
-      setVisible(false);
-      return;
-    }
+    if (!visible) return;
 
     const interval = setInterval(() => {
       setIndex((prev) => {
@@ -38,7 +33,7 @@ export const EntryExperience = () => {
     }, 600);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [visible]);
 
   const handleSkip = () => {
     setVisible(false);
@@ -52,7 +47,7 @@ export const EntryExperience = () => {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease: 'easeInOut' }}
-          className="fixed inset-0 z-50 bg-[#1F4D3B] text-white flex flex-col items-center justify-center p-6 select-none"
+          className="fixed inset-0 z-50 bg-[#0A2342] text-white flex flex-col items-center justify-center p-6 select-none"
         >
           {/* Animated Text Display */}
           <div className="text-center h-24 flex items-center justify-center">
@@ -73,8 +68,8 @@ export const EntryExperience = () => {
           {/* Subtitle indicator */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.7 }}
-            className="text-xs uppercase tracking-[0.3em] text-[#A7B99F] mt-6"
+            animate={{ opacity: 0.9 }}
+            className="text-xs uppercase tracking-[0.3em] text-[#D4AF37] mt-6"
           >
             Conscious Living
           </motion.div>
@@ -82,7 +77,7 @@ export const EntryExperience = () => {
           {/* Skip Intro Button */}
           <button
             onClick={handleSkip}
-            className="absolute bottom-10 text-xs tracking-widest uppercase text-white/50 hover:text-white transition-colors py-2 px-4 border border-white/20 rounded-full hover:border-white/50"
+            className="absolute bottom-10 text-xs tracking-widest uppercase text-white/70 hover:text-white transition-colors py-2 px-4 border border-[#B87333]/40 rounded-full hover:border-[#D4AF37]"
           >
             Skip Intro
           </button>

@@ -18,17 +18,17 @@ export const VitalityPage = () => {
   return (
     <PageContainer>
       {/* Editorial Hero */}
-      <section className="relative py-16 md:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <section className="relative py-14 sm:py-16 md:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           <div className="lg:col-span-6 space-y-6">
-            <span className="text-xs uppercase tracking-[0.25em] text-[#668F6B] font-semibold block">
+            <span className="text-xs uppercase tracking-[0.25em] text-[#B87333] font-semibold block">
               Pillar 01 — Vitality
             </span>
-            <h1 className="font-serif text-4xl sm:text-6xl text-[#1F4D3B] leading-tight">
+            <h1 className="font-serif text-4xl sm:text-5xl lg:text-[72px] text-[#0A2342] leading-tight font-medium">
               Natural Energy. <br />
               Peak Vigor.
             </h1>
-            <p className="text-lg text-[#687280] font-light leading-relaxed">
+            <p className="text-base sm:text-lg text-[#0A2342]/85 font-light leading-relaxed">
               {vitalityData.longDescription}
             </p>
             <div className="pt-2">
@@ -38,10 +38,10 @@ export const VitalityPage = () => {
             </div>
           </div>
           <div className="lg:col-span-6">
-            <div className="aspect-[4/3] rounded-xs overflow-hidden shadow-lg">
+            <div className="aspect-[4/3] rounded-xs overflow-hidden border border-[#B87333]/30 shadow-xs bg-[#FAF9F6]">
               <img
                 src={vitalityData.heroImage}
-                alt="Natural energy vitality"
+                alt="Indoor biological architecture yoga studio visual"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -50,7 +50,7 @@ export const VitalityPage = () => {
       </section>
 
       {/* Core Principles Grid */}
-      <section className="py-20 bg-white border-y border-gray-200/60 my-16">
+      <section className="py-16 sm:py-20 bg-[#FAF9F6] border-y border-[#B87333]/30 my-12 sm:my-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             subtitle="Biological Foundation"
@@ -58,14 +58,14 @@ export const VitalityPage = () => {
             description="How adaptogenic botanicals and circadian light restore innate biological stamina."
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {vitalityData.highlights.map((item, idx) => (
-              <TextReveal key={item.title} delay={idx * 0.1} className="bg-[#FAF8F3] p-8 rounded-xs border border-gray-200/80 space-y-4">
-                <div className="w-10 h-10 rounded-full bg-[#1F4D3B] text-white flex items-center justify-center">
+              <TextReveal key={item.title} delay={idx * 0.1} className="bg-[#FAF9F6] p-7 sm:p-8 rounded-xs border-l-4 border-l-[#B87333] border-y border-r border-[#B87333]/20 space-y-4 shadow-xs">
+                <div className="w-10 h-10 rounded-full bg-[#0A2342] text-[#D4AF37] flex items-center justify-center shrink-0">
                   {idx === 0 ? <Zap className="w-5 h-5" /> : idx === 1 ? <Activity className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                 </div>
-                <h3 className="font-serif text-2xl text-[#1F4D3B]">{item.title}</h3>
-                <p className="text-sm text-[#687280] font-light leading-relaxed">{item.desc}</p>
+                <h3 className="font-serif text-2xl text-[#0A2342]">{item.title}</h3>
+                <p className="text-sm text-[#0A2342]/75 font-light leading-relaxed">{item.desc}</p>
               </TextReveal>
             ))}
           </div>
@@ -73,7 +73,7 @@ export const VitalityPage = () => {
       </section>
 
       {/* Daily Practices Section */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-14 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           subtitle="Daily Protocols"
           title="Recommended Rituals"
@@ -82,20 +82,20 @@ export const VitalityPage = () => {
 
         <div className="space-y-6 max-w-4xl mx-auto">
           {vitalityData.practices.map((practice, idx) => (
-            <TextReveal key={practice.title} delay={idx * 0.1} className="bg-white p-6 sm:p-8 rounded-xs border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <TextReveal key={practice.title} delay={idx * 0.1} className="bg-[#FAF9F6] p-6 sm:p-8 rounded-xs border-l-4 border-l-[#B87333] border-y border-r border-[#B87333]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
               <div className="space-y-1">
-                <span className="text-xs uppercase tracking-wider font-semibold text-[#668F6B]">{practice.time}</span>
-                <h4 className="font-serif text-xl text-[#1F4D3B]">{practice.title}</h4>
-                <p className="text-sm text-[#687280] font-light max-w-xl">{practice.desc}</p>
+                <span className="text-xs uppercase tracking-wider font-semibold text-[#B87333]">{practice.time}</span>
+                <h4 className="font-serif text-xl sm:text-2xl text-[#0A2342]">{practice.title}</h4>
+                <p className="text-sm text-[#0A2342]/75 font-light max-w-xl leading-relaxed">{practice.desc}</p>
               </div>
-              <ShieldCheck className="w-8 h-8 text-[#1F4D3B]/40 shrink-0" />
+              <ShieldCheck className="w-8 h-8 text-[#B87333]/60 shrink-0" />
             </TextReveal>
           ))}
         </div>
       </section>
 
       {/* Related Formulations */}
-      <section className="py-20 bg-[#FAF8F3] border-t border-gray-200/60 my-16">
+      <section className="py-16 sm:py-20 bg-[#FAF9F6] border-t border-[#B87333]/30 my-12 sm:my-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             subtitle="Targeted Botanical Support"

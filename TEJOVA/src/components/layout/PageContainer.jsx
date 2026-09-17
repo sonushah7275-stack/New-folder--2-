@@ -9,7 +9,7 @@ export const PageContainer = ({ children, className = '' }) => {
   }, [pathname]);
 
   return (
-    <div className={`min-h-screen pt-24 md:pt-28 pb-16 bg-[#F7F3E9] ${className}`}>
+    <div className={`min-h-screen pt-24 md:pt-28 pb-16 bg-[#F5F3EF] text-[#0A2342] ${className}`}>
       {children}
     </div>
   );

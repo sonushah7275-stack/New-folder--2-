@@ -12,7 +12,7 @@ export const ProductGrid = ({ products, columns = 4 }) => {
   return (
     <div className={`grid ${colClasses[columns]} gap-6 md:gap-8`}>
       {products.map((product, idx) => (
-        <TextReveal key={product.id} delay={idx * 0.1}>
+        <TextReveal key={product.id} delay={idx * 0.05}>
           <ProductCard product={product} />
         </TextReveal>
       ))}

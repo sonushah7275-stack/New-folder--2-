@@ -18,7 +18,7 @@ export const JournalPage = () => {
 
   return (
     <PageContainer>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-14">
         
         <SectionHeading
           subtitle="Conscious Living Journal"
@@ -30,15 +30,15 @@ export const JournalPage = () => {
         <ArticleCard article={featuredArticle} featured />
 
         {/* Category Filters */}
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-14">
+        <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 mb-12 sm:mb-16">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-5 py-2.5 rounded-full text-xs font-medium uppercase tracking-wider transition-all duration-300 ${
+              className={`px-5 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all duration-300 focus:outline-none ${
                 selectedCategory === cat
-                  ? 'bg-[#1F4D3B] text-white shadow-sm'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:border-[#1F4D3B] hover:text-[#1F4D3B]'
+                  ? 'bg-[#D4AF37] text-[#0A2342] shadow-xs'
+                  : 'bg-[#FAF9F6] text-[#0A2342] border border-[#B87333]/30 hover:border-[#0A2342] hover:text-[#B87333]'
               }`}
             >
               {cat}
@@ -46,7 +46,7 @@ export const JournalPage = () => {
           ))}
         </div>
 
-        {/* Grid */}
+        {/* Article Grid */}
         <ArticleGrid articles={filteredArticles} />
 
       </div>

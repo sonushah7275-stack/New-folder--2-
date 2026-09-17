@@ -13,18 +13,36 @@ import { CTASection } from '../components/home/CTASection';
 
 export const HomePage = () => {
   return (
-    <main className="min-h-screen bg-[#F7F3E9] overflow-hidden">
+    <main className="min-h-screen bg-[#F5F3EF] overflow-hidden">
       <EntryExperience />
       <Hero />
-      <BrandIntro />
-      <PillarSection />
-      <VitalitySection />
-      <NourishmentSection />
-      <LifestyleSection />
-      <LongevitySection />
-      <ProductSection />
-      <JournalSection />
-      <CTASection />
+      <div className="border-t border-[#B87333]/30">
+        <BrandIntro />
+      </div>
+      <div className="border-t border-[#B87333]/30">
+        <PillarSection />
+      </div>
+      <div className="border-t border-[#B87333]/30">
+        <VitalitySection />
+      </div>
+      <div className="border-t border-[#B87333]/30">
+        <NourishmentSection />
+      </div>
+      <div className="border-t border-[#B87333]/30">
+        <LifestyleSection />
+      </div>
+      <div className="border-t border-[#B87333]/30">
+        <LongevitySection />
+      </div>
+      <div className="border-t border-[#B87333]/30">
+        <ProductSection />
+      </div>
+      <div className="border-t border-[#B87333]/30">
+        <JournalSection />
+      </div>
+      <div className="border-t border-[#B87333]/30">
+        <CTASection />
+      </div>
     </main>
   );
 };

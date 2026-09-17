@@ -6,13 +6,13 @@ import { TextReveal } from '../common/TextReveal';
 
 export const PillarSection = () => {
   return (
-    <section className="py-20 bg-[#F7F3E9] border-t border-gray-200/60">
+    <section className="py-16 sm:py-20 lg:py-24 bg-[#FAF9F6]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <SectionHeading
           subtitle="Our Foundation"
           title="The Five Pillars"
-          description="Five core pillars. One complete, holistic approach to long-term physical, mental and biological wellbeing."
+          description="Five core pillars. One complete, holistic approach to long-term physical, mental, and biological wellbeing."
         />
 
         {/* 5 Card Grid Layout */}

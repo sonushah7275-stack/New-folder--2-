@@ -16,19 +16,19 @@ export const SectionHeading = ({
   return (
     <div className={`mb-12 md:mb-16 ${alignStyles[align]} ${className}`}>
       {subtitle && (
-        <span className="block text-xs uppercase tracking-[0.2em] text-[#668F6B] font-semibold mb-3">
+        <span className="block text-xs uppercase tracking-[0.25em] text-[#B87333] font-semibold mb-3">
           {subtitle}
         </span>
       )}
       <h2
-        className={`text-3xl sm:text-4xl md:text-5xl font-medium text-[#1F4D3B] tracking-tight leading-tight ${
+        className={`text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-medium text-[#0A2342] tracking-tight leading-tight ${
           serifTitle ? 'font-serif' : ''
         }`}
       >
         {title}
       </h2>
       {description && (
-        <p className="mt-4 text-sm sm:text-base text-[#687280] leading-relaxed font-light">
+        <p className="mt-4 text-base sm:text-lg text-[#0A2342]/80 leading-relaxed font-light">
           {description}
         </p>
       )}

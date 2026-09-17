@@ -23,10 +23,10 @@ export const Button = ({
   };
 
   const variantStyles = {
-    primary: 'bg-[#1F4D3B] text-white hover:bg-[#16382A] shadow-sm hover:shadow-md hover:-translate-y-0.5',
-    secondary: 'border border-[#1F4D3B] text-[#1F4D3B] bg-transparent hover:bg-[#1F4D3B] hover:text-white hover:-translate-y-0.5',
-    light: 'bg-white text-[#1F4D3B] border border-gray-200 hover:border-[#1F4D3B] hover:shadow-sm hover:-translate-y-0.5',
-    text: 'text-[#1F4D3B] bg-transparent p-0 hover:text-[#668F6B] group',
+    primary: 'bg-[#D4AF37] text-[#0A2342] hover:bg-[#B87333] hover:text-[#0A2342] hover:-translate-y-0.5',
+    secondary: 'border border-[#0A2342] text-[#0A2342] bg-transparent hover:bg-[#0A2342] hover:text-[#F5F3EF] hover:-translate-y-0.5',
+    light: 'bg-[#FAF9F6] text-[#0A2342] border border-[#B87333]/40 hover:bg-[#0A2342] hover:text-[#F5F3EF] hover:border-[#0A2342] hover:-translate-y-0.5',
+    text: 'text-[#0A2342] bg-transparent p-0 hover:text-[#B87333] group',
   };
 
   const combinedClasses = `${baseStyles} ${variant !== 'text' ? sizeStyles[size] : ''} ${variantStyles[variant]} ${className}`;

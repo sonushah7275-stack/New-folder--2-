@@ -4,24 +4,41 @@
   --font-serif: "DM Serif Display", "Cormorant Garamond", Georgia, serif;
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
 
-  --color-tejova-deep-green: #1F4D3B;
-  --color-tejova-deep-green-dark: #16382A;
-  --color-tejova-sage: #668F6B;
-  --color-tejova-sage-light: #A7B99F;
-  --color-tejova-brown: #886F4F;
-  --color-tejova-brown-light: #A38A67;
-  --color-tejova-ivory: #F7F3E9;
-  --color-tejova-ivory-light: #FAF8F3;
-  --color-tejova-charcoal: #1F1F1F;
-  --color-tejova-gray: #687280;
+  --color-tejova-midnight: #0A2342;
+  --color-tejova-midnight-dark: #071930;
+  --color-tejova-copper: #B87333;
+  --color-tejova-copper-light: #D48C48;
+  --color-tejova-gold: #D4AF37;
+  --color-tejova-cream: #F5F3EF;
+  --color-tejova-offwhite: #FAF9F6;
+  --color-tejova-green: #3B6347;
+
+  /* Backward compatibility aliases */
+  --color-tejova-deep-green: #0A2342;
+  --color-tejova-deep-green-dark: #071930;
+  --color-tejova-sage: #B87333;
+  --color-tejova-sage-light: #D4AF37;
+  --color-tejova-brown: #B87333;
+  --color-tejova-brown-light: #D48C48;
+  --color-tejova-ivory: #F5F3EF;
+  --color-tejova-ivory-light: #FAF9F6;
+  --color-tejova-charcoal: #0A2342;
+  --color-tejova-gray: #5C6B73;
 }
 
 /* Custom Base Styles */
 html {
   scroll-behavior: smooth;
   font-family: var(--font-sans);
-  background-color: var(--color-tejova-ivory);
-  color: var(--color-tejova-charcoal);
+  background-color: var(--color-tejova-cream);
+  color: var(--color-tejova-midnight);
+}
+
+body {
+  background-color: var(--color-tejova-cream);
+  color: var(--color-tejova-midnight);
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 /* Custom Scrollbar */
@@ -30,16 +47,16 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #F7F3E9;
+  background: #F5F3EF;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #668F6B;
+  background: #B87333;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #1F4D3B;
+  background: #0A2342;
 }
 
 /* Luxury Editorial Typography Helper Classes */
@@ -53,41 +70,50 @@ html {
 
 /* Button & Link Hover Animations */
 .tejova-btn-primary {
-  background-color: #1F4D3B;
-  color: #FFFFFF;
+  background-color: #D4AF37;
+  color: #0A2342;
+  font-weight: 500;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .tejova-btn-primary:hover {
-  background-color: #16382A;
+  background-color: #B87333;
+  color: #0A2342;
   transform: translateY(-1px);
-  box-shadow: 0 10px 25px -5px rgba(31, 77, 59, 0.25);
 }
 
 .tejova-btn-secondary {
-  border: 1px solid #1F4D3B;
-  color: #1F4D3B;
+  border: 1px solid #0A2342;
+  color: #0A2342;
   background-color: transparent;
+  font-weight: 500;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .tejova-btn-secondary:hover {
-  background-color: #1F4D3B;
-  color: #FFFFFF;
+  background-color: #0A2342;
+  color: #F5F3EF;
   transform: translateY(-1px);
 }
 
 .tejova-btn-light {
-  background-color: #FFFFFF;
-  color: #1F4D3B;
-  border: 1px solid #E5E7EB;
+  background-color: #FAF9F6;
+  color: #0A2342;
+  border: 1px solid #B87333;
+  font-weight: 500;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .tejova-btn-light:hover {
-  border-color: #1F4D3B;
+  background-color: #0A2342;
+  color: #F5F3EF;
+  border-color: #0A2342;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* 1px Copper Section Divider */
+.tejova-divider {
+  border-top: 1px solid rgba(184, 115, 51, 0.3);
 }
 
 /* Image Zoom Effect Container */
@@ -100,12 +126,13 @@ html {
 }
 
 .img-zoom-container:hover img {
-  transform: scale(1.06);
+  transform: scale(1.04);
 }
 
-/* Subtle Glassmorphism Card Overlay */
+/* Glassmorphism Card Overlay */
 .tejova-glass {
-  background: rgba(247, 243, 233, 0.85);
+  background: rgba(245, 243, 239, 0.90);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(184, 115, 51, 0.2);
 }
+

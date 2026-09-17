@@ -18,17 +18,17 @@ export const LongevityPage = () => {
   return (
     <PageContainer>
       {/* Editorial Hero */}
-      <section className="relative py-16 md:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <section className="relative py-14 sm:py-16 md:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           <div className="lg:col-span-6 space-y-6">
-            <span className="text-xs uppercase tracking-[0.25em] text-[#668F6B] font-semibold block">
+            <span className="text-xs uppercase tracking-[0.25em] text-[#B87333] font-semibold block">
               Pillar 04 — Longevity
             </span>
-            <h1 className="font-serif text-4xl sm:text-6xl text-[#1F4D3B] leading-tight">
+            <h1 className="font-serif text-4xl sm:text-5xl lg:text-[72px] text-[#0A2342] leading-tight font-medium">
               Longer Life. <br />
               Cellular Protection.
             </h1>
-            <p className="text-lg text-[#687280] font-light leading-relaxed">
+            <p className="text-base sm:text-lg text-[#0A2342]/85 font-light leading-relaxed">
               {longevityData.longDescription}
             </p>
             <div className="pt-2">
@@ -38,7 +38,7 @@ export const LongevityPage = () => {
             </div>
           </div>
           <div className="lg:col-span-6">
-            <div className="aspect-[4/3] rounded-xs overflow-hidden shadow-lg">
+            <div className="aspect-[4/3] rounded-xs overflow-hidden border border-[#B87333]/30 shadow-xs bg-[#FAF9F6]">
               <img
                 src={longevityData.heroImage}
                 alt="Timeless forest longevity landscape"
@@ -50,21 +50,21 @@ export const LongevityPage = () => {
       </section>
 
       {/* Longevity Pillars */}
-      <section className="py-20 bg-white border-y border-gray-200/60 my-16">
+      <section className="py-16 sm:py-20 bg-[#FAF9F6] border-y border-[#B87333]/30 my-12 sm:my-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             subtitle="Biological Resilience"
             title="Keys to Cellular Longevity"
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {longevityData.highlights.map((item, idx) => (
-              <TextReveal key={item.title} delay={idx * 0.1} className="bg-[#FAF8F3] p-8 rounded-xs border border-gray-200/80 space-y-4">
-                <div className="w-10 h-10 rounded-full bg-[#1F4D3B] text-white flex items-center justify-center">
+              <TextReveal key={item.title} delay={idx * 0.1} className="bg-[#FAF9F6] p-7 sm:p-8 rounded-xs border-l-4 border-l-[#B87333] border-y border-r border-[#B87333]/20 space-y-4 shadow-xs">
+                <div className="w-10 h-10 rounded-full bg-[#0A2342] text-[#D4AF37] flex items-center justify-center shrink-0">
                   {idx === 0 ? <RefreshCw className="w-5 h-5" /> : idx === 1 ? <Feather className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
                 </div>
-                <h3 className="font-serif text-2xl text-[#1F4D3B]">{item.title}</h3>
-                <p className="text-sm text-[#687280] font-light leading-relaxed">{item.desc}</p>
+                <h3 className="font-serif text-2xl text-[#0A2342]">{item.title}</h3>
+                <p className="text-sm text-[#0A2342]/75 font-light leading-relaxed">{item.desc}</p>
               </TextReveal>
             ))}
           </div>
@@ -72,7 +72,7 @@ export const LongevityPage = () => {
       </section>
 
       {/* Product Showcase */}
-      <section className="py-20 bg-[#FAF8F3] border-b border-gray-200/60 my-16">
+      <section className="py-16 sm:py-20 bg-[#FAF9F6] border-b border-[#B87333]/30 my-12 sm:my-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             subtitle="Cellular & Restorative Science"

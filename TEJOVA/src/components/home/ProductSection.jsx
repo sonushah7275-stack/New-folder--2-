@@ -8,7 +8,7 @@ export const ProductSection = () => {
   const featuredProducts = products.slice(0, 4);
 
   return (
-    <section className="py-20 md:py-28 bg-[#FAF8F3] border-t border-gray-200/50">
+    <section className="py-16 sm:py-20 lg:py-24 bg-[#F5F3EF]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <SectionHeading
@@ -19,7 +19,7 @@ export const ProductSection = () => {
 
         <ProductGrid products={featuredProducts} columns={4} />
 
-        <div className="mt-14 text-center">
+        <div className="mt-12 sm:mt-16 text-center">
           <Button to="/products" variant="primary" size="lg" icon>
             Explore All Formulations
           </Button>
