@@ -1,19 +1,24 @@
-import React from 'react';
-import { PageContainer } from '../components/layout/PageContainer';
-import { pillars } from '../data/pillars';
-import { products } from '../data/products';
-import { articles } from '../data/articles';
-import { SectionHeading } from '../components/common/SectionHeading';
-import { ProductGrid } from '../components/products/ProductGrid';
-import { ArticleGrid } from '../components/journal/ArticleGrid';
-import { TextReveal } from '../components/common/TextReveal';
-import { Button } from '../components/common/Button';
-import { Shield, RefreshCw, Feather } from 'lucide-react';
+import React from "react";
+import { PageContainer } from "../components/layout/PageContainer";
+import { pillars } from "../data/pillars";
+import { products } from "../data/products";
+import { articles } from "../data/articles";
+import { SectionHeading } from "../components/common/SectionHeading";
+import { ProductGrid } from "../components/products/ProductGrid";
+import { ArticleGrid } from "../components/journal/ArticleGrid";
+import { TextReveal } from "../components/common/TextReveal";
+import { Button } from "../components/common/Button";
+import { Shield, RefreshCw, Feather } from "lucide-react";
 
 export const LongevityPage = () => {
-  const longevityData = pillars.find((p) => p.id === 'longevity');
-  const relatedProducts = products.filter((p) => p.category === 'Longevity' || p.slug === 'restore-and-renew' || p.slug === 'cellular-youth-capsules');
-  const relatedArticles = articles.filter((a) => a.category === 'Longevity');
+  const longevityData = pillars.find((p) => p.id === "longevity");
+  const relatedProducts = products.filter(
+    (p) =>
+      p.category === "Longevity" ||
+      p.slug === "restore-and-renew" ||
+      p.slug === "cellular-youth-capsules",
+  );
+  const relatedArticles = articles.filter((a) => a.category === "Longevity");
 
   return (
     <PageContainer>
@@ -22,7 +27,7 @@ export const LongevityPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           <div className="lg:col-span-6 space-y-6">
             <span className="text-xs uppercase tracking-[0.25em] text-[#B87333] font-semibold block">
-              Pillar 04 — Longevity
+              Longevity
             </span>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-[72px] text-[#0A2342] leading-tight font-medium">
               Longer Life. <br />
@@ -59,12 +64,26 @@ export const LongevityPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {longevityData.highlights.map((item, idx) => (
-              <TextReveal key={item.title} delay={idx * 0.1} className="bg-[#FAF9F6] p-7 sm:p-8 rounded-xs border-l-4 border-l-[#B87333] border-y border-r border-[#B87333]/20 space-y-4 shadow-xs">
+              <TextReveal
+                key={item.title}
+                delay={idx * 0.1}
+                className="bg-[#FAF9F6] p-7 sm:p-8 rounded-xs border-l-4 border-l-[#B87333] border-y border-r border-[#B87333]/20 space-y-4 shadow-xs"
+              >
                 <div className="w-10 h-10 rounded-full bg-[#0A2342] text-[#D4AF37] flex items-center justify-center shrink-0">
-                  {idx === 0 ? <RefreshCw className="w-5 h-5" /> : idx === 1 ? <Feather className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
+                  {idx === 0 ? (
+                    <RefreshCw className="w-5 h-5" />
+                  ) : idx === 1 ? (
+                    <Feather className="w-5 h-5" />
+                  ) : (
+                    <Shield className="w-5 h-5" />
+                  )}
                 </div>
-                <h3 className="font-serif text-2xl text-[#0A2342]">{item.title}</h3>
-                <p className="text-sm text-[#0A2342]/75 font-light leading-relaxed">{item.desc}</p>
+                <h3 className="font-serif text-2xl text-[#0A2342]">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-[#0A2342]/75 font-light leading-relaxed">
+                  {item.desc}
+                </p>
               </TextReveal>
             ))}
           </div>

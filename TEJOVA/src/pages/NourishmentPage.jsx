@@ -1,19 +1,21 @@
-import React from 'react';
-import { PageContainer } from '../components/layout/PageContainer';
-import { pillars } from '../data/pillars';
-import { products } from '../data/products';
-import { articles } from '../data/articles';
-import { SectionHeading } from '../components/common/SectionHeading';
-import { ProductGrid } from '../components/products/ProductGrid';
-import { ArticleGrid } from '../components/journal/ArticleGrid';
-import { TextReveal } from '../components/common/TextReveal';
-import { Button } from '../components/common/Button';
-import { Heart, Sparkles, Utensils } from 'lucide-react';
+import React from "react";
+import { PageContainer } from "../components/layout/PageContainer";
+import { pillars } from "../data/pillars";
+import { products } from "../data/products";
+import { articles } from "../data/articles";
+import { SectionHeading } from "../components/common/SectionHeading";
+import { ProductGrid } from "../components/products/ProductGrid";
+import { ArticleGrid } from "../components/journal/ArticleGrid";
+import { TextReveal } from "../components/common/TextReveal";
+import { Button } from "../components/common/Button";
+import { Heart, Sparkles, Utensils } from "lucide-react";
 
 export const NourishmentPage = () => {
-  const nourishData = pillars.find((p) => p.id === 'nourishment');
-  const relatedProducts = products.filter((p) => p.category === 'Nourishment' || p.slug === 'earth-ritual-serum');
-  const relatedArticles = articles.filter((a) => a.category === 'Nourishment');
+  const nourishData = pillars.find((p) => p.id === "nourishment");
+  const relatedProducts = products.filter(
+    (p) => p.category === "Nourishment" || p.slug === "earth-ritual-serum",
+  );
+  const relatedArticles = articles.filter((a) => a.category === "Nourishment");
 
   return (
     <PageContainer>
@@ -32,7 +34,7 @@ export const NourishmentPage = () => {
 
           <div className="lg:col-span-6 space-y-6 order-1 lg:order-2">
             <span className="text-xs uppercase tracking-[0.25em] text-[#B87333] font-semibold block">
-              Pillar 02 — Nourishment
+              Nourishment
             </span>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-[72px] text-[#0A2342] leading-tight font-medium">
               Real Food. <br />
@@ -53,11 +55,16 @@ export const NourishmentPage = () => {
       {/* Philosophy Callout Quote */}
       <section className="py-16 bg-[#0A2342] text-white my-12 border-y border-[#B87333]/30">
         <div className="max-w-4xl mx-auto px-6 text-center space-y-6">
-          <span className="text-xs uppercase tracking-[0.3em] text-[#D4AF37] font-medium">The Nourishment Ethos</span>
+          <span className="text-xs uppercase tracking-[0.3em] text-[#D4AF37] font-medium">
+            The Nourishment Ethos
+          </span>
           <blockquote className="font-serif text-2xl sm:text-4xl leading-relaxed italic text-[#F5F3EF]">
-            "Nourishment is not merely calories in a bowl; it is an active dialogue with your microbiome and cellular health."
+            "Nourishment is not merely calories in a bowl; it is an active
+            dialogue with your microbiome and cellular health."
           </blockquote>
-          <span className="text-xs tracking-widest uppercase text-white/70 block font-light">— TEJOVA Research Group</span>
+          <span className="text-xs tracking-widest uppercase text-white/70 block font-light">
+            — TEJOVA Research Group
+          </span>
         </div>
       </section>
 
@@ -70,12 +77,26 @@ export const NourishmentPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {nourishData.highlights.map((item, idx) => (
-            <TextReveal key={item.title} delay={idx * 0.1} className="bg-[#FAF9F6] p-7 sm:p-8 rounded-xs border-l-4 border-l-[#B87333] border-y border-r border-[#B87333]/20 space-y-4 shadow-xs">
+            <TextReveal
+              key={item.title}
+              delay={idx * 0.1}
+              className="bg-[#FAF9F6] p-7 sm:p-8 rounded-xs border-l-4 border-l-[#B87333] border-y border-r border-[#B87333]/20 space-y-4 shadow-xs"
+            >
               <div className="w-10 h-10 rounded-full bg-[#0A2342] text-[#D4AF37] flex items-center justify-center shrink-0">
-                {idx === 0 ? <Utensils className="w-5 h-5" /> : idx === 1 ? <Heart className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
+                {idx === 0 ? (
+                  <Utensils className="w-5 h-5" />
+                ) : idx === 1 ? (
+                  <Heart className="w-5 h-5" />
+                ) : (
+                  <Sparkles className="w-5 h-5" />
+                )}
               </div>
-              <h3 className="font-serif text-2xl text-[#0A2342]">{item.title}</h3>
-              <p className="text-sm text-[#0A2342]/75 font-light leading-relaxed">{item.desc}</p>
+              <h3 className="font-serif text-2xl text-[#0A2342]">
+                {item.title}
+              </h3>
+              <p className="text-sm text-[#0A2342]/75 font-light leading-relaxed">
+                {item.desc}
+              </p>
             </TextReveal>
           ))}
         </div>
