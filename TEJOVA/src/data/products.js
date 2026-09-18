@@ -1,3 +1,10 @@
+import vitalityTonicImg from '../assets/images/product-vitality-tonic.svg';
+import earthSerumImg from '../assets/images/product-earth-serum.svg';
+import dailyNourishImg from '../assets/images/product-daily-nourish.svg';
+import restoreRenewImg from '../assets/images/product-restore-renew.svg';
+import brandBotanicalImg from '../assets/images/brand-botanical.svg';
+import longevityForestImg from '../assets/images/longevity-forest.svg';
+
 export const products = [
   {
     id: 1,
@@ -12,11 +19,11 @@ export const products = [
     badge: "Bestseller",
     shortDescription: "A wildcrafted adaptogenic formula featuring Cordyceps, Red Reishi, and Rhodiola to sustain physical stamina, mental focus, and natural vigor.",
     description: "Vitality Tonic is TEJOVA’s signature bio-energetic elixir. Formulated with potent adaptogenic mushrooms and mountain herbs, it optimizes cellular ATP production while calming nerve tension. Unlike synthetic energy stimulants, Vitality Tonic works synergistically with your body to promote steady, clean energy throughout your active day.",
-    image: "https://images.unsplash.com/photo-1608248597261-e4d352740e2d?q=80&w=1000&auto=format&fit=crop",
+    image: vitalityTonicImg,
     gallery: [
-      "https://images.unsplash.com/photo-1608248597261-e4d352740e2d?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1512290900673-70024421191e?q=80&w=1000&auto=format&fit=crop"
+      vitalityTonicImg,
+      earthSerumImg,
+      dailyNourishImg
     ],
     benefits: [
       "Enhances natural physical endurance & stamina without crashes",
@@ -41,11 +48,11 @@ export const products = [
     badge: "Award Winner",
     shortDescription: "A cold-pressed botanical oil blend infused with Bakuchiol, Rosehip Seed, and Sea Buckthorn for deep hydration and youthful skin restoration.",
     description: "Earth Ritual Serum is an essential daily nourishment ritual for your skin. Combining nutrient-dense seed oils with bio-identical antioxidants, this silky nectar absorbs deeply into skin layers to fortify the lipid barrier, smooth fine lines, and impart an otherworldly natural radiance.",
-    image: "https://images.unsplash.com/photo-1617897903246-719242758050?q=80&w=1000&auto=format&fit=crop",
+    image: earthSerumImg,
     gallery: [
-      "https://images.unsplash.com/photo-1617897903246-719242758050?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1608248597261-e4d352740e2d?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=1000&auto=format&fit=crop"
+      earthSerumImg,
+      vitalityTonicImg,
+      restoreRenewImg
     ],
     benefits: [
       "Deeply hydrates and restores skin elasticity",
@@ -70,10 +77,10 @@ export const products = [
     badge: "Essential",
     shortDescription: "A bio-available multi-nutrient formulation harvested from fermented greens, sprouted grains, and organic superfruits.",
     description: "Daily Nourish provides systemic nutritional foundational insurance. Unlike synthetic isolated vitamins that pass through unabsorbed, Daily Nourish presents vitamins, trace minerals, and enzymes in their natural whole-food matrix for optimal gut recognition and cellular assimilation.",
-    image: "https://images.unsplash.com/photo-1584017911766-d451b3d0e843?q=80&w=1000&auto=format&fit=crop",
+    image: dailyNourishImg,
     gallery: [
-      "https://images.unsplash.com/photo-1584017911766-d451b3d0e843?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1512290900673-70024421191e?q=80&w=1000&auto=format&fit=crop"
+      dailyNourishImg,
+      restoreRenewImg
     ],
     benefits: [
       "Fills micro-nutrient gaps with real plant-based vitamins",
@@ -98,10 +105,10 @@ export const products = [
     badge: "Customer Favorite",
     shortDescription: "A calming evening nightcap with Glycinate Magnesium, L-Theanine, Chamomile, and Passionflower for deep restorative slumber.",
     description: "Unwind your central nervous system after a full day. Restore & Renew blends bio-identical Magnesium Glycinate with soothing botanical nervines to ease muscle tension, quiet evening racing thoughts, and guide you effortlessly into deep REM sleep.",
-    image: "https://images.unsplash.com/photo-1512290900673-70024421191e?q=80&w=1000&auto=format&fit=crop",
+    image: restoreRenewImg,
     gallery: [
-      "https://images.unsplash.com/photo-1512290900673-70024421191e?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1608248597261-e4d352740e2d?q=80&w=1000&auto=format&fit=crop"
+      restoreRenewImg,
+      vitalityTonicImg
     ],
     benefits: [
       "Encourages deep, uninterrupted restorative sleep cycles",
@@ -126,9 +133,9 @@ export const products = [
     badge: "New Release",
     shortDescription: "A clean cognitive tonic featuring Lion's Mane Mushroom, Gotu Kola, and Bacopa Monnieri for sharp mental acuity.",
     description: "Sustain effortless deep work states. Mindful Clarity Elixir nourishes nerve growth factors and enhances synaptic neurotransmission without caffeine tremors or afternoon energy drop-offs.",
-    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1000&auto=format&fit=crop",
+    image: brandBotanicalImg,
     gallery: [
-      "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1000&auto=format&fit=crop"
+      brandBotanicalImg
     ],
     benefits: [
       "Enhances memory recall and verbal fluidity",
@@ -152,9 +159,9 @@ export const products = [
     badge: "Premium",
     shortDescription: "Advanced cellular rejuvenation matrix with Trans-Resveratrol, NMN precursors, and Quercetin.",
     description: "Support your biology at the cellular level. Cellular Youth Capsules encourage NAD+ biosynthesis and activate sirtuin longevity pathways, helping your body retain youthful cellular resilience as you mature.",
-    image: "https://images.unsplash.com/photo-1550572017-edd951baa742?q=80&w=1000&auto=format&fit=crop",
+    image: longevityForestImg,
     gallery: [
-      "https://images.unsplash.com/photo-1550572017-edd951baa742?q=80&w=1000&auto=format&fit=crop"
+      longevityForestImg
     ],
     benefits: [
       "Supports cellular repair and telomere length preservation",

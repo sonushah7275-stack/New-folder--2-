@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <linearGradient id="lifestyle-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0A2342"/>
+      <stop offset="40%" stop-color="#B87333"/>
+      <stop offset="70%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#F5F3EF"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#lifestyle-sky)"/>
+  <circle cx="600" cy="360" r="160" fill="#FAF9F6" opacity="0.9"/>
+  <path d="M0,800 L0,550 Q400,450 800,520 T1200,480 L1200,800 Z" fill="#0A2342"/>
+  <!-- Meditation silhouette -->
+  <g transform="translate(600, 500)" fill="#D4AF37">
+    <circle cx="0" cy="-60" r="16"/>
+    <path d="M-25,-30 Q0,-45 25,-30 L35,10 Q0,25 -35,10 Z"/>
+  </g>
+</svg>

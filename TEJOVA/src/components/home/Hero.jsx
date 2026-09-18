@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '../common/Button';
 import { Sparkles, ArrowRight, ShieldCheck, Leaf, Sun } from 'lucide-react';
+import heroLandscape from '../../assets/images/hero-landscape.svg';
 
 export const Hero = () => {
   return (
@@ -98,7 +99,7 @@ export const Hero = () => {
             >
               <div className="aspect-4/5 sm:aspect-4/3 lg:aspect-4/5 w-full overflow-hidden relative">
                 <img
-                  src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1200&auto=format&fit=crop"
+                  src={heroLandscape}
                   alt="Serene nature landscape representing TEJOVA conscious vitality"
                   className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                 />

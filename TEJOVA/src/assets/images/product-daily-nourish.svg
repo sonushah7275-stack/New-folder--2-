@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <rect width="800" height="800" fill="#F5F3EF"/>
+  <circle cx="400" cy="400" r="280" fill="#FAF9F6" stroke="#B87333" stroke-width="2"/>
+  <rect x="290" y="270" width="220" height="340" rx="20" fill="#0A2342"/>
+  <rect x="280" y="220" width="240" height="50" rx="8" fill="#B87333"/>
+  <rect x="310" y="320" width="180" height="220" rx="6" fill="#FAF9F6" stroke="#B87333" stroke-width="1.5"/>
+  <text x="400" y="370" font-family="serif" font-size="18" fill="#0A2342" font-weight="bold" text-anchor="middle" letter-spacing="2">TEJOVA</text>
+  <text x="400" y="400" font-family="sans-serif" font-size="10" fill="#B87333" font-weight="bold" text-anchor="middle" letter-spacing="1.5">DAILY NOURISH</text>
+  <text x="400" y="440" font-family="sans-serif" font-size="8" fill="#0A2342" opacity="0.7" text-anchor="middle">WHOLE FOOD MATRIX</text>
+  <text x="400" y="480" font-family="serif" font-size="14" fill="#D4AF37" text-anchor="middle">60 Capsules</text>
+</svg>

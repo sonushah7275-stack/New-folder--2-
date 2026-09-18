@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '../common/Button';
 import { TextReveal } from '../common/TextReveal';
+import sunriseMountains from '../../assets/images/sunrise-mountains.svg';
 
 export const CTASection = () => {
   return (
@@ -9,7 +10,7 @@ export const CTASection = () => {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2000&auto=format&fit=crop"
+          src={sunriseMountains}
           alt="Majestic sunrise over mountain peaks"
           className="w-full h-full object-cover object-center"
         />

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <linearGradient id="hero-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0A2342"/>
+      <stop offset="50%" stop-color="#1B3B6F"/>
+      <stop offset="100%" stop-color="#F5F3EF"/>
+    </linearGradient>
+    <radialGradient id="sun-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#D4AF37" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#B87333" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#0A2342" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#hero-sky)"/>
+  <circle cx="600" cy="300" r="280" fill="url(#sun-glow)"/>
+  <circle cx="600" cy="300" r="90" fill="#D4AF37" opacity="0.85"/>
+  <!-- Mountain contours -->
+  <path d="M0,800 L0,520 Q300,420 600,480 T1200,420 L1200,800 Z" fill="#0A2342" opacity="0.95"/>
+  <path d="M0,800 L0,580 Q400,480 800,560 T1200,500 L1200,800 Z" fill="#B87333" opacity="0.45"/>
+  <path d="M0,800 L0,640 Q250,560 600,620 T1200,590 L1200,800 Z" fill="#0A2342"/>
+  <!-- Subtle Gold horizon line -->
+  <path d="M0,640 Q600,620 1200,640" stroke="#D4AF37" stroke-width="2" opacity="0.6" fill="none"/>
+</svg>

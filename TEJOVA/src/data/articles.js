@@ -1,3 +1,8 @@
+import nourishmentBowl from '../assets/images/nourishment-bowl.svg';
+import lifestyleMeditation from '../assets/images/lifestyle-meditation.svg';
+import longevityForest from '../assets/images/longevity-forest.svg';
+import brandBotanical from '../assets/images/brand-botanical.svg';
+
 export const articles = [
   {
     id: 1,
@@ -9,7 +14,7 @@ export const articles = [
     author: "Dr. Elena Rostova",
     authorRole: "Integrative Botanist & Nutritionist",
     excerpt: "Discover how unrefined, nutrient-rich whole foods provide sustained biological stamina without the steep mid-afternoon energy slumps caused by processed sugars.",
-    image: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=1200&auto=format&fit=crop",
+    image: nourishmentBowl,
     featured: true,
     content: `
       <p class="lead text-xl text-[#1F4D3B] font-serif mb-6 leading-relaxed">Energy is not something we extract through artificial stimulants — it is the natural byproduct of cellular nourishment derived from unadulterated botanical life.</p>
@@ -43,7 +48,7 @@ export const articles = [
     author: "Julian Vance",
     authorRole: "Mindfulness Teacher & Author",
     excerpt: "Simple, intentional micro-rituals that anchor your consciousness in the present moment amidst a fast-paced world.",
-    image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1200&auto=format&fit=crop",
+    image: lifestyleMeditation,
     featured: false,
     content: `
       <p class="lead text-xl text-[#1F4D3B] font-serif mb-6 leading-relaxed">Mindfulness is often misunderstood as hours spent sitting in silent meditation. In truth, conscious living is woven into the brief spaces between your daily actions.</p>
@@ -68,7 +73,7 @@ export const articles = [
     author: "Dr. Marcus Thorne",
     authorRole: "Longevity Researcher",
     excerpt: "Exploring biological age indicators, sirtuin activation, and how natural living preserves cellular elasticity.",
-    image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1200&auto=format&fit=crop",
+    image: longevityForest,
     featured: false,
     content: `
       <p class="lead text-xl text-[#1F4D3B] font-serif mb-6 leading-relaxed">Human lifespan and healthspan are dictated far more by environmental epigenetics than static genetics. How we move, eat, sleep, and think directly influences cellular age.</p>
@@ -89,7 +94,7 @@ export const articles = [
     author: "Serena Lin",
     authorRole: "Holistic Wellness Coach",
     excerpt: "Cultivating intrinsic alignment, emotional clarity, and deep personal growth through daily reflection.",
-    image: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?q=80&w=1200&auto=format&fit=crop",
+    image: brandBotanical,
     featured: false,
     content: `
       <p class="lead text-xl text-[#1F4D3B] font-serif mb-6 leading-relaxed">Purpose is not a destination waiting to be discovered across the world — it is an internal lens through which you engage with everyday existence.</p>

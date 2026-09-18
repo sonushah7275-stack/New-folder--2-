@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextReveal } from '../common/TextReveal';
 import { Button } from '../common/Button';
+import brandBotanical from '../../assets/images/brand-botanical.svg';
 
 export const BrandIntro = () => {
   return (
@@ -48,7 +49,7 @@ export const BrandIntro = () => {
             <TextReveal delay={0.2}>
               <div className="relative rounded-t-full overflow-hidden shadow-xs border border-[#B87333]/30 aspect-[4/5] max-w-md mx-auto lg:max-w-none">
                 <img
-                  src="https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?q=80&w=1200&auto=format&fit=crop"
+                  src={brandBotanical}
                   alt="Botanical plant leaves representing natural vitality"
                   className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                 />

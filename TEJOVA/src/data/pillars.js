@@ -1,3 +1,13 @@
+import vitalityStudio from '../assets/images/vitality-studio.svg';
+import heroLandscape from '../assets/images/hero-landscape.svg';
+import nourishmentBowl from '../assets/images/nourishment-bowl.svg';
+import sunriseMountains from '../assets/images/sunrise-mountains.svg';
+import lifestyleMeditation from '../assets/images/lifestyle-meditation.svg';
+import brandBotanical from '../assets/images/brand-botanical.svg';
+import longevityForest from '../assets/images/longevity-forest.svg';
+import productVitalityTonic from '../assets/images/product-vitality-tonic.svg';
+import productEarthSerum from '../assets/images/product-earth-serum.svg';
+
 export const pillars = [
   {
     id: "vitality",
@@ -6,8 +16,8 @@ export const pillars = [
     subtitle: "Peak Physical & Biological Energy",
     description: "Feel more energized, focused and alive with nature's most powerful adaptogenic ingredients. Vitality isn't just about energy — it's about your whole self.",
     longDescription: "Our approach to Vitality restores physical endurance, bio-energetic alignment, and daily physical resilience. By leveraging adaptogenic botanicals, targeted movement practices, and natural restorative sleep, we empower you to reclaim your intrinsic natural power.",
-    image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1200&auto=format&fit=crop",
-    heroImage: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=1600&auto=format&fit=crop",
+    image: vitalityStudio,
+    heroImage: heroLandscape,
     slug: "vitality",
     link: "/vitality",
     highlights: [
@@ -28,8 +38,8 @@ export const pillars = [
     subtitle: "Conscious Food & Gut Wellbeing",
     description: "Whole foods, natural nutrition and conscious eating fuel your body, balance your mind and support long-term cellular health.",
     longDescription: "Nourishment is the art of honoring your body as an organic eco-system. We curate biodynamic, whole-food formulations and mindful nutritional philosophies designed to eliminate silent inflammation, heal the gut microbiome, and unlock innate radiance.",
-    image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=1200&auto=format&fit=crop",
-    heroImage: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=1600&auto=format&fit=crop",
+    image: nourishmentBowl,
+    heroImage: sunriseMountains,
     slug: "nourishment",
     link: "/nourishment",
     highlights: [
@@ -50,8 +60,8 @@ export const pillars = [
     subtitle: "Awareness, Growth & Human Potential",
     description: "Live with intention. Cultivate mindfulness, nurture your mind and unlock your human potential through a conscious lifestyle.",
     longDescription: "A conscious lifestyle translates inner clarity into outer action. Through daily grounding rituals, breathwork, digital minimalism, and intentional living spaces, TEJOVA guides you toward living in harmonious resonance with yourself and the world.",
-    image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1200&auto=format&fit=crop",
-    heroImage: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?q=80&w=1600&auto=format&fit=crop",
+    image: lifestyleMeditation,
+    heroImage: brandBotanical,
     slug: "lifestyle",
     link: "/lifestyle",
     highlights: [
@@ -72,8 +82,8 @@ export const pillars = [
     subtitle: "Cellular Renewal & Timeless Health",
     description: "Support your body, calm your mind and nurture your spirit for a longer, healthier, happier life.",
     longDescription: "Longevity at TEJOVA is not merely about extending years — it is about magnifying vitality, cognitive agility, and cellular integrity across every chapter of life. We fuse ancient restorative traditions with cutting-edge longevity science.",
-    image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1200&auto=format&fit=crop",
-    heroImage: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1600&auto=format&fit=crop",
+    image: longevityForest,
+    heroImage: sunriseMountains,
     slug: "longevity",
     link: "/longevity",
     highlights: [
@@ -94,8 +104,8 @@ export const pillars = [
     subtitle: "Pure, Potent Adaptogens & Botanicals",
     description: "Ethically harvested, scientifically backed whole-food formulations designed to support your daily wellness journey.",
     longDescription: "Our range of luxury botanical formulas is crafted in small batches using non-GMO, organic ingredients. Each formula is designed to integrate seamlessly into your morning, afternoon, and evening rituals.",
-    image: "https://images.unsplash.com/photo-1608248597261-e4d352740e2d?q=80&w=1200&auto=format&fit=crop",
-    heroImage: "https://images.unsplash.com/photo-1617897903246-719242758050?q=80&w=1600&auto=format&fit=crop",
+    image: productVitalityTonic,
+    heroImage: productEarthSerum,
     slug: "products",
     link: "/products",
     highlights: [

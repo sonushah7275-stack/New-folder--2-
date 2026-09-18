@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextReveal } from '../common/TextReveal';
 import { Button } from '../common/Button';
+import vitalityStudio from '../../assets/images/vitality-studio.svg';
 
 export const VitalitySection = () => {
   return (
@@ -14,7 +15,7 @@ export const VitalitySection = () => {
             <TextReveal>
               <div className="aspect-[16/10] overflow-hidden rounded-xs border border-[#B87333]/30 shadow-xs bg-[#FAF9F6]">
                 <img
-                  src="https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=1200&auto=format&fit=crop"
+                  src={vitalityStudio}
                   alt="Indoor yoga practice in a modern biological architecture studio with natural lighting"
                   className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                 />

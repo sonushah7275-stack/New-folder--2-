@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import brandBotanical from '../../assets/images/brand-botanical.svg';
 
 export const AuthLayout = ({ children, title, subtitle }) => {
   return (
@@ -11,7 +12,7 @@ export const AuthLayout = ({ children, title, subtitle }) => {
           {/* Background Nature Image */}
           <div className="absolute inset-0 z-0">
             <img
-              src="https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?q=80&w=1200&auto=format&fit=crop"
+              src={brandBotanical}
               alt="TEJOVA Nature Imagery"
               className="w-full h-full object-cover opacity-40 mix-blend-overlay"
             />

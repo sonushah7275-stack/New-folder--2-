@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <rect width="1200" height="800" fill="#F5F3EF"/>
+  <circle cx="600" cy="400" r="320" fill="#FAF9F6" stroke="#B87333" stroke-width="3" opacity="0.8"/>
+  <!-- Bowl Outer -->
+  <ellipse cx="600" cy="450" rx="240" ry="180" fill="#0A2342"/>
+  <ellipse cx="600" cy="430" rx="230" ry="150" fill="#B87333" opacity="0.3"/>
+  <!-- Botanical Food Elements -->
+  <circle cx="520" cy="400" r="50" fill="#3B6347"/>
+  <circle cx="600" cy="380" r="60" fill="#D4AF37"/>
+  <circle cx="670" cy="420" r="55" fill="#B87333"/>
+  <path d="M500,430 Q540,360 620,440" stroke="#FAF9F6" stroke-width="4" fill="none"/>
+  <circle cx="580" cy="460" r="8" fill="#D4AF37"/>
+  <circle cx="620" cy="470" r="6" fill="#FAF9F6"/>
+  <circle cx="640" cy="440" r="10" fill="#3B6347"/>
+</svg>

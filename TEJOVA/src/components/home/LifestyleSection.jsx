@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextReveal } from '../common/TextReveal';
 import { Button } from '../common/Button';
+import lifestyleMeditation from '../../assets/images/lifestyle-meditation.svg';
 
 export const LifestyleSection = () => {
   return (
@@ -14,7 +15,7 @@ export const LifestyleSection = () => {
             <TextReveal>
               <div className="aspect-[16/10] overflow-hidden rounded-xs border border-[#B87333]/30 shadow-xs">
                 <img
-                  src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1200&auto=format&fit=crop"
+                  src={lifestyleMeditation}
                   alt="Person practicing meditation at sunrise in nature"
                   className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                 />

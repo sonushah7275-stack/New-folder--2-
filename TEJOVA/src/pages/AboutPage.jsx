@@ -3,6 +3,7 @@ import { PageContainer } from '../components/layout/PageContainer';
 import { SectionHeading } from '../components/common/SectionHeading';
 import { Button } from '../components/common/Button';
 import { pillars } from '../data/pillars';
+import heroLandscape from '../assets/images/hero-landscape.svg';
 
 export const AboutPage = () => {
   return (
@@ -25,7 +26,7 @@ export const AboutPage = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 sm:mb-20">
         <div className="aspect-[21/9] rounded-xs overflow-hidden border border-[#B87333]/30 shadow-xs">
           <img
-            src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2000&auto=format&fit=crop"
+            src={heroLandscape}
             alt="Sunrise over pristine wilderness"
             className="w-full h-full object-cover"
           />

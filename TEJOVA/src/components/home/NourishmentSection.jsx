@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextReveal } from '../common/TextReveal';
 import { Button } from '../common/Button';
+import nourishmentBowl from '../../assets/images/nourishment-bowl.svg';
 
 export const NourishmentSection = () => {
   return (
@@ -44,7 +45,7 @@ export const NourishmentSection = () => {
             <TextReveal>
               <div className="aspect-[16/10] overflow-hidden rounded-xs border border-[#B87333]/30 shadow-xs">
                 <img
-                  src="https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=1200&auto=format&fit=crop"
+                  src={nourishmentBowl}
                   alt="Fresh organic whole food bowl symbolizing natural nourishment"
                   className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                 />
