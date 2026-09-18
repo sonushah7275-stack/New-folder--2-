@@ -11,7 +11,7 @@ const iconComponents = {
   People: PeopleIcon,
 };
 
-function MiniSparkline({ points = [], color = "#1F4D3B" }) {
+function MiniSparkline({ points = [], color = "#0A2342" }) {
   if (!points || points.length === 0) return null;
   const min = Math.min(...points);
   const max = Math.max(...points);
@@ -46,32 +46,32 @@ export default function StatCard({ stat }) {
   const IconComponent = iconComponents[icon] || TrendingUpIcon;
 
   return (
-    <div className="bg-white rounded-2xl p-4 md:p-5 border border-[#EBE6DC] shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+    <div className="bg-white rounded-2xl p-4 md:p-5 border border-[#B87333]/20 border-l-4 border-l-[#B87333] shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-[#EBF2EE] text-[#1F4D3B] flex items-center justify-center">
-            <IconComponent className="text-lg" />
+          <div className="w-9 h-9 rounded-full bg-[#0A2342]/10 text-[#0A2342] flex items-center justify-center">
+            <IconComponent className="text-lg text-[#0A2342]" />
           </div>
-          <span className="text-xs md:text-sm font-semibold text-[#687280]">
+          <span className="text-xs md:text-sm font-semibold text-gray-600">
             {title}
           </span>
         </div>
       </div>
 
       <div className="flex items-end justify-between mt-3 mb-2">
-        <h3 className="text-2xl md:text-[28px] font-bold text-[#1F1F1F] tracking-tight leading-none">
+        <h3 className="text-2xl md:text-[28px] font-bold text-[#0A2342] tracking-tight leading-none">
           {value}
         </h3>
         <div className="mb-1">
-          <MiniSparkline points={sparkline} color="#1F4D3B" />
+          <MiniSparkline points={sparkline} color="#B87333" />
         </div>
       </div>
 
       <div className="flex items-center gap-1.5 text-xs">
-        <span className="font-semibold text-[#1F4D3B] flex items-center">
+        <span className="font-semibold text-[#2D5A4A] flex items-center">
           ↑ {change}
         </span>
-        <span className="text-[#687280] font-normal">{comparison}</span>
+        <span className="text-gray-500 font-normal">{comparison}</span>
       </div>
     </div>
   );

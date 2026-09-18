@@ -30,116 +30,47 @@ const iconMap = {
 };
 
 const mainNavItems = [
-  {
-    name: "Dashboard",
-    icon: "Dashboard",
-    path: "/admin",
-  },
-  {
-    name: "Products",
-    icon: "Inventory2",
-    path: "/admin/products",
-  },
-  {
-    name: "Categories",
-    icon: "Category",
-    path: "/admin/categories",
-  },
-  {
-    name: "Orders",
-    icon: "ShoppingBag",
-    path: "/admin/orders",
-  },
-  {
-    name: "Customers",
-    icon: "People",
-    path: "/admin/customers",
-  },
-  {
-    name: "Journal",
-    icon: "MenuBook",
-    path: "/admin/journal",
-  },
-  {
-    name: "Pillars",
-    icon: "BarChart",
-    path: "/admin/pillars",
-  },
-  {
-    name: "Newsletter",
-    icon: "Mail",
-    path: "/admin/newsletter",
-  },
-  {
-    name: "Media",
-    icon: "PermMedia",
-    path: "/admin/media",
-  },
+  { name: "Dashboard", icon: "Dashboard", path: "/admin" },
+  { name: "Products", icon: "Inventory2", path: "/admin/products" },
+  { name: "Categories", icon: "Category", path: "/admin/categories" },
+  { name: "Orders", icon: "ShoppingBag", path: "/admin/orders" },
+  { name: "Customers", icon: "People", path: "/admin/customers" },
+  { name: "Journal", icon: "MenuBook", path: "/admin/journal" },
+  { name: "Pillars", icon: "BarChart", path: "/admin/pillars" },
+  { name: "Newsletter", icon: "Mail", path: "/admin/newsletter" },
+  { name: "Media", icon: "PermMedia", path: "/admin/media" },
 ];
 
 const secondaryNavItems = [
-  {
-    name: "Content",
-    icon: "EditNote",
-    path: "/admin/content",
-  },
-  {
-    name: "Settings",
-    icon: "Settings",
-    path: "/admin/settings",
-  },
+  { name: "Content", icon: "EditNote", path: "/admin/content" },
+  { name: "Settings", icon: "Settings", path: "/admin/settings" },
 ];
 
 export default function AdminSidebar({ onItemClick }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // ==========================================
-  // ACTIVE MENU
-  // ==========================================
   const isNavItemActive = (itemPath) => {
-    // Dashboard should only be active on /admin
     if (itemPath === "/admin") {
       return location.pathname === "/admin" || location.pathname === "/admin/";
     }
-
-    // Other menu items
     return (
       location.pathname === itemPath ||
       location.pathname.startsWith(`${itemPath}/`)
     );
   };
 
-  // ==========================================
-  // NAVIGATION CLICK
-  // ==========================================
   const handleItemClick = () => {
     if (onItemClick) {
       onItemClick();
     }
   };
 
-  // ==========================================
-  // LOGOUT
-  // ==========================================
   const handleLogout = () => {
-    // Remove authentication
-    localStorage.removeItem("jwt");
-    localStorage.removeItem("token");
-    localStorage.removeItem("sellerJwt");
-
-    // Close sidebar if mobile
-    if (onItemClick) {
-      onItemClick();
-    }
-
-    // Navigate to login page
-    navigate("/login", { replace: true });
+    if (onItemClick) onItemClick();
+    navigate("/admin", { replace: true });
   };
 
-  // ==========================================
-  // RENDER NAV ITEM
-  // ==========================================
   const renderNavItem = (item) => {
     const IconComponent = iconMap[item.icon];
     const active = isNavItemActive(item.path);
@@ -163,8 +94,8 @@ export default function AdminSidebar({ onItemClick }) {
           duration-150
           ${
             active
-              ? "bg-[#91B19D] text-[#143B2C] shadow-sm"
-              : "text-gray-200 hover:bg-[#285D49] hover:text-white"
+              ? "bg-[#B87333] text-[#FAF9F6] shadow-md font-semibold"
+              : "text-gray-300 hover:bg-[#B87333]/20 hover:text-[#FAF9F6]"
           }
         `}
       >
@@ -173,77 +104,59 @@ export default function AdminSidebar({ onItemClick }) {
             className={`
               text-[20px]
               transition-colors
-              ${
-                active
-                  ? "text-[#143B2C]"
-                  : "text-gray-300 group-hover:text-white"
-              }
+              ${active ? "text-[#FAF9F6]" : "text-gray-400 group-hover:text-[#FAF9F6]"}
             `}
           />
         )}
-
         <span>{item.name}</span>
       </Link>
     );
   };
 
   return (
-    <aside className="w-60 min-h-screen bg-[#1F4D3B] text-white flex flex-col justify-between select-none shadow-md">
-      {/* ==========================================
-          TOP SECTION
-      ========================================== */}
+    <aside className="w-60 min-h-screen bg-[#0A2342] text-[#FAF9F6] flex flex-col justify-between select-none shadow-xl border-r border-[#0A2342]">
+      {/* Top Branding & Nav */}
       <div>
-        {/* Branding */}
-        <div className="pt-4 pb-5 px-6 flex flex-col items-start border-b border-[#2C614D]">
-          <h1 className="text-xl font-serif tracking-[0.22em] font-semibold text-white">
+        <div className="pt-5 pb-5 px-6 flex flex-col items-start border-b border-white/10">
+          <h1 className="text-xl font-serif tracking-[0.22em] font-bold text-[#FAF9F6]">
             TEJOVA
           </h1>
-
-          <span className="text-[10px] tracking-[0.25em] font-semibold text-[#A2C2AE] uppercase mt-0.5">
+          <span className="text-[10px] tracking-[0.25em] font-semibold text-[#B87333] uppercase mt-0.5">
             ADMIN CONSOLE
           </span>
-
-          <span className="text-[9px] tracking-[0.18em] text-gray-300 uppercase font-light mt-2 pt-2 border-t border-[#2C614D] w-full">
+          <span className="text-[9px] tracking-[0.18em] text-gray-400 uppercase font-light mt-2 pt-2 border-t border-white/10 w-full">
             EXPAND YOUR LIGHT
           </span>
         </div>
 
-        {/* Navigation */}
         <nav className="p-3 space-y-1">
           {mainNavItems.map(renderNavItem)}
 
-          <div className="my-3 border-t border-[#2C614D] mx-2" />
+          <div className="my-3 border-t border-white/10 mx-2" />
 
           {secondaryNavItems.map(renderNavItem)}
         </nav>
       </div>
 
-      {/* ==========================================
-          BOTTOM SECTION
-      ========================================== */}
-      <div className="p-3 border-t border-[#2C614D] space-y-2">
-        {/* Admin Profile */}
-        <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-[#183E30] border border-[#275947]">
+      {/* Profile & Logout */}
+      <div className="p-3 border-t border-white/10 space-y-2 bg-[#081B33]">
+        <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/5 border border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#8CAAA0] text-[#143B2C] flex items-center justify-center font-bold text-sm shadow-sm">
+            <div className="w-8 h-8 rounded-full bg-[#B87333] text-[#FAF9F6] flex items-center justify-center font-bold text-sm shadow-sm">
               A
             </div>
-
             <div className="flex flex-col">
-              <span className="text-xs font-semibold text-white leading-tight">
+              <span className="text-xs font-semibold text-[#FAF9F6] leading-tight">
                 Admin
               </span>
-
-              <span className="text-[10px] text-gray-300 leading-tight">
+              <span className="text-[10px] text-gray-400 leading-tight">
                 Administrator
               </span>
             </div>
           </div>
-
-          <KeyboardArrowDownIcon className="text-gray-300 text-sm cursor-pointer hover:text-white" />
+          <KeyboardArrowDownIcon className="text-gray-400 text-sm" />
         </div>
 
-        {/* Logout */}
         <button
           type="button"
           onClick={handleLogout}
@@ -256,15 +169,14 @@ export default function AdminSidebar({ onItemClick }) {
             py-2
             rounded-lg
             text-sm
-            text-gray-200
-            hover:bg-[#285D49]
-            hover:text-white
+            text-gray-300
+            hover:bg-[#B87333]/20
+            hover:text-[#FAF9F6]
             transition-colors
             cursor-pointer
           "
         >
-          <LogoutIcon className="text-[18px] text-gray-300" />
-
+          <LogoutIcon className="text-[18px] text-gray-400" />
           <span>Logout</span>
         </button>
       </div>
