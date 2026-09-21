@@ -1,21 +1,45 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Check, Mail, MapPin, Clock } from 'lucide-react';
-import { InstagramIcon, FacebookIcon, YoutubeIcon, LinkedinIcon } from '../common/SocialIcons';
-import { footerColumns } from '../../data/navigation';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { ArrowRight, Check, Mail, MapPin, Clock } from "lucide-react";
+import { InstagramIcon, FacebookIcon, YoutubeIcon, LinkedinIcon } from "../common/SocialIcons";
+import { footerColumns } from "../../data/navigation";
+import { subscribeNewsletter, clearNewsletterStatus } from "../../Redux/slices/newsletterSlice";
+import { fetchPublicSettings } from "../../Redux/slices/settingsSlice";
 
 export const Footer = () => {
-  const [email, setEmail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
+  const dispatch = useDispatch();
+  const { loading: newsletterLoading, successMessage, error: newsletterError } = useSelector((state) => state.newsletter);
+  const { publicSettings } = useSelector((state) => state.settings);
+
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    dispatch(fetchPublicSettings());
+  }, [dispatch]);
 
   const handleSubscribe = (e) => {
     e.preventDefault();
-    if (email.trim()) {
-      setSubscribed(true);
-      setEmail('');
-      setTimeout(() => setSubscribed(false), 4000);
+    if (email.trim() && !newsletterLoading) {
+      dispatch(subscribeNewsletter(email.trim()));
+      setEmail("");
     }
   };
+
+  useEffect(() => {
+    if (successMessage || newsletterError) {
+      const timer = setTimeout(() => {
+        dispatch(clearNewsletterStatus());
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage, newsletterError, dispatch]);
+
+  const supportEmail = publicSettings?.supportEmail || "care@tejova.com";
+  const address = publicSettings?.address || "San Francisco, CA • Zurich, Switzerland";
+  const hours = publicSettings?.businessHours?.mondayToFriday
+    ? `Mon – Fri: ${publicSettings.businessHours.mondayToFriday}`
+    : "Mon – Fri: 9:00 AM – 6:00 PM EST";
 
   return (
     <footer className="bg-[#0A2342] text-[#FAF9F6] pt-16 pb-12 border-t border-[#B87333]/30">
@@ -41,30 +65,40 @@ export const Footer = () => {
             />
             <button
               type="submit"
-              className="w-full sm:w-auto px-6 py-3 bg-[#D4AF37] text-[#0A2342] font-medium text-sm hover:bg-[#B87333] hover:text-[#0A2342] transition-colors flex items-center justify-center gap-2 rounded-xs whitespace-nowrap cursor-pointer"
+              disabled={newsletterLoading}
+              className="w-full sm:w-auto px-6 py-3 bg-[#D4AF37] text-[#0A2342] font-medium text-sm hover:bg-[#B87333] hover:text-[#0A2342] transition-colors flex items-center justify-center gap-2 rounded-xs whitespace-nowrap cursor-pointer disabled:opacity-50"
             >
-              {subscribed ? (
+              {successMessage ? (
                 <>
                   <Check className="w-4 h-4 text-[#0A2342]" /> Subscribed
                 </>
               ) : (
                 <>
-                  Subscribe <ArrowRight className="w-4 h-4" />
+                  {newsletterLoading ? "Subscribing..." : "Subscribe"} <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
+
+          {newsletterError && (
+            <p className="text-xs text-red-400 mt-2 font-medium">⚠️ {newsletterError}</p>
+          )}
+
+          {successMessage && (
+            <p className="text-xs text-emerald-400 mt-2 font-medium">✨ {successMessage}</p>
+          )}
         </div>
 
         {/* Middle Section: Brand, Navigation & Contact */}
         <div className="py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12">
-          
-          {/* Brand Col (4 Cols on lg) */}
+          {/* Brand Col */}
           <div className="lg:col-span-4 space-y-4">
             <Link to="/" className="inline-block focus:outline-none">
-              <span className="font-serif text-3xl tracking-widest uppercase block text-[#FAF9F6]">TEJOVA</span>
+              <span className="font-serif text-3xl tracking-widest uppercase block text-[#FAF9F6]">
+                {publicSettings?.siteName || "TEJOVA"}
+              </span>
               <span className="text-xs tracking-[0.25em] text-[#B87333] uppercase block font-light -mt-1">
-                Expand Your Light
+                {publicSettings?.tagline || "Expand Your Light"}
               </span>
             </Link>
             <p className="text-sm text-[#FAF9F6]/80 font-light leading-relaxed max-w-sm pt-2">
@@ -72,7 +106,7 @@ export const Footer = () => {
             </p>
           </div>
 
-          {/* Navigation Columns (5 Cols total on lg: 3 columns x 1.66) */}
+          {/* Navigation Columns */}
           <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8">
             {footerColumns.map((col) => (
               <div key={col.title} className="space-y-4">
@@ -95,7 +129,7 @@ export const Footer = () => {
             ))}
           </div>
 
-          {/* Contact Col (3 Cols on lg) */}
+          {/* Contact Col */}
           <div className="lg:col-span-3 space-y-4">
             <h4 className="text-xs uppercase tracking-widest font-semibold text-[#B87333]">
               Client Care
@@ -103,43 +137,43 @@ export const Footer = () => {
             <ul className="space-y-3 text-sm text-[#FAF9F6]/80 font-light">
               <li className="flex items-center space-x-2.5">
                 <Mail className="w-4 h-4 text-[#B87333] shrink-0" />
-                <a href="mailto:care@tejova.com" className="hover:text-[#D4AF37] transition-colors">care@tejova.com</a>
+                <a href={`mailto:${supportEmail}`} className="hover:text-[#D4AF37] transition-colors">
+                  {supportEmail}
+                </a>
               </li>
               <li className="flex items-start space-x-2.5">
                 <MapPin className="w-4 h-4 text-[#B87333] shrink-0 mt-0.5" />
-                <span>San Francisco, CA • Zurich, Switzerland</span>
+                <span>{address}</span>
               </li>
               <li className="flex items-start space-x-2.5">
                 <Clock className="w-4 h-4 text-[#B87333] shrink-0 mt-0.5" />
-                <span>Mon – Fri: 9:00 AM – 6:00 PM EST</span>
+                <span>{hours}</span>
               </li>
             </ul>
           </div>
-
         </div>
 
         {/* Bottom Section: Copyright & Social Links */}
         <div className="pt-8 border-t border-[#B87333]/30 flex flex-col sm:flex-row items-center justify-between text-sm text-[#FAF9F6]/60 space-y-4 sm:space-y-0">
           <div>
-            &copy; {new Date().getFullYear()} TEJOVA. All rights reserved.
+            &copy; {new Date().getFullYear()} {publicSettings?.siteName || "TEJOVA"}. All rights reserved.
           </div>
 
           <div className="flex items-center space-x-6">
-            <a href="#" aria-label="Instagram" className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors">
+            <a href={publicSettings?.socialLinks?.instagram || "#"} aria-label="Instagram" className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors">
               <InstagramIcon className="w-4 h-4" />
             </a>
-            <a href="#" aria-label="Facebook" className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors">
+            <a href={publicSettings?.socialLinks?.facebook || "#"} aria-label="Facebook" className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors">
               <FacebookIcon className="w-4 h-4" />
             </a>
-            <a href="#" aria-label="Youtube" className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors">
+            <a href={publicSettings?.socialLinks?.twitter || "#"} aria-label="Twitter" className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors">
               <YoutubeIcon className="w-4 h-4" />
             </a>
-            <a href="#" aria-label="LinkedIn" className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors">
+            <a href={publicSettings?.socialLinks?.pinterest || "#"} aria-label="Pinterest" className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors">
               <LinkedinIcon className="w-4 h-4" />
             </a>
           </div>
         </div>
-
       </div>
     </footer>
   );

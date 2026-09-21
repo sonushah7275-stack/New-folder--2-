@@ -1,17 +1,34 @@
-import React, { useState } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { PageContainer } from '../components/layout/PageContainer';
-import { SectionHeading } from '../components/common/SectionHeading';
-import { Button } from '../components/common/Button';
-import { Mail, Phone, MapPin, CheckCircle, Clock } from 'lucide-react';
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import { PageContainer } from "../components/layout/PageContainer";
+import { SectionHeading } from "../components/common/SectionHeading";
+import { Button } from "../components/common/Button";
+import { Mail, Phone, MapPin, CheckCircle, Clock } from "lucide-react";
+import { submitContactMessage, clearContactStatus } from "../Redux/slices/contactSlice";
+import { fetchPublicSettings } from "../Redux/slices/settingsSlice";
 
 export const ContactPage = () => {
-  const [submitted, setSubmitted] = useState(false);
+  const dispatch = useDispatch();
+  const { loading: contactLoading, successMessage, error: contactError } = useSelector(
+    (state) => state.contact
+  );
+  const { publicSettings } = useSelector((state) => state.settings);
+
+  useEffect(() => {
+    dispatch(fetchPublicSettings());
+  }, [dispatch]);
+
+  const supportEmail = publicSettings?.supportEmail || "care@tejova.com";
+  const contactPhone = publicSettings?.contactPhone || "+1 (800) 555-TEJOVA";
+  const address = publicSettings?.address || "San Francisco, CA • Zurich, Switzerland";
+  const hours = publicSettings?.businessHours?.mondayToFriday
+    ? `Mon – Fri: ${publicSettings.businessHours.mondayToFriday}`
+    : "Mon – Fri: 9:00 AM – 6:00 PM EST";
 
   return (
     <PageContainer>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-14">
-        
         <SectionHeading
           subtitle="Get in Touch"
           title="Contact TEJOVA"
@@ -19,7 +36,6 @@ export const ContactPage = () => {
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
-          
           {/* Contact Information Cards */}
           <div className="lg:col-span-5 space-y-6">
             <div className="bg-[#FAF9F6] p-7 sm:p-8 rounded-xs border-l-4 border-l-[#B87333] border-y border-r border-[#B87333]/20 space-y-6 shadow-xs">
@@ -31,19 +47,21 @@ export const ContactPage = () => {
               <div className="space-y-4 pt-2 text-sm text-[#0A2342]">
                 <div className="flex items-center space-x-3">
                   <Mail className="w-5 h-5 text-[#B87333] shrink-0" />
-                  <span>care@tejova.com</span>
+                  <a href={`mailto:${supportEmail}`} className="hover:text-[#B87333]">
+                    {supportEmail}
+                  </a>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="w-5 h-5 text-[#B87333] shrink-0" />
-                  <span>+1 (800) 555-TEJOVA</span>
+                  <span>{contactPhone}</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <MapPin className="w-5 h-5 text-[#B87333] shrink-0" />
-                  <span>San Francisco, CA • Zurich, Switzerland</span>
+                  <span>{address}</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Clock className="w-5 h-5 text-[#B87333] shrink-0" />
-                  <span>Mon – Fri: 9:00 AM – 6:00 PM EST</span>
+                  <span>{hours}</span>
                 </div>
               </div>
             </div>
@@ -59,48 +77,52 @@ export const ContactPage = () => {
 
           {/* Formik Contact Form */}
           <div className="lg:col-span-7 bg-[#FAF9F6] p-7 sm:p-10 md:p-12 rounded-xs border border-[#B87333]/30 shadow-xs">
-            {submitted ? (
+            {successMessage ? (
               <div className="py-12 text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-[#0A2342]/10 text-[#0A2342] flex items-center justify-center mx-auto">
                   <CheckCircle className="w-8 h-8 text-[#B87333]" />
                 </div>
                 <h3 className="font-serif text-3xl text-[#0A2342]">Thank You for Reaching Out</h3>
                 <p className="text-sm text-[#0A2342]/75 font-light max-w-md mx-auto leading-relaxed">
-                  We have received your message. A member of our TEJOVA wellness care team will respond to your email within 24 hours.
+                  {successMessage}
                 </p>
                 <div className="pt-4">
-                  <Button variant="secondary" onClick={() => setSubmitted(false)}>
+                  <Button variant="secondary" onClick={() => dispatch(clearContactStatus())}>
                     Send Another Message
                   </Button>
                 </div>
               </div>
             ) : (
               <Formik
-                initialValues={{ name: '', email: '', subject: '', message: '' }}
+                initialValues={{ name: "", email: "", subject: "", message: "" }}
                 validate={(values) => {
                   const errors = {};
-                  if (!values.name) errors.name = 'Full name is required';
+                  if (!values.name) errors.name = "Full name is required";
                   if (!values.email) {
-                    errors.email = 'Email address is required';
+                    errors.email = "Email address is required";
                   } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
-                    errors.email = 'Invalid email address';
+                    errors.email = "Invalid email address";
                   }
-                  if (!values.message) errors.message = 'Message content is required';
+                  if (!values.message) errors.message = "Message content is required";
                   return errors;
                 }}
                 onSubmit={(values, { setSubmitting }) => {
-                  setTimeout(() => {
-                    setSubmitted(true);
+                  dispatch(submitContactMessage(values)).then(() => {
                     setSubmitting(false);
-                  }, 400);
+                  });
                 }}
               >
                 {({ isSubmitting }) => (
                   <Form className="space-y-6">
                     <h3 className="font-serif text-2xl text-[#0A2342] mb-2">Send Us a Message</h3>
 
+                    {contactError && (
+                      <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-xl">
+                        ⚠️ {contactError}
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      {/* Name */}
                       <div>
                         <label className="block text-xs font-semibold uppercase tracking-wider text-[#0A2342] mb-2">
                           Your Full Name *
@@ -114,7 +136,6 @@ export const ContactPage = () => {
                         <ErrorMessage name="name" component="div" className="text-xs text-red-600 mt-1 font-light" />
                       </div>
 
-                      {/* Email */}
                       <div>
                         <label className="block text-xs font-semibold uppercase tracking-wider text-[#0A2342] mb-2">
                           Email Address *
@@ -129,7 +150,6 @@ export const ContactPage = () => {
                       </div>
                     </div>
 
-                    {/* Subject */}
                     <div>
                       <label className="block text-xs font-semibold uppercase tracking-wider text-[#0A2342] mb-2">
                         Subject
@@ -142,7 +162,6 @@ export const ContactPage = () => {
                       />
                     </div>
 
-                    {/* Message */}
                     <div>
                       <label className="block text-xs font-semibold uppercase tracking-wider text-[#0A2342] mb-2">
                         Message *
@@ -157,17 +176,15 @@ export const ContactPage = () => {
                       <ErrorMessage name="message" component="div" className="text-xs text-red-600 mt-1 font-light" />
                     </div>
 
-                    <Button type="submit" variant="primary" size="lg" disabled={isSubmitting} className="w-full text-center">
-                      {isSubmitting ? 'Sending...' : 'Send Message'}
+                    <Button type="submit" variant="primary" size="lg" disabled={isSubmitting || contactLoading} className="w-full text-center">
+                      {isSubmitting || contactLoading ? "Sending..." : "Send Message"}
                     </Button>
                   </Form>
                 )}
               </Formik>
             )}
           </div>
-
         </div>
-
       </div>
     </PageContainer>
   );

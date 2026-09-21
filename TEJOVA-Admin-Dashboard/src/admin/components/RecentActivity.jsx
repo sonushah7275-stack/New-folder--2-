@@ -14,7 +14,9 @@ const activityIconMap = {
   journal: MenuBookIcon,
 };
 
-export default function RecentActivity() {
+export default function RecentActivity({ activities = recentActivity }) {
+  const displayActivities = activities || [];
+
   return (
     <div className="bg-white rounded-2xl p-5 md:p-6 border border-[#B87333]/20 shadow-sm flex flex-col justify-between h-full">
       <div className="flex items-center justify-between mb-5">
@@ -32,7 +34,12 @@ export default function RecentActivity() {
       <div className="relative pl-3 pr-1 py-1 space-y-6">
         <div className="absolute left-[27px] top-4 bottom-6 w-0.5 bg-[#B87333]/20 -z-0" />
 
-        {recentActivity.map((item) => {
+        {displayActivities.length === 0 ? (
+          <p className="text-xs text-gray-500 py-4 text-center font-medium">
+            No recent system activities logged.
+          </p>
+        ) : (
+          displayActivities.map((item) => {
           const IconComponent = activityIconMap[item.type] || Inventory2Icon;
           return (
             <div key={item.id} className="relative z-10 flex items-start gap-4 group">
@@ -53,7 +60,8 @@ export default function RecentActivity() {
               </div>
             </div>
           );
-        })}
+        })
+        )}
       </div>
     </div>
   );

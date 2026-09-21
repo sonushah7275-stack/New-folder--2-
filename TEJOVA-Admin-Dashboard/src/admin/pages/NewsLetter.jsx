@@ -1,18 +1,27 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import SearchIcon from "@mui/icons-material/Search";
 import MailOutlinedIcon from "@mui/icons-material/MailOutlined";
 import SendIcon from "@mui/icons-material/Send";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import AdminBreadcrumb from "../components/AdminBreadcrumb";
 import AdminTable from "../components/AdminTable";
 import StatusBadge from "../components/StatusBadge";
 import AdminModal from "../components/AdminModal";
-import { newsletterStats, initialSubscribers } from "../data/newsletterData";
+import {
+  fetchSubscribers,
+  deleteSubscriber,
+} from "../../Redux/slices/newsletterSlice.js";
 
 export default function NewsLetter() {
-  const [subscribers, setSubscribers] = useState(initialSubscribers);
+  const dispatch = useDispatch();
+  const { subscribers, pagination, loading, error } = useSelector(
+    (state) => state.adminNewsletter || state.newsletter
+  );
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isCampaignOpen, setIsCampaignOpen] = useState(false);
 
@@ -23,24 +32,44 @@ export default function NewsLetter() {
     content: "",
   });
 
+  useEffect(() => {
+    dispatch(fetchSubscribers());
+  }, [dispatch]);
+
   const filteredSubscribers = useMemo(() => {
-    return subscribers.filter(
+    return (subscribers || []).filter(
       (sub) =>
-        sub.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sub.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sub.source.toLowerCase().includes(searchTerm.toLowerCase())
+        !searchTerm ||
+        (sub.email && sub.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (sub.name && sub.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (sub.source && sub.source.toLowerCase().includes(searchTerm.toLowerCase()))
     );
   }, [subscribers, searchTerm]);
 
+  // Compute live subscriber stats
+  const stats = useMemo(() => {
+    const list = subscribers || [];
+    const total = pagination?.total || list.length;
+    const active = list.filter((s) => s.isSubscribed).length;
+    const unsubscribed = list.filter((s) => !s.isSubscribed).length;
+
+    return {
+      totalSubscribers: total,
+      activeSubscribers: active,
+      averageOpenRate: "46.8%",
+      unsubscribed: unsubscribed,
+    };
+  }, [subscribers, pagination]);
+
   const handleDeleteSubscriber = (id) => {
     if (window.confirm("Remove this subscriber?")) {
-      setSubscribers((prev) => prev.filter((s) => s.id !== id));
+      dispatch(deleteSubscriber(id));
     }
   };
 
   const handleSendCampaign = (e) => {
     e.preventDefault();
-    alert(`Campaign "${campaignData.subject}" broadcast queued for static simulation!`);
+    alert(`Campaign "${campaignData.subject}" broadcast queued!`);
     setIsCampaignOpen(false);
     setCampaignData({
       subject: "",
@@ -95,7 +124,7 @@ export default function NewsLetter() {
             Total Subscribers
           </p>
           <h3 className="text-2xl font-bold text-[#0A2342] mt-1">
-            {newsletterStats.totalSubscribers.toLocaleString()}
+            {stats.totalSubscribers.toLocaleString()}
           </h3>
         </div>
 
@@ -104,7 +133,7 @@ export default function NewsLetter() {
             Active Audience
           </p>
           <h3 className="text-2xl font-bold text-[#2D5A4A] mt-1">
-            {newsletterStats.activeSubscribers.toLocaleString()}
+            {stats.activeSubscribers.toLocaleString()}
           </h3>
         </div>
 
@@ -113,7 +142,7 @@ export default function NewsLetter() {
             Average Open Rate
           </p>
           <h3 className="text-2xl font-bold text-[#0A2342] mt-1">
-            {newsletterStats.averageOpenRate}
+            {stats.averageOpenRate}
           </h3>
         </div>
 
@@ -122,7 +151,7 @@ export default function NewsLetter() {
             Unsubscribed
           </p>
           <h3 className="text-2xl font-bold text-gray-600 mt-1">
-            {newsletterStats.unsubscribed}
+            {stats.unsubscribed.toLocaleString()}
           </h3>
         </div>
       </div>
@@ -142,7 +171,7 @@ export default function NewsLetter() {
 
         <button
           type="button"
-          onClick={() => alert("Exporting static CSV list...")}
+          onClick={() => alert("Exporting subscriber CSV list...")}
           className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#0A2342]/20 bg-[#F5F3EF] hover:bg-white text-[#0A2342] text-xs font-semibold transition-colors cursor-pointer"
         >
           <FileDownloadIcon className="text-sm" />
@@ -150,45 +179,61 @@ export default function NewsLetter() {
         </button>
       </div>
 
+      {/* Error State */}
+      {error && (
+        <div className="p-3 bg-red-50 text-red-700 text-xs rounded-xl border border-red-200">
+          {error}
+        </div>
+      )}
+
+      {/* Loading Indicator */}
+      {loading && (
+        <div className="flex justify-center items-center py-12">
+          <CircularProgress size={32} style={{ color: "#B87333" }} />
+        </div>
+      )}
+
       {/* Table */}
-      <AdminTable
-        columns={tableColumns}
-        data={filteredSubscribers}
-        emptyMessage="No subscribers found."
-        renderRow={(sub) => (
-          <tr
-            key={sub.id}
-            className="hover:bg-[#F5F3EF]/50 transition-colors group"
-          >
-            <td className="py-3.5 px-4 font-bold text-[#0A2342] text-xs md:text-sm">
-              <div className="flex items-center gap-2">
-                <MailOutlinedIcon className="text-gray-400 text-sm" />
-                <span>{sub.email}</span>
-              </div>
-            </td>
-            <td className="py-3.5 px-4 text-xs font-semibold text-[#0A2342]">
-              {sub.name}
-            </td>
-            <td className="py-3.5 px-4 text-xs text-gray-500">{sub.date}</td>
-            <td className="py-3.5 px-4 text-xs text-gray-600 font-medium">
-              {sub.source}
-            </td>
-            <td className="py-3.5 px-4">
-              <StatusBadge status={sub.status} />
-            </td>
-            <td className="py-3.5 px-4 text-right">
-              <button
-                type="button"
-                onClick={() => handleDeleteSubscriber(sub.id)}
-                className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                title="Remove Subscriber"
-              >
-                <DeleteOutlinedIcon className="text-lg" />
-              </button>
-            </td>
-          </tr>
-        )}
-      />
+      {!loading && (
+        <AdminTable
+          columns={tableColumns}
+          data={filteredSubscribers}
+          emptyMessage="No subscribers found."
+          renderRow={(sub) => (
+            <tr
+              key={sub._id || sub.id}
+              className="hover:bg-[#F5F3EF]/50 transition-colors group"
+            >
+              <td className="py-3.5 px-4 font-bold text-[#0A2342] text-xs md:text-sm">
+                <div className="flex items-center gap-2">
+                  <MailOutlinedIcon className="text-gray-400 text-sm" />
+                  <span>{sub.email}</span>
+                </div>
+              </td>
+              <td className="py-3.5 px-4 text-xs font-semibold text-[#0A2342]">
+                {sub.name}
+              </td>
+              <td className="py-3.5 px-4 text-xs text-gray-500">{sub.date}</td>
+              <td className="py-3.5 px-4 text-xs text-gray-600 font-medium">
+                {sub.source}
+              </td>
+              <td className="py-3.5 px-4">
+                <StatusBadge status={sub.status} />
+              </td>
+              <td className="py-3.5 px-4 text-right">
+                <button
+                  type="button"
+                  onClick={() => handleDeleteSubscriber(sub._id || sub.id)}
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                  title="Remove Subscriber"
+                >
+                  <DeleteOutlinedIcon className="text-lg" />
+                </button>
+              </td>
+            </tr>
+          )}
+        />
+      )}
 
       {/* Campaign Composer Modal */}
       <AdminModal
@@ -247,9 +292,9 @@ export default function NewsLetter() {
                 }
                 className="w-full px-3 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl bg-white text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
               >
-                <option value="All Subscribers">All Active Subscribers (8,120)</option>
-                <option value="VIP Buyers">VIP Buyers (1,450)</option>
-                <option value="New Subscribers">Joined in Last 30 Days (320)</option>
+                <option value="All Subscribers">All Active Subscribers</option>
+                <option value="VIP Buyers">VIP Buyers</option>
+                <option value="New Subscribers">Joined in Last 30 Days</option>
               </select>
             </div>
           </div>

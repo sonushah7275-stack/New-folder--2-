@@ -1,21 +1,62 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { PageContainer } from "../components/layout/PageContainer";
-import { pillars } from "../data/pillars";
-import { products } from "../data/products";
-import { articles } from "../data/articles";
+import { pillars as staticPillars } from "../data/pillars";
+import { products as staticProducts } from "../data/products";
+import { articles as staticArticles } from "../data/articles";
 import { SectionHeading } from "../components/common/SectionHeading";
 import { ProductGrid } from "../components/products/ProductGrid";
 import { ArticleGrid } from "../components/journal/ArticleGrid";
 import { TextReveal } from "../components/common/TextReveal";
 import { Button } from "../components/common/Button";
 import { Heart, Sparkles, Utensils } from "lucide-react";
+import { fetchPillars } from "../Redux/slices/pillarSlice";
+import { fetchProducts } from "../Redux/slices/productSlice";
+import { fetchArticles } from "../Redux/slices/journalSlice";
 
 export const NourishmentPage = () => {
-  const nourishData = pillars.find((p) => p.id === "nourishment");
-  const relatedProducts = products.filter(
-    (p) => p.category === "Nourishment" || p.slug === "earth-ritual-serum",
+  const dispatch = useDispatch();
+  const { pillars: apiPillars } = useSelector((state) => state.pillar);
+  const { products: apiProducts } = useSelector((state) => state.product);
+  const { articles: apiArticles } = useSelector((state) => state.journal);
+
+  useEffect(() => {
+    dispatch(fetchPillars());
+    dispatch(fetchProducts());
+    dispatch(fetchArticles());
+  }, [dispatch]);
+
+  const dbPillar = apiPillars.find(
+    (p) => p.slug === "nourishment" || p.name?.toLowerCase() === "nourishment"
   );
-  const relatedArticles = articles.filter((a) => a.category === "Nourishment");
+  const fallbackPillar = staticPillars.find((p) => p.id === "nourishment") || staticPillars[1];
+
+  const nourishData = {
+    ...fallbackPillar,
+    longDescription: dbPillar?.description || fallbackPillar.longDescription,
+  };
+
+  const relatedProducts =
+    apiProducts && apiProducts.length > 0
+      ? apiProducts.map((p) => ({
+          ...p,
+          id: p._id || p.id,
+          image: p.image || (p.images && p.images[0]?.url ? p.images[0].url : p.images?.[0]) || "/assets/images/product-earth-serum.svg",
+          category: typeof p.category === "object" ? p.category?.name : p.category || "Nourishment",
+        })).slice(0, 2)
+      : staticProducts.filter(
+          (p) => p.category === "Nourishment" || p.slug === "earth-ritual-serum"
+        );
+
+  const relatedArticles =
+    apiArticles && apiArticles.length > 0
+      ? apiArticles.map((a) => ({
+          ...a,
+          id: a._id || a.id,
+          category: a.category || a.tags?.[0] || "Nourishment",
+          image: a.image || a.featuredImage || "/assets/images/nourishment-bowl.svg",
+        })).slice(0, 2)
+      : staticArticles.filter((a) => a.category === "Nourishment").slice(0, 2);
 
   return (
     <PageContainer>

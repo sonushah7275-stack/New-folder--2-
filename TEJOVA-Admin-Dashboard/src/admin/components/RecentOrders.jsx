@@ -5,7 +5,9 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import StatusBadge from "./StatusBadge";
 import { recentOrders } from "../data/dashboardData";
 
-export default function RecentOrders() {
+export default function RecentOrders({ orders = recentOrders }) {
+  const displayOrders = orders || [];
+
   return (
     <div className="bg-white rounded-2xl p-5 md:p-6 border border-[#B87333]/20 shadow-sm">
       <div className="flex items-center justify-between mb-5">
@@ -35,7 +37,14 @@ export default function RecentOrders() {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#F5F3EF] text-xs md:text-sm">
-            {recentOrders.map((order) => (
+            {displayOrders.length === 0 ? (
+              <tr>
+                <td colSpan="8" className="py-6 text-center text-gray-500 font-medium">
+                  No recent orders found.
+                </td>
+              </tr>
+            ) : (
+              displayOrders.map((order) => (
               <tr
                 key={order.id}
                 className="hover:bg-[#F5F3EF]/50 transition-colors group"
@@ -75,7 +84,8 @@ export default function RecentOrders() {
                   </div>
                 </td>
               </tr>
-            ))}
+            ))
+            )}
           </tbody>
         </table>
       </div>

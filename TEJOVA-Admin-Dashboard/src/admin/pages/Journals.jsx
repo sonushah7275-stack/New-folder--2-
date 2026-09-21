@@ -1,17 +1,28 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import AdminBreadcrumb from "../components/AdminBreadcrumb";
 import AdminTable from "../components/AdminTable";
 import StatusBadge from "../components/StatusBadge";
 import AdminModal from "../components/AdminModal";
-import { initialJournalArticles } from "../data/journalData";
+import {
+  fetchJournals,
+  createJournal,
+  updateJournal,
+  deleteJournal,
+} from "../../Redux/slices/journalSlice.js";
 
 export default function Journals() {
-  const [articles, setArticles] = useState(initialJournalArticles);
+  const dispatch = useDispatch();
+  const { articles, loading, mutationLoading, error } = useSelector(
+    (state) => state.adminJournal || state.journal
+  );
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
 
@@ -22,21 +33,26 @@ export default function Journals() {
     title: "",
     slug: "",
     category: "Mindfulness",
-    author: "Dr. Maya Lin",
+    author: "Editorial Team",
     excerpt: "",
     content: "",
     status: "Draft",
     coverImage: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80",
   });
 
+  useEffect(() => {
+    dispatch(fetchJournals());
+  }, [dispatch]);
+
   const filteredArticles = useMemo(() => {
-    return articles.filter((art) => {
+    return (articles || []).filter((art) => {
       const matchesStatus =
         selectedStatus === "All" || art.status === selectedStatus;
       const matchesSearch =
-        art.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        art.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        art.author.toLowerCase().includes(searchTerm.toLowerCase());
+        !searchTerm ||
+        (art.title && art.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (art.category && art.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (art.author && art.author.toLowerCase().includes(searchTerm.toLowerCase()));
 
       return matchesStatus && matchesSearch;
     });
@@ -46,14 +62,14 @@ export default function Journals() {
     if (article) {
       setEditingArticle(article);
       setFormData({
-        title: article.title,
-        slug: article.slug,
-        category: article.category,
-        author: article.author,
+        title: article.title || "",
+        slug: article.slug || "",
+        category: article.category || "Mindfulness",
+        author: article.author || "Editorial Team",
         excerpt: article.excerpt || "",
         content: article.content || "",
-        status: article.status,
-        coverImage: article.coverImage,
+        status: article.status || "Draft",
+        coverImage: article.coverImage || "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80",
       });
     } else {
       setEditingArticle(null);
@@ -61,7 +77,7 @@ export default function Journals() {
         title: "",
         slug: "",
         category: "Mindfulness",
-        author: "Dr. Maya Lin",
+        author: "Editorial Team",
         excerpt: "",
         content: "",
         status: "Draft",
@@ -77,31 +93,27 @@ export default function Journals() {
     const finalStatus = targetStatus || formData.status;
     const slug = formData.slug || formData.title.toLowerCase().replace(/\s+/g, "-");
 
+    const payload = {
+      ...formData,
+      slug,
+      status: finalStatus,
+    };
+
     if (editingArticle) {
-      setArticles((prev) =>
-        prev.map((a) =>
-          a.id === editingArticle.id
-            ? { ...a, ...formData, slug, status: finalStatus }
-            : a
-        )
-      );
+      const targetId = editingArticle._id || editingArticle.id;
+      dispatch(updateJournal({ id: targetId, data: payload })).then((res) => {
+        if (!res.error) setIsModalOpen(false);
+      });
     } else {
-      const newArt = {
-        id: Date.now(),
-        ...formData,
-        slug,
-        status: finalStatus,
-        publishedDate: finalStatus === "Published" ? "Sep 18, 2026" : "—",
-        readTime: "5 min read",
-      };
-      setArticles((prev) => [newArt, ...prev]);
+      dispatch(createJournal(payload)).then((res) => {
+        if (!res.error) setIsModalOpen(false);
+      });
     }
-    setIsModalOpen(false);
   };
 
   const handleDeleteArticle = (id) => {
     if (window.confirm("Are you sure you want to delete this article?")) {
-      setArticles((prev) => prev.filter((a) => a.id !== id));
+      dispatch(deleteJournal(id));
     }
   };
 
@@ -157,7 +169,7 @@ export default function Journals() {
         </div>
 
         <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto">
-          {["All", "Published", "Draft", "Scheduled"].map((st) => (
+          {["All", "Published", "Draft"].map((st) => (
             <button
               key={st}
               type="button"
@@ -174,70 +186,86 @@ export default function Journals() {
         </div>
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="p-3 bg-red-50 text-red-700 text-xs rounded-xl border border-red-200">
+          {error}
+        </div>
+      )}
+
+      {/* Loading Indicator */}
+      {loading && (
+        <div className="flex justify-center items-center py-12">
+          <CircularProgress size={32} style={{ color: "#B87333" }} />
+        </div>
+      )}
+
       {/* Table */}
-      <AdminTable
-        columns={tableColumns}
-        data={filteredArticles}
-        emptyMessage="No articles found."
-        renderRow={(art) => (
-          <tr
-            key={art.id}
-            className="hover:bg-[#F5F3EF]/50 transition-colors group"
-          >
-            <td className="py-3.5 px-4">
-              <div className="flex items-center gap-3.5">
-                <div className="w-14 h-10 rounded-lg bg-[#F5F3EF] border border-[#B87333]/30 overflow-hidden shrink-0">
-                  <img
-                    src={art.coverImage}
-                    alt={art.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <div className="font-bold text-[#0A2342] text-xs md:text-sm">
-                    {art.title}
+      {!loading && (
+        <AdminTable
+          columns={tableColumns}
+          data={filteredArticles}
+          emptyMessage="No articles found."
+          renderRow={(art) => (
+            <tr
+              key={art._id || art.id}
+              className="hover:bg-[#F5F3EF]/50 transition-colors group"
+            >
+              <td className="py-3.5 px-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-14 h-10 rounded-lg bg-[#F5F3EF] border border-[#B87333]/30 overflow-hidden shrink-0">
+                    <img
+                      src={art.coverImage}
+                      alt={art.title}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <div className="text-[11px] text-gray-500 line-clamp-1 max-w-xs">
-                    {art.excerpt}
+                  <div>
+                    <div className="font-bold text-[#0A2342] text-xs md:text-sm">
+                      {art.title}
+                    </div>
+                    <div className="text-[11px] text-gray-500 line-clamp-1 max-w-xs">
+                      {art.excerpt}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </td>
-            <td className="py-3.5 px-4 text-xs font-semibold text-gray-700">
-              {art.category}
-            </td>
-            <td className="py-3.5 px-4 text-xs text-[#0A2342] font-semibold">
-              {art.author}
-            </td>
-            <td className="py-3.5 px-4 text-xs text-gray-500">
-              {art.publishedDate}
-            </td>
-            <td className="py-3.5 px-4">
-              <StatusBadge status={art.status} />
-            </td>
-            <td className="py-3.5 px-4 text-right">
-              <div className="flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleOpenModal(art)}
-                  className="p-1.5 rounded-lg text-gray-600 hover:text-[#B87333] hover:bg-[#B87333]/10 transition-colors cursor-pointer"
-                  title="Edit Article"
-                >
-                  <EditIcon className="text-lg" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteArticle(art.id)}
-                  className="p-1.5 rounded-lg text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                  title="Delete Article"
-                >
-                  <DeleteOutlinedIcon className="text-lg" />
-                </button>
-              </div>
-            </td>
-          </tr>
-        )}
-      />
+              </td>
+              <td className="py-3.5 px-4 text-xs font-semibold text-gray-700">
+                {art.category}
+              </td>
+              <td className="py-3.5 px-4 text-xs text-[#0A2342] font-semibold">
+                {art.author}
+              </td>
+              <td className="py-3.5 px-4 text-xs text-gray-500">
+                {art.publishedDate}
+              </td>
+              <td className="py-3.5 px-4">
+                <StatusBadge status={art.status} />
+              </td>
+              <td className="py-3.5 px-4 text-right">
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenModal(art)}
+                    className="p-1.5 rounded-lg text-gray-600 hover:text-[#B87333] hover:bg-[#B87333]/10 transition-colors cursor-pointer"
+                    title="Edit Article"
+                  >
+                    <EditIcon className="text-lg" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteArticle(art._id || art.id)}
+                    className="p-1.5 rounded-lg text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                    title="Delete Article"
+                  >
+                    <DeleteOutlinedIcon className="text-lg" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          )}
+        />
+      )}
 
       {/* Article Form Modal */}
       <AdminModal
@@ -319,7 +347,7 @@ export default function Journals() {
 
           <div>
             <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
-              Article Content Editor Placeholder
+              Article Content
             </label>
             <textarea
               rows="6"
@@ -359,15 +387,17 @@ export default function Journals() {
             <div className="flex items-center gap-3">
               <button
                 type="button"
+                disabled={mutationLoading}
                 onClick={() => handleSaveArticle("Draft")}
-                className="px-4 py-2 rounded-xl border border-[#B87333] text-[#B87333] hover:bg-[#B87333]/10 text-xs font-bold transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl border border-[#B87333] text-[#B87333] hover:bg-[#B87333]/10 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
               >
                 Save as Draft
               </button>
               <button
                 type="button"
+                disabled={mutationLoading}
                 onClick={() => handleSaveArticle("Published")}
-                className="px-5 py-2 rounded-xl bg-[#D4AF37] hover:bg-[#B87333] text-white text-xs font-bold shadow-md transition-all cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-[#D4AF37] hover:bg-[#B87333] text-white text-xs font-bold shadow-md transition-all cursor-pointer disabled:opacity-50"
               >
                 Publish Now
               </button>

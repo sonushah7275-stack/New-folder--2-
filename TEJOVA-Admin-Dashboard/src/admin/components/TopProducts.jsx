@@ -3,7 +3,9 @@ import { Link } from "react-router-dom";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { topProducts } from "../data/dashboardData";
 
-export default function TopProducts() {
+export default function TopProducts({ products = topProducts }) {
+  const displayProducts = products || [];
+
   return (
     <div className="bg-white rounded-2xl p-5 md:p-6 border border-[#B87333]/20 shadow-sm">
       <div className="flex items-center justify-between mb-4">
@@ -19,7 +21,12 @@ export default function TopProducts() {
       </div>
 
       <div className="space-y-4">
-        {topProducts.map((product) => (
+        {displayProducts.length === 0 ? (
+          <p className="text-xs text-gray-500 py-4 text-center font-medium">
+            No top products data available.
+          </p>
+        ) : (
+          displayProducts.map((product) => (
           <div key={product.id} className="flex items-center gap-3.5">
             <div className="w-12 h-12 rounded-xl bg-[#F5F3EF] border border-[#B87333]/30 overflow-hidden shrink-0 flex items-center justify-center">
               <img
@@ -60,7 +67,8 @@ export default function TopProducts() {
               </div>
             </div>
           </div>
-        ))}
+        ))
+        )}
       </div>
     </div>
   );

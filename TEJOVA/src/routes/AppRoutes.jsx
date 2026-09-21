@@ -15,6 +15,8 @@ import { LoginPage } from "../pages/auth/LoginPage";
 import { RegisterPage } from "../pages/auth/RegisterPage";
 import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
 import { VerifyOtpPage } from "../pages/auth/VerifyOtpPage";
+import { AccountPage } from "../pages/AccountPage";
+import { ProtectedRoute } from "../components/auth/ProtectedRoute";
 
 export const AppRoutes = () => {
   return (
@@ -38,11 +40,19 @@ export const AppRoutes = () => {
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contact" element={<ContactPage />} />
 
-      {/* Authentication */}
+      {/* Authentication & Account */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/verify-otp" element={<VerifyOtpPage />} />
+      <Route
+        path="/account"
+        element={
+          <ProtectedRoute>
+            <AccountPage />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };

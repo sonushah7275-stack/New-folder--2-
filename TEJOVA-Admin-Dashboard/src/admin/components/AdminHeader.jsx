@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
@@ -12,6 +13,8 @@ export default function AdminHeader({ onMenuToggle }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
+  const { admin } = useSelector((state) => state.adminAuth);
+
   const toggleNotifications = () => {
     setNotificationsOpen((prev) => !prev);
     if (profileOpen) setProfileOpen(false);
@@ -21,6 +24,9 @@ export default function AdminHeader({ onMenuToggle }) {
     setProfileOpen((prev) => !prev);
     if (notificationsOpen) setNotificationsOpen(false);
   };
+
+  const adminName = admin?.name || "Admin";
+  const initial = adminName.charAt(0).toUpperCase();
 
   return (
     <header className="sticky top-0 z-30 bg-[#F5F3EF]/95 backdrop-blur-md border-b-2 border-[#B87333] px-4 md:px-8 py-3 flex items-center justify-between transition-all shadow-xs">
@@ -88,10 +94,10 @@ export default function AdminHeader({ onMenuToggle }) {
             className="hidden sm:flex items-center gap-2.5 p-1 rounded-full hover:bg-[#B87333]/10 transition-colors cursor-pointer focus:outline-none"
           >
             <div className="w-8 h-8 rounded-full bg-[#0A2342] text-[#FAF9F6] flex items-center justify-center font-bold text-sm shadow-2xs border border-[#B87333]">
-              A
+              {initial}
             </div>
             <div className="hidden md:flex flex-col text-left">
-              <span className="text-xs font-semibold text-[#0A2342]">Admin</span>
+              <span className="text-xs font-semibold text-[#0A2342]">{adminName}</span>
               <span className="text-[10px] text-gray-500">Administrator</span>
             </div>
             <KeyboardArrowDownIcon className="text-[#0A2342] text-sm" />
@@ -105,3 +111,4 @@ export default function AdminHeader({ onMenuToggle }) {
     </header>
   );
 }
+

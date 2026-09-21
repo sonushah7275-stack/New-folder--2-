@@ -1,50 +1,60 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import SearchIcon from "@mui/icons-material/Search";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import PersonIcon from "@mui/icons-material/Person";
 import PaymentIcon from "@mui/icons-material/Payment";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import AdminBreadcrumb from "../components/AdminBreadcrumb";
 import AdminTable from "../components/AdminTable";
 import StatusBadge from "../components/StatusBadge";
 import AdminModal from "../components/AdminModal";
-import { initialOrders } from "../data/ordersData";
+import {
+  fetchOrders,
+  updateOrderStatus,
+  setSelectedOrder,
+} from "../../Redux/slices/adminOrderSlice.js";
 
 export default function Orders() {
-  const [orders, setOrders] = useState(initialOrders);
+  const dispatch = useDispatch();
+  const { orders, selectedOrder, loading, mutationLoading, error } = useSelector(
+    (state) => state.adminOrders
+  );
+
   const [activeTab, setActiveTab] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   const tabs = ["All", "Completed", "Processing", "Pending", "Cancelled"];
 
+  useEffect(() => {
+    dispatch(fetchOrders());
+  }, [dispatch]);
+
   const filteredOrders = useMemo(() => {
-    return orders.filter((order) => {
+    return (orders || []).filter((order) => {
       const matchesTab = activeTab === "All" || order.status === activeTab;
       const matchesSearch =
-        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.email.toLowerCase().includes(searchTerm.toLowerCase());
+        !searchTerm ||
+        (order.id && order.id.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (order.customer && order.customer.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (order.email && order.email.toLowerCase().includes(searchTerm.toLowerCase()));
 
       return matchesTab && matchesSearch;
     });
   }, [orders, activeTab, searchTerm]);
 
   const handleOpenDetails = (order) => {
-    setSelectedOrder(order);
+    dispatch(setSelectedOrder(order));
     setIsDetailsOpen(true);
   };
 
   const handleStatusChange = (newStatus) => {
     if (!selectedOrder) return;
-    setOrders((prev) =>
-      prev.map((o) =>
-        o.id === selectedOrder.id ? { ...o, status: newStatus } : o
-      )
-    );
-    setSelectedOrder({ ...selectedOrder, status: newStatus });
+    const targetId = selectedOrder._id || selectedOrder.id;
+    dispatch(updateOrderStatus({ id: targetId, orderStatus: newStatus }));
   };
 
   const tableColumns = [
@@ -111,51 +121,67 @@ export default function Orders() {
         </div>
       </div>
 
+      {/* Error Message banner if any */}
+      {error && (
+        <div className="p-3 bg-red-50 text-red-700 text-xs rounded-xl border border-red-200">
+          {error}
+        </div>
+      )}
+
+      {/* Loading state */}
+      {loading && (
+        <div className="flex justify-center items-center py-12">
+          <CircularProgress size={32} style={{ color: "#B87333" }} />
+        </div>
+      )}
+
       {/* Orders Table */}
-      <AdminTable
-        columns={tableColumns}
-        data={filteredOrders}
-        emptyMessage="No orders found matching this filter."
-        renderRow={(order) => (
-          <tr
-            key={order.id}
-            className="hover:bg-[#F5F3EF]/50 transition-colors group"
-          >
-            <td className="py-3.5 px-4 font-bold text-[#0A2342] text-xs md:text-sm">
-              {order.id}
-            </td>
-            <td className="py-3.5 px-4">
-              <div className="font-semibold text-[#0A2342] text-xs md:text-sm">
-                {order.customer}
-              </div>
-              <div className="text-[11px] text-gray-400">{order.email}</div>
-            </td>
-            <td className="py-3.5 px-4 text-xs text-gray-500">{order.date}</td>
-            <td className="py-3.5 px-4 text-xs text-[#0A2342] max-w-xs truncate">
-              {order.productSummary}
-            </td>
-            <td className="py-3.5 px-4 text-xs font-bold text-[#0A2342]">
-              ${order.total.toFixed(2)}
-            </td>
-            <td className="py-3.5 px-4 text-xs">
-              <StatusBadge status={order.paymentStatus} />
-            </td>
-            <td className="py-3.5 px-4">
-              <StatusBadge status={order.status} />
-            </td>
-            <td className="py-3.5 px-4 text-right">
-              <button
-                type="button"
-                onClick={() => handleOpenDetails(order)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0A2342] hover:bg-[#B87333] text-white text-xs font-semibold shadow-2xs transition-all cursor-pointer"
-              >
-                <VisibilityIcon className="text-xs" />
-                <span>View</span>
-              </button>
-            </td>
-          </tr>
-        )}
-      />
+      {!loading && (
+        <AdminTable
+          columns={tableColumns}
+          data={filteredOrders}
+          emptyMessage="No orders found matching this filter."
+          renderRow={(order) => (
+            <tr
+              key={order._id || order.id}
+              className="hover:bg-[#F5F3EF]/50 transition-colors group"
+            >
+              <td className="py-3.5 px-4 font-bold text-[#0A2342] text-xs md:text-sm">
+                {order.id}
+              </td>
+              <td className="py-3.5 px-4">
+                <div className="font-semibold text-[#0A2342] text-xs md:text-sm">
+                  {order.customer}
+                </div>
+                <div className="text-[11px] text-gray-400">{order.email}</div>
+              </td>
+              <td className="py-3.5 px-4 text-xs text-gray-500">{order.date}</td>
+              <td className="py-3.5 px-4 text-xs text-[#0A2342] max-w-xs truncate">
+                {order.productSummary}
+              </td>
+              <td className="py-3.5 px-4 text-xs font-bold text-[#0A2342]">
+                ${(order.total || 0).toFixed(2)}
+              </td>
+              <td className="py-3.5 px-4 text-xs">
+                <StatusBadge status={order.paymentStatus} />
+              </td>
+              <td className="py-3.5 px-4">
+                <StatusBadge status={order.status} />
+              </td>
+              <td className="py-3.5 px-4 text-right">
+                <button
+                  type="button"
+                  onClick={() => handleOpenDetails(order)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0A2342] hover:bg-[#B87333] text-white text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+                >
+                  <VisibilityIcon className="text-xs" />
+                  <span>View</span>
+                </button>
+              </td>
+            </tr>
+          )}
+        />
+      )}
 
       {/* Order Details Modal */}
       <AdminModal
@@ -206,9 +232,10 @@ export default function Orders() {
                     Update Order Status:
                   </label>
                   <select
+                    disabled={mutationLoading}
                     value={selectedOrder.status}
                     onChange={(e) => handleStatusChange(e.target.value)}
-                    className="w-full px-2.5 py-1 text-xs border border-[#0A2342]/30 rounded-lg bg-white font-semibold text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
+                    className="w-full px-2.5 py-1 text-xs border border-[#0A2342]/30 rounded-lg bg-white font-semibold text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333] disabled:opacity-50"
                   >
                     <option value="Completed">Completed</option>
                     <option value="Processing">Processing</option>
@@ -235,7 +262,7 @@ export default function Orders() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 bg-white">
-                    {selectedOrder.items.map((item, idx) => (
+                    {(selectedOrder.items || []).map((item, idx) => (
                       <tr key={idx}>
                         <td className="py-2.5 px-3 font-semibold text-[#0A2342]">
                           {item.name}
@@ -244,10 +271,10 @@ export default function Orders() {
                           {item.qty}
                         </td>
                         <td className="py-2.5 px-3 text-right text-gray-600">
-                          ${item.price.toFixed(2)}
+                          ${(item.price || 0).toFixed(2)}
                         </td>
                         <td className="py-2.5 px-3 text-right font-bold text-[#0A2342]">
-                          ${(item.qty * item.price).toFixed(2)}
+                          ${((item.qty || 1) * (item.price || 0)).toFixed(2)}
                         </td>
                       </tr>
                     ))}
@@ -261,25 +288,25 @@ export default function Orders() {
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal:</span>
                 <span className="font-semibold text-[#0A2342]">
-                  ${selectedOrder.subtotal.toFixed(2)}
+                  ${(selectedOrder.subtotal || 0).toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Shipping:</span>
                 <span className="font-semibold text-[#0A2342]">
-                  ${selectedOrder.shippingCost.toFixed(2)}
+                  ${(selectedOrder.shippingCost || 0).toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Tax:</span>
                 <span className="font-semibold text-[#0A2342]">
-                  ${selectedOrder.tax.toFixed(2)}
+                  ${(selectedOrder.tax || 0).toFixed(2)}
                 </span>
               </div>
               <div className="border-t border-[#B87333]/30 pt-2 flex justify-between text-sm font-bold text-[#0A2342]">
                 <span>Total Amount:</span>
                 <span className="text-[#B87333]">
-                  ${selectedOrder.total.toFixed(2)}
+                  ${(selectedOrder.total || 0).toFixed(2)}
                 </span>
               </div>
             </div>

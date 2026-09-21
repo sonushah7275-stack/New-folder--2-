@@ -1,18 +1,31 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import CategoryIcon from "@mui/icons-material/Category";
+import ErrorOutlinedIcon from "@mui/icons-material/ErrorOutlined";
+import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 
 import AdminBreadcrumb from "../components/AdminBreadcrumb";
 import AdminTable from "../components/AdminTable";
 import StatusBadge from "../components/StatusBadge";
 import AdminModal from "../components/AdminModal";
-import { initialCategories } from "../data/categoriesData";
+
+import {
+  fetchAdminCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  clearCategoryStatus,
+} from "../../Redux/slices/adminCategorySlice.js";
 
 export default function Categories() {
-  const [categories, setCategories] = useState(initialCategories);
+  const dispatch = useDispatch();
+  const { categories, loading, mutationLoading, error, successMessage } =
+    useSelector((state) => state.adminCategories);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
@@ -24,22 +37,37 @@ export default function Categories() {
     status: "Active",
   });
 
+  useEffect(() => {
+    dispatch(fetchAdminCategories());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (successMessage || error) {
+      const timer = setTimeout(() => {
+        dispatch(clearCategoryStatus());
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage, error, dispatch]);
+
   const filteredCategories = useMemo(() => {
+    if (!categories) return [];
     return categories.filter(
       (c) =>
-        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.slug.toLowerCase().includes(searchTerm.toLowerCase())
+        (c.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (c.slug || "").toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [categories, searchTerm]);
 
   const handleOpenModal = (category = null) => {
+    dispatch(clearCategoryStatus());
     if (category) {
       setEditingCategory(category);
       setFormData({
-        name: category.name,
-        slug: category.slug,
-        description: category.description,
-        status: category.status,
+        name: category.name || "",
+        slug: category.slug || "",
+        description: category.description || "",
+        status: category.isActive ? "Active" : "Inactive",
       });
     } else {
       setEditingCategory(null);
@@ -53,40 +81,43 @@ export default function Categories() {
     setIsModalOpen(true);
   };
 
-  const handleSaveCategory = (e) => {
+  const handleSaveCategory = async (e) => {
     e.preventDefault();
-    if (!formData.name) return;
+    if (!formData.name.trim()) return;
 
-    const slug = formData.slug || formData.name.toLowerCase().replace(/\s+/g, "-");
+    const payload = {
+      name: formData.name.trim(),
+      slug: formData.slug.trim(),
+      description: formData.description.trim(),
+      isActive: formData.status === "Active",
+    };
 
+    let resultAction;
     if (editingCategory) {
-      setCategories((prev) =>
-        prev.map((c) =>
-          c.id === editingCategory.id ? { ...c, ...formData, slug } : c
-        )
+      resultAction = await dispatch(
+        updateCategory({ id: editingCategory._id, data: payload })
       );
     } else {
-      const newCat = {
-        id: Date.now(),
-        ...formData,
-        slug,
-        productCount: 0,
-      };
-      setCategories((prev) => [newCat, ...prev]);
+      resultAction = await dispatch(createCategory(payload));
     }
-    setIsModalOpen(false);
+
+    if (
+      createCategory.fulfilled.match(resultAction) ||
+      updateCategory.fulfilled.match(resultAction)
+    ) {
+      setIsModalOpen(false);
+    }
   };
 
-  const handleDeleteCategory = (id) => {
+  const handleDeleteCategory = async (id) => {
     if (window.confirm("Are you sure you want to delete this category?")) {
-      setCategories((prev) => prev.filter((c) => c.id !== id));
+      dispatch(deleteCategory(id));
     }
   };
 
   const tableColumns = [
     { label: "Category", key: "name" },
     { label: "Slug", key: "slug" },
-    { label: "Products", key: "productCount" },
     { label: "Status", key: "status" },
     { label: "Actions", key: "actions", align: "right" },
   ];
@@ -120,6 +151,20 @@ export default function Categories() {
         </button>
       </div>
 
+      {/* Notifications */}
+      {successMessage && (
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-emerald-800 text-xs md:text-sm animate-fadeIn">
+          <CheckCircleOutlinedIcon className="text-emerald-600 text-lg" />
+          <span>{successMessage}</span>
+        </div>
+      )}
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-800 text-xs md:text-sm animate-fadeIn">
+          <ErrorOutlinedIcon className="text-red-500 text-lg" />
+          <span>{error}</span>
+        </div>
+      )}
+
       {/* Toolbar */}
       <div className="bg-white rounded-2xl p-4 border border-[#B87333]/20 shadow-sm flex items-center justify-between">
         <div className="relative w-full max-w-sm">
@@ -135,62 +180,72 @@ export default function Categories() {
       </div>
 
       {/* Table View */}
-      <AdminTable
-        columns={tableColumns}
-        data={filteredCategories}
-        emptyMessage="No categories found matching your query."
-        renderRow={(category) => (
-          <tr
-            key={category.id}
-            className="hover:bg-[#F5F3EF]/50 transition-colors group"
-          >
-            <td className="py-4 px-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#0A2342]/10 text-[#0A2342] flex items-center justify-center">
-                  <CategoryIcon className="text-xl" />
-                </div>
-                <div>
-                  <div className="font-bold text-[#0A2342] text-sm">
-                    {category.name}
+      {loading ? (
+        <div className="bg-white rounded-2xl p-12 text-center text-gray-500 font-medium">
+          <div className="w-10 h-10 border-4 border-[#0A2342] border-t-[#D4AF37] rounded-full animate-spin mx-auto mb-3" />
+          Loading TEJOVA categories...
+        </div>
+      ) : (
+        <AdminTable
+          columns={tableColumns}
+          data={filteredCategories}
+          emptyMessage="No categories found matching your query."
+          renderRow={(category) => {
+            const catId = category._id || category.id;
+            const isCategoryActive = category.isActive ?? (category.status === "Active");
+            const statusLabel = isCategoryActive ? "Active" : "Inactive";
+
+            return (
+              <tr
+                key={catId}
+                className="hover:bg-[#F5F3EF]/50 transition-colors group"
+              >
+                <td className="py-4 px-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#0A2342]/10 text-[#0A2342] flex items-center justify-center shrink-0">
+                      <CategoryIcon className="text-xl" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-[#0A2342] text-sm">
+                        {category.name}
+                      </div>
+                      <div className="text-xs text-gray-500 line-clamp-1 max-w-xs">
+                        {category.description || "No description provided"}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-500 line-clamp-1 max-w-xs">
-                    {category.description}
+                </td>
+                <td className="py-4 px-4 text-xs font-mono text-gray-600">
+                  /{category.slug}
+                </td>
+                <td className="py-4 px-4">
+                  <StatusBadge status={statusLabel} />
+                </td>
+                <td className="py-4 px-4 text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenModal(category)}
+                      className="p-1.5 rounded-lg text-gray-600 hover:text-[#B87333] hover:bg-[#B87333]/10 transition-colors cursor-pointer"
+                      title="Edit Category"
+                    >
+                      <EditIcon className="text-lg" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteCategory(catId)}
+                      className="p-1.5 rounded-lg text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                      title="Delete Category"
+                    >
+                      <DeleteOutlinedIcon className="text-lg" />
+                    </button>
                   </div>
-                </div>
-              </div>
-            </td>
-            <td className="py-4 px-4 text-xs font-mono text-gray-600">
-              /{category.slug}
-            </td>
-            <td className="py-4 px-4 text-xs font-bold text-[#0A2342]">
-              {category.productCount} products
-            </td>
-            <td className="py-4 px-4">
-              <StatusBadge status={category.status} />
-            </td>
-            <td className="py-4 px-4 text-right">
-              <div className="flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleOpenModal(category)}
-                  className="p-1.5 rounded-lg text-gray-600 hover:text-[#B87333] hover:bg-[#B87333]/10 transition-colors cursor-pointer"
-                  title="Edit Category"
-                >
-                  <EditIcon className="text-lg" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteCategory(category.id)}
-                  className="p-1.5 rounded-lg text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                  title="Delete Category"
-                >
-                  <DeleteOutlinedIcon className="text-lg" />
-                </button>
-              </div>
-            </td>
-          </tr>
-        )}
-      />
+                </td>
+              </tr>
+            );
+          }}
+        />
+      )}
 
       {/* Add / Edit Category Modal */}
       <AdminModal
@@ -276,9 +331,10 @@ export default function Categories() {
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl bg-[#D4AF37] hover:bg-[#B87333] text-white text-xs font-bold shadow-md transition-all cursor-pointer"
+              disabled={mutationLoading}
+              className="px-5 py-2 rounded-xl bg-[#D4AF37] hover:bg-[#B87333] text-white text-xs font-bold shadow-md transition-all cursor-pointer flex items-center gap-2"
             >
-              {editingCategory ? "Save Changes" : "Create Category"}
+              {mutationLoading ? "Saving..." : editingCategory ? "Save Changes" : "Create Category"}
             </button>
           </div>
         </form>

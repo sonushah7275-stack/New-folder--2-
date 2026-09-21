@@ -1,20 +1,23 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { Button } from '../common/Button';
-import { CheckCircle, ArrowLeft } from 'lucide-react';
+import React from "react";
+import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Button } from "../common/Button";
+import { CheckCircle, ArrowLeft } from "lucide-react";
+import { forgotPassword, clearAuthErrors } from "../../Redux/slices/authSlice";
 
 export const ForgotPasswordForm = () => {
-  const [sent, setSent] = useState(false);
+  const dispatch = useDispatch();
+  const { loading, successMessage, error } = useSelector((state) => state.auth);
 
   return (
     <div>
-      {sent ? (
+      {successMessage ? (
         <div className="bg-[#FAF9F6] p-6 rounded-xs border border-[#B87333]/30 text-center space-y-4">
           <CheckCircle className="w-10 h-10 text-[#B87333] mx-auto" />
-          <h3 className="font-serif text-2xl text-[#0A2342]">Reset Link Sent</h3>
+          <h3 className="font-serif text-2xl text-[#0A2342]">Reset Code Sent</h3>
           <p className="text-xs text-[#5C6B73] font-light leading-relaxed">
-            We have sent password reset instructions to your email address. Please check your inbox.
+            {successMessage}
           </p>
           <div className="pt-2">
             <Link to="/login" className="inline-flex items-center text-xs font-semibold text-[#0A2342] hover:underline">
@@ -24,25 +27,31 @@ export const ForgotPasswordForm = () => {
         </div>
       ) : (
         <Formik
-          initialValues={{ email: '' }}
+          initialValues={{ email: "" }}
           validate={(values) => {
             const errors = {};
             if (!values.email) {
-              errors.email = 'Email address is required';
+              errors.email = "Email address is required";
             } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
-              errors.email = 'Invalid email address';
+              errors.email = "Invalid email address";
             }
             return errors;
           }}
           onSubmit={(values, { setSubmitting }) => {
-            setTimeout(() => {
-              setSent(true);
+            dispatch(clearAuthErrors());
+            dispatch(forgotPassword(values.email)).then(() => {
               setSubmitting(false);
-            }, 400);
+            });
           }}
         >
           {({ isSubmitting }) => (
             <Form className="space-y-5">
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-xs">
+                  ⚠️ {error}
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-[#0A2342] mb-2">
                   Email Address
@@ -56,8 +65,8 @@ export const ForgotPasswordForm = () => {
                 <ErrorMessage name="email" component="div" className="text-xs text-red-600 mt-1 font-light" />
               </div>
 
-              <Button type="submit" variant="primary" size="lg" disabled={isSubmitting} className="w-full">
-                {isSubmitting ? 'Sending Reset Link...' : 'Send Reset Link'}
+              <Button type="submit" variant="primary" size="lg" disabled={isSubmitting || loading} className="w-full">
+                {isSubmitting || loading ? "Sending Reset Link..." : "Send Reset Link"}
               </Button>
 
               <div className="text-center pt-4 border-t border-[#B87333]/20">

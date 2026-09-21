@@ -1,12 +1,5 @@
-import axios from 'axios';
+import api from '../config/api.js';
 
-// Axios instance configured for future backend API integration
-const api = axios.create({
-  baseURL: 'https://api.tejova.com/api/v1',
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
+// Re-export centralized Axios instance for backward compatibility
 export default api;
+

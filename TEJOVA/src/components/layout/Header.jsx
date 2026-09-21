@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, User } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Menu, User, LogOut } from "lucide-react";
 import { navLinks, secondaryNavLinks } from "../../data/navigation";
 import { MobileMenu } from "./MobileMenu";
 import { Button } from "../common/Button";
+import { logoutUser } from "../../Redux/slices/authSlice";
 
 export const Header = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -25,15 +31,19 @@ export const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Header background class logic
+  const handleLogout = () => {
+    dispatch(logoutUser()).then(() => {
+      navigate("/");
+    });
+  };
+
   const headerBgClass =
     isHome && !scrolled
       ? "bg-gradient-to-b from-[#0A2342]/80 via-[#0A2342]/40 to-transparent text-white"
       : "bg-[#F5F3EF]/95 backdrop-blur-md border-b border-[#B87333]/30 text-[#0A2342] shadow-xs";
 
   const logoColorClass = isHome && !scrolled ? "text-white" : "text-[#0A2342]";
-  const taglineColorClass =
-    isHome && !scrolled ? "text-white/80" : "text-[#B87333]";
+  const taglineColorClass = isHome && !scrolled ? "text-white/80" : "text-[#B87333]";
   const navLinkColorClass =
     isHome && !scrolled
       ? "text-white/90 hover:text-[#D4AF37]"
@@ -62,13 +72,6 @@ export const Header = () => {
                 Expand Your Light
               </span>
             </Link>
-            {/* <Link to="/" className="flex flex-col group focus:outline-none">
-              <img
-                src={logo}
-                alt="Company Logo"
-                className="h-12 w-auto object-contain"
-              />
-            </Link> */}
 
             {/* Center: Primary Navigation (Desktop) */}
             <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
@@ -91,8 +94,8 @@ export const Header = () => {
               })}
             </nav>
 
-            {/* Right Actions: Secondary links, Auth icon, CTA */}
-            <div className="hidden lg:flex items-center space-x-5 lg:space-x-6">
+            {/* Right Actions */}
+            <div className="hidden lg:flex items-center space-x-4 lg:space-x-6">
               {secondaryNavLinks.map((link) => (
                 <Link
                   key={link.path}
@@ -103,13 +106,37 @@ export const Header = () => {
                 </Link>
               ))}
 
-              <Link
-                to="/login"
-                aria-label="User Account"
-                className={`p-2 rounded-full transition-colors ${navLinkColorClass}`}
-              >
-                <User className="w-5 h-5" />
-              </Link>
+              {isAuthenticated ? (
+                <div className="flex items-center space-x-3">
+                  <Link
+                    to="/account"
+                    className={`flex items-center space-x-1.5 text-xs uppercase tracking-wider font-semibold py-1 px-2.5 rounded-full border transition-all ${
+                      isHome && !scrolled
+                        ? "border-white/40 text-white hover:bg-white/10"
+                        : "border-[#B87333]/40 text-[#0A2342] hover:bg-[#F5F3EF]"
+                    }`}
+                    title="View Account Profile"
+                  >
+                    <User className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    <span className="truncate max-w-[90px]">{user?.name?.split(" ")[0] || "Profile"}</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    title="Sign Out"
+                    className={`p-1.5 rounded-full transition-colors cursor-pointer ${navLinkColorClass}`}
+                  >
+                    <LogOut className="w-4 h-4 text-red-400 hover:text-red-500" />
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  to="/login"
+                  aria-label="User Account"
+                  className={`p-2 rounded-full transition-colors ${navLinkColorClass}`}
+                >
+                  <User className="w-5 h-5" />
+                </Link>
+              )}
 
               <Button to="/products" variant="primary" size="sm">
                 Begin Journey
@@ -119,7 +146,7 @@ export const Header = () => {
             {/* Mobile Menu Button */}
             <div className="flex items-center space-x-3 lg:hidden">
               <Link
-                to="/login"
+                to={isAuthenticated ? "/account" : "/login"}
                 aria-label="User Account"
                 className={`p-1.5 transition-colors ${navLinkColorClass}`}
               >

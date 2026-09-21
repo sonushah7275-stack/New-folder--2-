@@ -1,23 +1,64 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { PageContainer } from "../components/layout/PageContainer";
-import { pillars } from "../data/pillars";
-import { products } from "../data/products";
-import { articles } from "../data/articles";
+import { pillars as staticPillars } from "../data/pillars";
+import { products as staticProducts } from "../data/products";
+import { articles as staticArticles } from "../data/articles";
 import { SectionHeading } from "../components/common/SectionHeading";
 import { ProductGrid } from "../components/products/ProductGrid";
 import { ArticleGrid } from "../components/journal/ArticleGrid";
 import { TextReveal } from "../components/common/TextReveal";
 import { Button } from "../components/common/Button";
 import { Zap, Sun, Activity, ShieldCheck } from "lucide-react";
+import { fetchPillars } from "../Redux/slices/pillarSlice";
+import { fetchProducts } from "../Redux/slices/productSlice";
+import { fetchArticles } from "../Redux/slices/journalSlice";
 
 export const VitalityPage = () => {
-  const vitalityData = pillars.find((p) => p.id === "vitality");
-  const relatedProducts = products.filter(
-    (p) => p.category === "Vitality" || p.slug === "vitality-tonic",
+  const dispatch = useDispatch();
+  const { pillars: apiPillars } = useSelector((state) => state.pillar);
+  const { products: apiProducts } = useSelector((state) => state.product);
+  const { articles: apiArticles } = useSelector((state) => state.journal);
+
+  useEffect(() => {
+    dispatch(fetchPillars());
+    dispatch(fetchProducts());
+    dispatch(fetchArticles());
+  }, [dispatch]);
+
+  const dbPillar = apiPillars.find(
+    (p) => p.slug === "vitality" || p.name?.toLowerCase() === "vitality"
   );
-  const relatedArticles = articles.filter(
-    (a) => a.category === "Nourishment" || a.category === "Vitality",
-  );
+  const fallbackPillar = staticPillars.find((p) => p.id === "vitality") || staticPillars[0];
+
+  const vitalityData = {
+    ...fallbackPillar,
+    longDescription: dbPillar?.description || fallbackPillar.longDescription,
+  };
+
+  const relatedProducts =
+    apiProducts && apiProducts.length > 0
+      ? apiProducts.map((p) => ({
+          ...p,
+          id: p._id || p.id,
+          image: p.image || (p.images && p.images[0]?.url ? p.images[0].url : p.images?.[0]) || "/assets/images/product-vitality-tonic.svg",
+          category: typeof p.category === "object" ? p.category?.name : p.category || "Wellness",
+        })).slice(0, 3)
+      : staticProducts.filter(
+          (p) => p.category === "Vitality" || p.slug === "vitality-tonic"
+        );
+
+  const relatedArticles =
+    apiArticles && apiArticles.length > 0
+      ? apiArticles.map((a) => ({
+          ...a,
+          id: a._id || a.id,
+          category: a.category || a.tags?.[0] || "Vitality",
+          image: a.image || a.featuredImage || "/assets/images/lifestyle-meditation.svg",
+        })).slice(0, 2)
+      : staticArticles.filter(
+          (a) => a.category === "Nourishment" || a.category === "Vitality"
+        ).slice(0, 2);
 
   return (
     <PageContainer>
@@ -139,7 +180,7 @@ export const VitalityPage = () => {
           subtitle="From The Journal"
           title="Further Reading on Vitality"
         />
-        <ArticleGrid articles={relatedArticles.slice(0, 2)} />
+        <ArticleGrid articles={relatedArticles} />
       </section>
     </PageContainer>
   );

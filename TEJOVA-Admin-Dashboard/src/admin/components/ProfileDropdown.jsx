@@ -1,29 +1,34 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { adminLogout } from "../../Redux/slices/adminAuthSlice.js";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 export default function ProfileDropdown({ onClose }) {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { admin } = useSelector((state) => state.adminAuth);
 
   const handleNavigate = (path) => {
     onClose();
     navigate(path);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     onClose();
-    navigate("/admin");
+    await dispatch(adminLogout());
+    navigate("/admin/login", { replace: true });
   };
 
   return (
     <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-[#B87333]/30 overflow-hidden z-50 animate-fadeIn">
       <div className="p-4 bg-[#0A2342] text-[#FAF9F6] border-b border-white/10">
-        <p className="text-sm font-semibold">Admin</p>
-        <p className="text-xs text-gray-300">admin@tejova.com</p>
+        <p className="text-sm font-semibold">{admin?.name || "TEJOVA Admin"}</p>
+        <p className="text-xs text-gray-300 truncate">{admin?.email || "admin@tejova.com"}</p>
         <span className="inline-block mt-2 px-2 py-0.5 text-[10px] font-bold rounded-full bg-[#B87333] text-white uppercase tracking-wider">
-          Super Administrator
+          {admin?.role === "ADMIN" ? "Super Administrator" : "Administrator"}
         </span>
       </div>
 

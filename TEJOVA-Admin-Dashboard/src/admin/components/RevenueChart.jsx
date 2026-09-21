@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { revenueData } from "../data/dashboardData";
 
-export default function RevenueChart() {
+export default function RevenueChart({ data = revenueData }) {
   const [activeFilter, setActiveFilter] = useState("30 Days");
   const [activePoint, setActivePoint] = useState(null);
 
@@ -13,7 +13,7 @@ export default function RevenueChart() {
   const paddingY = 30;
   const maxVal = 50;
 
-  const pointsData = revenueData.map((d, i) => {
+  const pointsData = (data && data.length > 0 ? data : revenueData).map((d, i) => {
     const x =
       paddingX + (i / (revenueData.length - 1)) * (svgWidth - 2 * paddingX);
     const revY =

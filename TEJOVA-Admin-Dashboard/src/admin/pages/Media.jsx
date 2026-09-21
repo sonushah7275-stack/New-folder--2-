@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import SearchIcon from "@mui/icons-material/Search";
 import GridViewIcon from "@mui/icons-material/GridView";
@@ -6,60 +7,71 @@ import ViewListIcon from "@mui/icons-material/ViewList";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import AdminBreadcrumb from "../components/AdminBreadcrumb";
 import AdminModal from "../components/AdminModal";
-import { initialMediaFiles } from "../data/mediaData";
+import {
+  fetchMedia,
+  uploadMedia,
+  deleteMedia,
+} from "../../Redux/slices/mediaSlice.js";
 
 export default function Media() {
-  const [mediaFiles, setMediaFiles] = useState(initialMediaFiles);
+  const dispatch = useDispatch();
+  const { media, loading, uploadLoading, deleteLoading, error } = useSelector(
+    (state) => state.adminMedia || state.media
+  );
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [viewMode, setViewMode] = useState("grid");
   const [selectedFile, setSelectedFile] = useState(null);
   const [copyFeedback, setCopyFeedback] = useState(false);
 
-  const categories = ["All", "Products", "Journal", "Banner", "Documents"];
+  const categories = ["All", "Products", "Journal", "Pillars", "General"];
+
+  useEffect(() => {
+    dispatch(fetchMedia());
+  }, [dispatch]);
 
   const filteredFiles = useMemo(() => {
-    return mediaFiles.filter((f) => {
+    return (media || []).filter((f) => {
       const matchesCategory =
-        selectedCategory === "All" || f.category === selectedCategory;
+        selectedCategory === "All" ||
+        (f.folder && f.folder.toLowerCase() === selectedCategory.toLowerCase()) ||
+        (f.category && f.category.toLowerCase() === selectedCategory.toLowerCase());
+
       const matchesSearch =
-        f.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        f.type.toLowerCase().includes(searchTerm.toLowerCase());
+        !searchTerm ||
+        (f.name && f.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (f.type && f.type.toLowerCase().includes(searchTerm.toLowerCase()));
 
       return matchesCategory && matchesSearch;
     });
-  }, [mediaFiles, selectedCategory, searchTerm]);
+  }, [media, selectedCategory, searchTerm]);
 
-  const handleSimulatedUpload = (e) => {
+  const handleFileUpload = (e) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     const file = files[0];
-    const newMedia = {
-      id: Date.now(),
-      name: file.name,
-      type: file.type || "image/jpeg",
-      size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-      dimensions: "1920 x 1080",
-      uploadedDate: "Just now",
-      url: URL.createObjectURL(file),
-      category: "Products",
-    };
+    const targetFolder =
+      selectedCategory !== "All" ? selectedCategory.toLowerCase() : "products";
 
-    setMediaFiles((prev) => [newMedia, ...prev]);
+    dispatch(uploadMedia({ file, folder: targetFolder }));
   };
 
-  const handleDeleteFile = (id) => {
+  const handleDeleteFile = (publicId) => {
     if (window.confirm("Are you sure you want to delete this media item?")) {
-      setMediaFiles((prev) => prev.filter((f) => f.id !== id));
-      if (selectedFile?.id === id) setSelectedFile(null);
+      dispatch(deleteMedia(publicId)).then((res) => {
+        if (!res.error) setSelectedFile(null);
+      });
     }
   };
 
   const handleCopyUrl = (url) => {
+    if (!url) return;
     navigator.clipboard.writeText(url);
     setCopyFeedback(true);
     setTimeout(() => setCopyFeedback(false), 2000);
@@ -86,12 +98,17 @@ export default function Media() {
 
         {/* Upload Button */}
         <label className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#D4AF37] hover:bg-[#B87333] text-white font-semibold text-xs sm:text-sm shadow-md transition-all cursor-pointer self-start sm:self-auto">
-          <CloudUploadIcon className="text-lg" />
-          <span>Upload Asset</span>
+          {uploadLoading ? (
+            <CircularProgress size={18} style={{ color: "#ffffff" }} />
+          ) : (
+            <CloudUploadIcon className="text-lg" />
+          )}
+          <span>{uploadLoading ? "Uploading..." : "Upload Asset"}</span>
           <input
             type="file"
             accept="image/*,.pdf"
-            onChange={handleSimulatedUpload}
+            disabled={uploadLoading}
+            onChange={handleFileUpload}
             className="hidden"
           />
         </label>
@@ -155,17 +172,31 @@ export default function Media() {
         </div>
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="p-3 bg-red-50 text-red-700 text-xs rounded-xl border border-red-200">
+          {error}
+        </div>
+      )}
+
+      {/* Loading Indicator */}
+      {loading && (
+        <div className="flex justify-center items-center py-12">
+          <CircularProgress size={32} style={{ color: "#B87333" }} />
+        </div>
+      )}
+
       {/* Grid View */}
-      {viewMode === "grid" ? (
+      {!loading && viewMode === "grid" && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {filteredFiles.map((file) => (
             <div
-              key={file.id}
+              key={file._id || file.id}
               onClick={() => setSelectedFile(file)}
               className="group bg-white rounded-2xl border border-[#B87333]/20 overflow-hidden shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
             >
               <div className="h-32 bg-[#F5F3EF] relative flex items-center justify-center overflow-hidden">
-                {file.type.includes("image") ? (
+                {file.type && file.type.includes("image") ? (
                   <img
                     src={file.url}
                     alt={file.name}
@@ -191,8 +222,10 @@ export default function Media() {
             </div>
           ))}
         </div>
-      ) : (
-        /* List View */
+      )}
+
+      {/* List View */}
+      {!loading && viewMode === "list" && (
         <div className="bg-white rounded-2xl border border-[#B87333]/20 overflow-hidden shadow-sm">
           <table className="w-full text-left text-xs">
             <thead className="bg-[#0A2342] text-[#FAF9F6]">
@@ -207,11 +240,11 @@ export default function Media() {
             </thead>
             <tbody className="divide-y divide-[#F5F3EF]">
               {filteredFiles.map((file) => (
-                <tr key={file.id} className="hover:bg-[#F5F3EF]/50">
+                <tr key={file._id || file.id} className="hover:bg-[#F5F3EF]/50">
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-[#F5F3EF] overflow-hidden flex items-center justify-center shrink-0">
-                        {file.type.includes("image") ? (
+                        {file.type && file.type.includes("image") ? (
                           <img
                             src={file.url}
                             alt={file.name}
@@ -256,7 +289,7 @@ export default function Media() {
         {selectedFile && (
           <div className="space-y-4">
             <div className="h-64 bg-[#0A2342]/5 rounded-xl border border-gray-200 overflow-hidden flex items-center justify-center">
-              {selectedFile.type.includes("image") ? (
+              {selectedFile.type && selectedFile.type.includes("image") ? (
                 <img
                   src={selectedFile.url}
                   alt={selectedFile.name}
@@ -313,8 +346,9 @@ export default function Media() {
               </button>
               <button
                 type="button"
-                onClick={() => handleDeleteFile(selectedFile.id)}
-                className="p-2 rounded-xl text-red-600 border border-red-200 hover:bg-red-50 cursor-pointer"
+                disabled={deleteLoading}
+                onClick={() => handleDeleteFile(selectedFile.publicId || selectedFile._id)}
+                className="p-2 rounded-xl text-red-600 border border-red-200 hover:bg-red-50 cursor-pointer disabled:opacity-50"
                 title="Delete Asset"
               >
                 <DeleteOutlinedIcon className="text-lg" />

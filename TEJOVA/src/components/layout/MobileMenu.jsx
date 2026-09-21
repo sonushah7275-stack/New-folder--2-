@@ -1,13 +1,22 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
-import { InstagramIcon, FacebookIcon, YoutubeIcon, LinkedinIcon } from '../common/SocialIcons';
-import { navLinks, secondaryNavLinks } from '../../data/navigation';
-import { Button } from '../common/Button';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, User, LogOut } from "lucide-react";
+import { InstagramIcon, FacebookIcon, YoutubeIcon, LinkedinIcon } from "../common/SocialIcons";
+import { navLinks, secondaryNavLinks } from "../../data/navigation";
+import { Button } from "../common/Button";
+import { logoutUser } from "../../Redux/slices/authSlice";
 
 export const MobileMenu = ({ isOpen, onClose }) => {
+  const dispatch = useDispatch();
   const location = useLocation();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    onClose();
+  };
 
   return (
     <AnimatePresence>
@@ -52,7 +61,7 @@ export const MobileMenu = ({ isOpen, onClose }) => {
                       to={link.path}
                       onClick={onClose}
                       className={`block font-serif text-2xl sm:text-3xl transition-colors ${
-                        isActive ? 'text-[#D4AF37]' : 'text-white/90 hover:text-[#D4AF37]'
+                        isActive ? "text-[#D4AF37]" : "text-white/90 hover:text-[#D4AF37]"
                       }`}
                     >
                       {link.name}
@@ -64,18 +73,47 @@ export const MobileMenu = ({ isOpen, onClose }) => {
 
             <hr className="border-[#B87333]/30 my-4 sm:my-6" />
 
-            {/* Secondary Links */}
-            <div className="flex space-x-6 text-sm text-white/80">
-              {secondaryNavLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  onClick={onClose}
-                  className="hover:text-[#D4AF37] transition-colors"
-                >
-                  {link.name}
-                </Link>
-              ))}
+            {/* Account / Secondary Links */}
+            <div className="flex flex-col space-y-3 text-sm text-white/80">
+              {isAuthenticated ? (
+                <div className="space-y-2">
+                  <Link
+                    to="/account"
+                    onClick={onClose}
+                    className="flex items-center space-x-2 text-[#D4AF37] font-semibold hover:underline"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>My Account ({user?.name || "Client"})</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center space-x-2 text-red-400 hover:text-red-300 font-medium cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="flex space-x-6">
+                  {secondaryNavLinks.map((link) => (
+                    <Link
+                      key={link.path}
+                      to={link.path}
+                      onClick={onClose}
+                      className="hover:text-[#D4AF37] transition-colors"
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                  <Link
+                    to="/login"
+                    onClick={onClose}
+                    className="hover:text-[#D4AF37] transition-colors font-medium"
+                  >
+                    Sign In
+                  </Link>
+                </div>
+              )}
             </div>
 
             <div className="pt-3 sm:pt-4">
