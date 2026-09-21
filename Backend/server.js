@@ -41,6 +41,8 @@ connectDB().then(async () => {
 const rawOrigins = [
   process.env.CLIENT_URL,
   process.env.ADMIN_URL,
+  process.env.FRONTEND_URL,
+  process.env.ADMIN_FRONTEND_URL,
   "http://localhost:3000",
   "http://localhost:3001",
   "http://localhost:5173",
@@ -85,14 +87,17 @@ app.get("/", (req, res) => {
   });
 });
 
-// Health Check Endpoint
-app.get("/api/health", (req, res) => {
+// Health Check Endpoints
+const healthCheckHandler = (req, res) => {
   return res.status(200).json({
     success: true,
     message: "TEJOVA API is running",
     timestamp: new Date().toISOString(),
   });
-});
+};
+
+app.get("/health", healthCheckHandler);
+app.get("/api/health", healthCheckHandler);
 
 // Mount API Routes
 app.use("/api/auth", authRoutes);
@@ -117,7 +122,7 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 TEJOVA Backend Server running on port ${PORT}`);
 });
 
