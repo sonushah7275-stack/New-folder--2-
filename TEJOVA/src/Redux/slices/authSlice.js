@@ -10,8 +10,13 @@ export const registerUser = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await api.post("/auth/register", userData);
+      const token = response.data?.token;
+      if (token) {
+        localStorage.setItem("tejova_user_token", token);
+      }
       return response.data?.user || response.data;
     } catch (error) {
+      localStorage.removeItem("tejova_user_token");
       const message =
         error.response?.data?.message || "Registration failed. Please check your inputs.";
       return rejectWithValue(message);
@@ -28,8 +33,13 @@ export const loginUser = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await api.post("/auth/login", credentials);
+      const token = response.data?.token;
+      if (token) {
+        localStorage.setItem("tejova_user_token", token);
+      }
       return response.data?.user || response.data;
     } catch (error) {
+      localStorage.removeItem("tejova_user_token");
       const message =
         error.response?.data?.message || "Invalid email or password.";
       return rejectWithValue(message);
@@ -38,7 +48,7 @@ export const loginUser = createAsyncThunk(
 );
 
 /**
- * Fetch authenticated current user profile via HTTP-only cookie
+ * Fetch authenticated current user profile via HTTP-only cookie or Bearer token
  * GET /api/auth/me
  */
 export const fetchCurrentUser = createAsyncThunk(
@@ -48,13 +58,14 @@ export const fetchCurrentUser = createAsyncThunk(
       const response = await api.get("/auth/me");
       return response.data?.user || response.data;
     } catch (error) {
+      localStorage.removeItem("tejova_user_token");
       return rejectWithValue(null);
     }
   }
 );
 
 /**
- * Logout user by clearing HTTP-only cookie
+ * Logout user by clearing HTTP-only cookie and local token
  * POST /api/auth/logout
  */
 export const logoutUser = createAsyncThunk(
@@ -62,10 +73,12 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await api.post("/auth/logout");
-      return true;
     } catch (error) {
-      return true;
+      // Ignore errors on logout
+    } finally {
+      localStorage.removeItem("tejova_user_token");
     }
+    return true;
   }
 );
 

@@ -11,6 +11,7 @@ export const adminLogin = createAsyncThunk(
     try {
       const response = await api.post("/auth/login", { email, password });
       const user = response.data?.user;
+      const token = response.data?.token;
 
       if (!user) {
         return rejectWithValue("Invalid server response.");
@@ -22,11 +23,17 @@ export const adminLogin = createAsyncThunk(
         try {
           await api.post("/auth/logout");
         } catch (_) {}
+        localStorage.removeItem("tejova_admin_token");
         return rejectWithValue("Access denied. Admin privileges required.");
+      }
+
+      if (token) {
+        localStorage.setItem("tejova_admin_token", token);
       }
 
       return user;
     } catch (error) {
+      localStorage.removeItem("tejova_admin_token");
       const message =
         error.response?.data?.message || "Login failed. Please check your credentials.";
       return rejectWithValue(message);
@@ -46,15 +53,18 @@ export const fetchAdminProfile = createAsyncThunk(
       const user = response.data?.user;
 
       if (!user) {
+        localStorage.removeItem("tejova_admin_token");
         return rejectWithValue("No user profile returned.");
       }
 
       if (user.role !== "ADMIN") {
+        localStorage.removeItem("tejova_admin_token");
         return rejectWithValue("Access denied. Admin privileges required.");
       }
 
       return user;
     } catch (error) {
+      localStorage.removeItem("tejova_admin_token");
       const message = error.response?.data?.message || "Session invalid or expired.";
       return rejectWithValue(message);
     }
@@ -70,11 +80,12 @@ export const adminLogout = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await api.post("/auth/logout");
-      return true;
     } catch (error) {
-      const message = error.response?.data?.message || "Logout failed.";
-      return rejectWithValue(message);
+      // Ignore errors on logout
+    } finally {
+      localStorage.removeItem("tejova_admin_token");
     }
+    return true;
   }
 );
 

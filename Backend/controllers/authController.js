@@ -49,8 +49,8 @@ export const register = async (req, res, next) => {
       role: "USER",
     });
 
-    // Generate JWT & set HTTP-only cookie (token is NOT exposed in JSON)
-    generateTokenAndSetCookie(res, user._id);
+    // Generate JWT & set HTTP-only cookie
+    const token = generateTokenAndSetCookie(res, user._id);
 
     return res.status(201).json({
       success: true,
@@ -61,6 +61,7 @@ export const register = async (req, res, next) => {
         email: user.email,
         role: user.role,
       },
+      token,
     });
   } catch (error) {
     next(error);
@@ -105,8 +106,8 @@ export const login = async (req, res, next) => {
     user.lastLogin = new Date();
     await user.save({ validateBeforeSave: false });
 
-    // Generate JWT & set HTTP-only cookie (token is NOT exposed in JSON)
-    generateTokenAndSetCookie(res, user._id);
+    // Generate JWT & set HTTP-only cookie
+    const token = generateTokenAndSetCookie(res, user._id);
 
     return res.status(200).json({
       success: true,
@@ -119,6 +120,7 @@ export const login = async (req, res, next) => {
         isActive: user.isActive,
         lastLogin: user.lastLogin,
       },
+      token,
     });
   } catch (error) {
     next(error);
