@@ -106,9 +106,11 @@ To establish TEJOVA as a premier digital sanctuary for botanical wellness—conn
 ---
 
 ## 12. Journal Features (Currently Implemented)
-- **Journal Schema:** Title, Slug, Excerpt, Content (HTML/Markdown), Category, Cover Image, Author, Read Time, Published Date, Featured flag, Tags array.
+- **Journal Schema:** Title, Slug, Excerpt, Content (HTML/Markdown), Category, Cover Image (`coverImage`), Article Font Style (`fontStyle`), Author, Read Time, Published Date, Featured flag, Tags array.
+- **Article Font Style Options:** `tejova-editorial` (default), `modern-editorial`, `classic-serif`, `clean-sans`.
+- **Cover Image Upload:** Direct Cloudinary uploader integrated into Admin Journal modal (`folder: "journal"`, accepts JPG, PNG, WEBP up to 5MB) replacing static URL text inputs.
 - **Public API:** Public listing (`GET /api/journal`), lookup by slug (`GET /api/journal/:slug`).
-- **Admin Management:** Full CRUD operations in Admin Dashboard (`/admin/journals`).
+- **Admin Management:** Full CRUD operations in Admin Dashboard (`/admin/journals`) with live cover image preview and font style selector.
 
 ---
 

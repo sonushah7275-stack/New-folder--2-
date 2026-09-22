@@ -52,7 +52,7 @@ This document contains long-term architectural memory, foundational design decis
 - `/api/users`: Admin customer account management (`GET`, `PATCH`, `DELETE`).
 - `/api/products`: Public product queries (`/`, `/slug/:slug`, `/:id`) & Admin product CRUD.
 - `/api/categories`: Public category listing & Admin category CRUD.
-- `/api/journal`: Public article list and single view (`/:slug`) & Admin journal CRUD.
+- `/api/journal`: Public article list and single view (`/:slug`) & Admin journal CRUD (supports `fontStyle` options: `tejova-editorial`, `modern-editorial`, `classic-serif`, `clean-sans` and Cloudinary `coverImage` upload).
 - `/api/pillars`: Public brand pillars & Admin pillar CRUD.
 - `/api/contact`: Public message submission (`POST /`) & Admin message inbox.
 - `/api/newsletter`: Public subscribe/unsubscribe & Admin subscriber list.

@@ -291,7 +291,7 @@ Mongoose Models in `Backend/models/`:
 - `User`: `name`, `email`, `password` (hashed, `select: false`), `role` (`"USER"` | `"ADMIN"`), `isActive`, `lastLogin`.
 - `Product`: `title`, `slug`, `subtitle`, `description`, `price`, `comparePrice`, `category`, `stock`, `images`, `isFeatured`, `isActive`, `tags`.
 - `Category`: `name`, `slug`, `description`, `image`, `isActive`.
-- `Journal`: `title`, `slug`, `excerpt`, `content`, `category`, `coverImage`, `author`, `readTime`, `publishedAt`, `isFeatured`, `tags`.
+- `Journal`: `title`, `slug`, `excerpt`, `content`, `category`, `coverImage`, `fontStyle` (`"tejova-editorial"`|`"modern-editorial"`|`"classic-serif"`|`"clean-sans"`), `author`, `readTime`, `publishedAt`, `isFeatured`, `tags`.
 - `Pillar`: `title`, `slug`, `description`, `heroImage`, `icon`, `items`, `order`, `isActive`.
 - `Order`: `orderNumber`, `user`, `items`, `totalAmount`, `status` (`"Pending"`|`"Processing"`|`"Shipped"`|`"Delivered"`|`"Cancelled"`), `shippingAddress`, `paymentStatus`.
 - `ContactMessage`: `name`, `email`, `subject`, `message`, `status` (`"New"`|`"Read"`|`"Replied"`|`"Archived"`).

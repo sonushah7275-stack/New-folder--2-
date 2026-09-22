@@ -108,6 +108,14 @@ This document tracks the verified completion status of project development phase
 - [x] Created `docs/TASKS.md` (Master Task Tracker).
 - [x] Created `docs/MEMORY.md` (Long-Term AI Project Memory).
 
+### Phase 3K — Journal Editor & Full Integration Verification
+- [x] Journal Cover Image Upload via backend Cloudinary endpoint (`folder: "journal"`).
+- [x] Cover Image preview, file size (<5MB) and type validation, change & remove state controls.
+- [x] Controlled Article Font Style dropdown (`tejova-editorial`, `modern-editorial`, `classic-serif`, `clean-sans`).
+- [x] `fontStyle` Mongoose schema support & default fallback.
+- [x] Public Journal article dynamic typography rendering.
+- [x] Full end-to-end integration and security audit passed.
+
 ---
 
 ## CURRENTLY PENDING (PHASE 4 PREPARATION)
