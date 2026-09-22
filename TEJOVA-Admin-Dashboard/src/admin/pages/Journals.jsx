@@ -4,6 +4,7 @@ import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import AdminBreadcrumb from "../components/AdminBreadcrumb";
@@ -15,6 +16,7 @@ import {
   createJournal,
   updateJournal,
   deleteJournal,
+  uploadJournalImage,
 } from "../../Redux/slices/journalSlice.js";
 
 export default function Journals() {
@@ -28,6 +30,8 @@ export default function Journals() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [imageError, setImageError] = useState(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -36,8 +40,9 @@ export default function Journals() {
     author: "Editorial Team",
     excerpt: "",
     content: "",
+    fontStyle: "tejova-editorial",
     status: "Draft",
-    coverImage: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80",
+    coverImage: "",
   });
 
   useEffect(() => {
@@ -59,6 +64,7 @@ export default function Journals() {
   }, [articles, selectedStatus, searchTerm]);
 
   const handleOpenModal = (article = null) => {
+    setImageError(null);
     if (article) {
       setEditingArticle(article);
       setFormData({
@@ -68,8 +74,9 @@ export default function Journals() {
         author: article.author || "Editorial Team",
         excerpt: article.excerpt || "",
         content: article.content || "",
+        fontStyle: article.fontStyle || "tejova-editorial",
         status: article.status || "Draft",
-        coverImage: article.coverImage || "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80",
+        coverImage: article.coverImage || "",
       });
     } else {
       setEditingArticle(null);
@@ -80,17 +87,60 @@ export default function Journals() {
         author: "Editorial Team",
         excerpt: "",
         content: "",
+        fontStyle: "tejova-editorial",
         status: "Draft",
-        coverImage: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80",
+        coverImage: "",
       });
     }
     setIsModalOpen(true);
   };
 
+  const handleFileSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      setImageError("Please select a valid image file (JPG, PNG, WEBP).");
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setImageError("File size exceeds 5MB limit. Please select a smaller image.");
+      return;
+    }
+
+    setImageError(null);
+    setUploadingCover(true);
+
+    try {
+      const imageUrl = await dispatch(uploadJournalImage(file)).unwrap();
+      if (imageUrl) {
+        setFormData((prev) => ({ ...prev, coverImage: imageUrl }));
+      }
+    } catch (err) {
+      setImageError(err || "Image upload failed. Please try again.");
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData((prev) => ({ ...prev, coverImage: "" }));
+    setImageError(null);
+  };
+
   const handleSaveArticle = (targetStatus = null) => {
-    if (!formData.title) return;
+    if (!formData.title || !formData.title.trim()) return;
+    if (uploadingCover) return;
 
     const finalStatus = targetStatus || formData.status;
+    if (!formData.coverImage && finalStatus === "Published") {
+      setImageError("Please upload a cover image before publishing.");
+      return;
+    }
+
     const slug = formData.slug || formData.title.toLowerCase().replace(/\s+/g, "-");
 
     const payload = {
@@ -215,7 +265,7 @@ export default function Journals() {
                 <div className="flex items-center gap-3.5">
                   <div className="w-14 h-10 rounded-lg bg-[#F5F3EF] border border-[#B87333]/30 overflow-hidden shrink-0">
                     <img
-                      src={art.coverImage}
+                      src={art.coverImage || "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80"}
                       alt={art.title}
                       className="w-full h-full object-cover"
                     />
@@ -345,6 +395,102 @@ export default function Journals() {
             />
           </div>
 
+          {/* Cover Image Upload */}
+          <div>
+            <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
+              Cover Image *
+            </label>
+
+            {formData.coverImage ? (
+              <div className="border border-[#B87333]/30 rounded-xl p-3 bg-[#FAF9F6]">
+                <div className="relative aspect-[16/9] w-full max-h-48 rounded-lg overflow-hidden border border-gray-200 mb-3 bg-gray-100">
+                  <img
+                    src={formData.coverImage}
+                    alt="Cover preview"
+                    className="w-full h-full object-cover"
+                  />
+                  {uploadingCover && (
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-xs flex flex-col items-center justify-center text-white text-xs font-semibold">
+                      <CircularProgress size={24} style={{ color: "#D4AF37" }} />
+                      <span className="mt-2">Uploading image...</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                    ✓ Upload successful
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <label className="px-2.5 py-1 rounded-lg border border-[#B87333] text-[#B87333] hover:bg-[#B87333]/10 font-bold transition-colors cursor-pointer">
+                      <span>Change Image</span>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                        disabled={uploadingCover}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      disabled={uploadingCover}
+                      className="px-2.5 py-1 rounded-lg border border-red-300 text-red-600 hover:bg-red-50 font-bold transition-colors cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <label className="border-2 border-dashed border-[#B87333]/40 hover:border-[#B87333] rounded-xl p-6 bg-[#FAF9F6] hover:bg-white transition-all flex flex-col items-center justify-center cursor-pointer group text-center">
+                {uploadingCover ? (
+                  <div className="py-2 text-center">
+                    <CircularProgress size={28} style={{ color: "#B87333" }} />
+                    <p className="text-xs font-semibold text-[#0A2342] mt-2">Uploading image to Cloudinary...</p>
+                  </div>
+                ) : (
+                  <>
+                    <CloudUploadIcon className="text-3xl text-[#B87333] group-hover:scale-110 transition-transform mb-2" />
+                    <span className="text-xs font-bold text-[#0A2342]">Upload Cover Image</span>
+                    <span className="text-[11px] text-gray-500 mt-1">JPG, PNG, WEBP • Max 5MB</span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  disabled={uploadingCover}
+                />
+              </label>
+            )}
+
+            {imageError && (
+              <p className="text-xs text-red-600 font-medium mt-1.5">⚠️ {imageError}</p>
+            )}
+          </div>
+
+          {/* Article Font Style */}
+          <div>
+            <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
+              Article Font Style
+            </label>
+            <select
+              value={formData.fontStyle || "tejova-editorial"}
+              onChange={(e) =>
+                setFormData({ ...formData, fontStyle: e.target.value })
+              }
+              className="w-full px-3 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl bg-white text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
+            >
+              <option value="tejova-editorial">TEJOVA Editorial</option>
+              <option value="modern-editorial">Modern Editorial</option>
+              <option value="classic-serif">Classic Serif</option>
+              <option value="clean-sans">Clean Sans</option>
+            </select>
+          </div>
+
           <div>
             <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
               Article Content
@@ -357,20 +503,6 @@ export default function Journals() {
               }
               placeholder="Write or paste your article content here..."
               className="w-full px-3 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333] font-sans"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
-              Cover Image URL
-            </label>
-            <input
-              type="text"
-              value={formData.coverImage}
-              onChange={(e) =>
-                setFormData({ ...formData, coverImage: e.target.value })
-              }
-              className="w-full px-3 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
             />
           </div>
 
@@ -387,7 +519,7 @@ export default function Journals() {
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                disabled={mutationLoading}
+                disabled={mutationLoading || uploadingCover}
                 onClick={() => handleSaveArticle("Draft")}
                 className="px-4 py-2 rounded-xl border border-[#B87333] text-[#B87333] hover:bg-[#B87333]/10 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
               >
@@ -395,7 +527,7 @@ export default function Journals() {
               </button>
               <button
                 type="button"
-                disabled={mutationLoading}
+                disabled={mutationLoading || uploadingCover}
                 onClick={() => handleSaveArticle("Published")}
                 className="px-5 py-2 rounded-xl bg-[#D4AF37] hover:bg-[#B87333] text-white text-xs font-bold shadow-md transition-all cursor-pointer disabled:opacity-50"
               >

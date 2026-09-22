@@ -106,6 +106,7 @@ export const createArticle = async (req, res, next) => {
       excerpt,
       content,
       coverImage,
+      fontStyle,
       category,
       tags,
       status,
@@ -137,6 +138,8 @@ export const createArticle = async (req, res, next) => {
     }
 
     const articleStatus = status === "PUBLISHED" ? "PUBLISHED" : "DRAFT";
+    const validFontStyles = ["tejova-editorial", "modern-editorial", "classic-serif", "clean-sans"];
+    const selectedFontStyle = validFontStyles.includes(fontStyle) ? fontStyle : "tejova-editorial";
 
     const article = await Journal.create({
       title: title.trim(),
@@ -144,6 +147,7 @@ export const createArticle = async (req, res, next) => {
       excerpt: excerpt ? excerpt.trim() : "",
       content: content.trim(),
       coverImage: coverImage || "",
+      fontStyle: selectedFontStyle,
       author: req.user._id,
       category: category ? category.trim() : "",
       tags: Array.isArray(tags) ? tags : [],
@@ -212,6 +216,12 @@ export const updateArticle = async (req, res, next) => {
     if (updates.excerpt !== undefined) article.excerpt = updates.excerpt.trim();
     if (updates.content !== undefined) article.content = updates.content.trim();
     if (updates.coverImage !== undefined) article.coverImage = updates.coverImage;
+    if (updates.fontStyle !== undefined) {
+      const validFontStyles = ["tejova-editorial", "modern-editorial", "classic-serif", "clean-sans"];
+      if (validFontStyles.includes(updates.fontStyle)) {
+        article.fontStyle = updates.fontStyle;
+      }
+    }
     if (updates.category !== undefined) article.category = updates.category.trim();
     if (Array.isArray(updates.tags)) article.tags = updates.tags;
     if (updates.isFeatured !== undefined) article.isFeatured = Boolean(updates.isFeatured);

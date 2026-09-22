@@ -7,6 +7,13 @@ import { Clock, Calendar, ArrowLeft, RefreshCw } from "lucide-react";
 import { fetchArticleBySlug } from "../Redux/slices/journalSlice";
 import { articles as staticArticles } from "../data/articles";
 
+const fontStyleClasses = {
+  "tejova-editorial": "font-serif text-[#0A2342]/90 leading-relaxed text-base sm:text-lg space-y-6",
+  "modern-editorial": "font-sans text-[#0A2342]/85 leading-loose text-base sm:text-lg space-y-6",
+  "classic-serif": "font-serif text-[#0A2342] leading-relaxed text-base sm:text-lg space-y-6",
+  "clean-sans": "font-sans text-[#0A2342]/85 leading-normal text-base sm:text-md space-y-5",
+};
+
 export const ArticleDetailPage = () => {
   const { slug } = useParams();
   const dispatch = useDispatch();
@@ -25,13 +32,16 @@ export const ArticleDetailPage = () => {
     ...rawArticle,
     id: rawArticle._id || rawArticle.id,
     category: rawArticle.category || rawArticle.tags?.[0] || "Conscious Living",
-    image: rawArticle.image || rawArticle.featuredImage || "/assets/images/lifestyle-meditation.svg",
+    image: rawArticle.coverImage || rawArticle.image || rawArticle.featuredImage || "/assets/images/lifestyle-meditation.svg",
     date: rawArticle.publishedAt ? new Date(rawArticle.publishedAt).toLocaleDateString() : rawArticle.date || "Recently Published",
     readTime: rawArticle.readTime || "5 min read",
     author: typeof rawArticle.author === "object" ? rawArticle.author?.name || "TEJOVA Editorial" : rawArticle.author || "TEJOVA Editorial",
     authorRole: "Wellness Researcher",
     content: rawArticle.content || "<p>Detailed article content loading...</p>",
+    fontStyle: rawArticle.fontStyle || "tejova-editorial",
   };
+
+  const currentFontStyleClass = fontStyleClasses[article.fontStyle] || fontStyleClasses["tejova-editorial"];
 
   const relatedArticles = allArticles && allArticles.length > 0
     ? allArticles.filter(a => a.slug !== slug).slice(0, 3)
@@ -97,7 +107,7 @@ export const ArticleDetailPage = () => {
 
             {/* Content Body */}
             <div
-              className="prose prose-lg max-w-none text-[#0A2342]/85 font-light leading-relaxed space-y-6 text-base sm:text-lg"
+              className={`prose prose-lg max-w-none ${currentFontStyleClass}`}
               dangerouslySetInnerHTML={{ __html: article.content }}
             />
 
