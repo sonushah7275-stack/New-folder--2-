@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, Extension } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Underline } from "@tiptap/extension-underline";
 import { TextStyle } from "@tiptap/extension-text-style";
@@ -8,7 +8,13 @@ import { Highlight } from "@tiptap/extension-highlight";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { Image } from "@tiptap/extension-image";
 import { Link } from "@tiptap/extension-link";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { TableCell } from "@tiptap/extension-table-cell";
 
+import UndoIcon from "@mui/icons-material/Undo";
+import RedoIcon from "@mui/icons-material/Redo";
 import FormatBoldIcon from "@mui/icons-material/FormatBold";
 import FormatItalicIcon from "@mui/icons-material/FormatItalic";
 import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
@@ -25,9 +31,78 @@ import LinkOffIcon from "@mui/icons-material/LinkOff";
 import ImageIcon from "@mui/icons-material/Image";
 import PaletteIcon from "@mui/icons-material/Palette";
 import HighlightIcon from "@mui/icons-material/Highlight";
+import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
+import TableChartIcon from "@mui/icons-material/TableChart";
+import AddRowBeforeIcon from "@mui/icons-material/MoveToInbox";
+import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import api from "../../config/api.js";
+
+// Whitelisted Font Sizes
+export const FONT_SIZES = [
+  "10px",
+  "11px",
+  "12px",
+  "14px",
+  "16px",
+  "18px",
+  "20px",
+  "24px",
+  "28px",
+  "32px",
+  "36px",
+  "48px",
+];
+
+// Custom Tiptap Font Size Extension
+const FontSize = Extension.create({
+  name: "fontSize",
+  addOptions() {
+    return {
+      types: ["textStyle"],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: (element) => {
+              const size = element.style.fontSize?.replace(/['"]+/g, "");
+              return FONT_SIZES.includes(size) ? size : null;
+            },
+            renderHTML: (attributes) => {
+              if (!attributes.fontSize || !FONT_SIZES.includes(attributes.fontSize)) {
+                return {};
+              }
+              return {
+                style: `font-size: ${attributes.fontSize}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setFontSize:
+        (fontSize) =>
+        ({ chain }) => {
+          if (!FONT_SIZES.includes(fontSize)) return false;
+          return chain().setMark("textStyle", { fontSize }).run();
+        },
+      unsetFontSize:
+        () =>
+        ({ chain }) => {
+          return chain().setMark("textStyle", { fontSize: null }).removeEmptyTextStyle().run();
+        },
+    };
+  },
+});
 
 // TEJOVA Color Palette
 const TEJOVA_COLORS = [
@@ -46,6 +121,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
   const [imageError, setImageError] = useState(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showHighlightPicker, setShowHighlightPicker] = useState(false);
+  const [showTablePicker, setShowTablePicker] = useState(false);
   const [captionInput, setCaptionInput] = useState("");
   const [pendingImageUrl, setPendingImageUrl] = useState("");
   const [showCaptionModal, setShowCaptionModal] = useState(false);
@@ -59,6 +135,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
       }),
       Underline,
       TextStyle,
+      FontSize,
       Color,
       Highlight.configure({ multicolor: true }),
       TextAlign.configure({
@@ -68,13 +145,34 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
         inline: false,
         allowBase64: false,
         HTMLAttributes: {
-          class: "rounded-lg max-w-full my-4 border border-gray-200 shadow-sm mx-auto block",
+          class: "rounded-lg max-w-full my-4 border border-gray-200 shadow-xs mx-auto block",
         },
       }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
           class: "text-[#B87333] underline hover:text-[#0A2342] transition-colors font-medium",
+        },
+      }),
+      Table.configure({
+        resizable: true,
+        HTMLAttributes: {
+          class: "border-collapse border border-[#0A2342]/20 my-4 w-full text-xs font-sans shadow-xs rounded-lg overflow-hidden",
+        },
+      }),
+      TableRow.configure({
+        HTMLAttributes: {
+          class: "border-b border-[#0A2342]/15 hover:bg-[#FAF9F6]/50 transition-colors",
+        },
+      }),
+      TableHeader.configure({
+        HTMLAttributes: {
+          class: "bg-[#FAF9F6] border border-[#0A2342]/20 px-3 py-2 text-left font-serif font-bold text-[#0A2342]",
+        },
+      }),
+      TableCell.configure({
+        HTMLAttributes: {
+          class: "border border-[#0A2342]/15 px-3 py-2 text-[#0A2342]",
         },
       }),
     ],
@@ -150,7 +248,6 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
 
     const caption = captionInput.trim();
     if (caption) {
-      // Insert image with figure & caption wrapper or title attribute
       editor
         .chain()
         .focus()
@@ -184,302 +281,507 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
     editor.chain().focus().extendMarkRange("link").setLink({ href: url.trim() }).run();
   };
 
+  const handleInsertTable = (cols, rows) => {
+    editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+    setShowTablePicker(false);
+  };
+
+  // Get active font size
+  const activeFontSize = editor.getAttributes("textStyle").fontSize || "";
+
   return (
     <div className="border border-[#0A2342]/30 rounded-xl overflow-hidden bg-white shadow-xs">
-      {/* Editor Toolbar */}
+      {/* Editor Main Toolbar */}
       <div className="p-2.5 bg-[#FAF9F6] border-b border-[#0A2342]/15 flex flex-wrap items-center gap-1.5 text-xs text-[#0A2342]">
-        {/* Headings Dropdown */}
-        <select
-          value={
-            editor.isActive("heading", { level: 1 })
-              ? "h1"
-              : editor.isActive("heading", { level: 2 })
-              ? "h2"
-              : editor.isActive("heading", { level: 3 })
-              ? "h3"
-              : editor.isActive("heading", { level: 4 })
-              ? "h4"
-              : "p"
-          }
-          onChange={(e) => {
-            const val = e.target.value;
-            if (val === "p") editor.chain().focus().setParagraph().run();
-            else if (val === "h1") editor.chain().focus().toggleHeading({ level: 1 }).run();
-            else if (val === "h2") editor.chain().focus().toggleHeading({ level: 2 }).run();
-            else if (val === "h3") editor.chain().focus().toggleHeading({ level: 3 }).run();
-            else if (val === "h4") editor.chain().focus().toggleHeading({ level: 4 }).run();
-          }}
-          className="px-2 py-1 border border-[#0A2342]/20 rounded-lg bg-white text-[#0A2342] font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-[#B87333]"
-        >
-          <option value="p">Paragraph</option>
-          <option value="h1">Heading 1</option>
-          <option value="h2">Heading 2</option>
-          <option value="h3">Heading 3</option>
-          <option value="h4">Heading 4</option>
-        </select>
-
-        <div className="w-px h-5 bg-gray-300 mx-1" />
-
-        {/* Text Styling */}
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-            editor.isActive("bold") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
-          }`}
-          title="Bold"
-        >
-          <FormatBoldIcon fontSize="small" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-            editor.isActive("italic") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
-          }`}
-          title="Italic"
-        >
-          <FormatItalicIcon fontSize="small" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
-          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-            editor.isActive("underline") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
-          }`}
-          title="Underline"
-        >
-          <FormatUnderlinedIcon fontSize="small" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleStrike().run()}
-          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-            editor.isActive("strike") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
-          }`}
-          title="Strikethrough"
-        >
-          <StrikethroughSIcon fontSize="small" />
-        </button>
-
-        <div className="w-px h-5 bg-gray-300 mx-1" />
-
-        {/* Text Color Picker */}
-        <div className="relative">
+        {/* GROUP 1: HISTORY */}
+        <div className="flex items-center gap-0.5">
           <button
             type="button"
-            onClick={() => {
-              setShowColorPicker(!showColorPicker);
-              setShowHighlightPicker(false);
-            }}
-            className="p-1.5 rounded-lg hover:bg-gray-200 text-[#0A2342] flex items-center gap-1 cursor-pointer"
-            title="Text Color"
+            onClick={() => editor.chain().focus().undo().run()}
+            disabled={!editor.can().undo()}
+            className="p-1.5 rounded-lg hover:bg-gray-200 disabled:opacity-30 text-[#0A2342] cursor-pointer"
+            title="Undo (Ctrl+Z)"
           >
-            <PaletteIcon fontSize="small" />
+            <UndoIcon fontSize="small" />
           </button>
 
-          {showColorPicker && (
-            <div className="absolute top-full left-0 mt-1 p-2 bg-white border border-gray-200 rounded-xl shadow-lg z-20 flex gap-1.5 w-max">
-              {TEJOVA_COLORS.map((c) => (
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().redo().run()}
+            disabled={!editor.can().redo()}
+            className="p-1.5 rounded-lg hover:bg-gray-200 disabled:opacity-30 text-[#0A2342] cursor-pointer"
+            title="Redo (Ctrl+Y)"
+          >
+            <RedoIcon fontSize="small" />
+          </button>
+        </div>
+
+        <div className="w-px h-5 bg-gray-300 mx-1" />
+
+        {/* GROUP 2: TYPOGRAPHY (FONT SIZE & HEADINGS) */}
+        <div className="flex items-center gap-1.5">
+          {/* Font Size Selector */}
+          <select
+            value={activeFontSize}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (!val) {
+                editor.chain().focus().unsetFontSize().run();
+              } else {
+                editor.chain().focus().setFontSize(val).run();
+              }
+            }}
+            className="px-2 py-1 border border-[#0A2342]/20 rounded-lg bg-white text-[#0A2342] font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-[#B87333]"
+            title="Font Size"
+          >
+            <option value="">Size (Default)</option>
+            {FONT_SIZES.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+
+          {/* Headings Dropdown */}
+          <select
+            value={
+              editor.isActive("heading", { level: 1 })
+                ? "h1"
+                : editor.isActive("heading", { level: 2 })
+                ? "h2"
+                : editor.isActive("heading", { level: 3 })
+                ? "h3"
+                : editor.isActive("heading", { level: 4 })
+                ? "h4"
+                : "p"
+            }
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === "p") editor.chain().focus().setParagraph().run();
+              else if (val === "h1") editor.chain().focus().toggleHeading({ level: 1 }).run();
+              else if (val === "h2") editor.chain().focus().toggleHeading({ level: 2 }).run();
+              else if (val === "h3") editor.chain().focus().toggleHeading({ level: 3 }).run();
+              else if (val === "h4") editor.chain().focus().toggleHeading({ level: 4 }).run();
+            }}
+            className="px-2 py-1 border border-[#0A2342]/20 rounded-lg bg-white text-[#0A2342] font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-[#B87333]"
+          >
+            <option value="p">Paragraph</option>
+            <option value="h1">Heading 1</option>
+            <option value="h2">Heading 2</option>
+            <option value="h3">Heading 3</option>
+            <option value="h4">Heading 4</option>
+          </select>
+        </div>
+
+        <div className="w-px h-5 bg-gray-300 mx-1" />
+
+        {/* GROUP 3: TEXT FORMATTING */}
+        <div className="flex items-center gap-0.5">
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              editor.isActive("bold") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+            }`}
+            title="Bold (Ctrl+B)"
+          >
+            <FormatBoldIcon fontSize="small" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              editor.isActive("italic") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+            }`}
+            title="Italic (Ctrl+I)"
+          >
+            <FormatItalicIcon fontSize="small" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              editor.isActive("underline") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+            }`}
+            title="Underline (Ctrl+U)"
+          >
+            <FormatUnderlinedIcon fontSize="small" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleStrike().run()}
+            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              editor.isActive("strike") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+            }`}
+            title="Strikethrough"
+          >
+            <StrikethroughSIcon fontSize="small" />
+          </button>
+        </div>
+
+        <div className="w-px h-5 bg-gray-300 mx-1" />
+
+        {/* GROUP 4: COLOR */}
+        <div className="flex items-center gap-0.5">
+          {/* Text Color */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                setShowColorPicker(!showColorPicker);
+                setShowHighlightPicker(false);
+                setShowTablePicker(false);
+              }}
+              className="p-1.5 rounded-lg hover:bg-gray-200 text-[#0A2342] flex items-center gap-1 cursor-pointer"
+              title="Text Color"
+            >
+              <PaletteIcon fontSize="small" />
+            </button>
+
+            {showColorPicker && (
+              <div className="absolute top-full left-0 mt-1 p-2 bg-white border border-gray-200 rounded-xl shadow-lg z-30 flex gap-1.5 w-max">
+                {TEJOVA_COLORS.map((c) => (
+                  <button
+                    key={c.value}
+                    type="button"
+                    onClick={() => {
+                      editor.chain().focus().setColor(c.value).run();
+                      setShowColorPicker(false);
+                    }}
+                    className="w-5 h-5 rounded-full border border-gray-300 transition-transform hover:scale-110 cursor-pointer"
+                    style={{ backgroundColor: c.value }}
+                    title={c.name}
+                  />
+                ))}
                 <button
-                  key={c.value}
                   type="button"
                   onClick={() => {
-                    editor.chain().focus().setColor(c.value).run();
+                    editor.chain().focus().unsetColor().run();
                     setShowColorPicker(false);
                   }}
-                  className="w-5 h-5 rounded-full border border-gray-300 transition-transform hover:scale-110 cursor-pointer"
-                  style={{ backgroundColor: c.value }}
-                  title={c.name}
-                />
-              ))}
-              <button
-                type="button"
-                onClick={() => {
-                  editor.chain().focus().unsetColor().run();
-                  setShowColorPicker(false);
-                }}
-                className="text-[10px] text-gray-500 hover:text-black font-semibold px-1"
-              >
-                Reset
-              </button>
-            </div>
-          )}
-        </div>
+                  className="text-[10px] text-gray-500 hover:text-black font-semibold px-1"
+                >
+                  Reset
+                </button>
+              </div>
+            )}
+          </div>
 
-        {/* Highlight Color Picker */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => {
-              setShowHighlightPicker(!showHighlightPicker);
-              setShowColorPicker(false);
-            }}
-            className="p-1.5 rounded-lg hover:bg-gray-200 text-[#0A2342] flex items-center gap-1 cursor-pointer"
-            title="Highlight Color"
-          >
-            <HighlightIcon fontSize="small" />
-          </button>
+          {/* Highlight Color */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                setShowHighlightPicker(!showHighlightPicker);
+                setShowColorPicker(false);
+                setShowTablePicker(false);
+              }}
+              className="p-1.5 rounded-lg hover:bg-gray-200 text-[#0A2342] flex items-center gap-1 cursor-pointer"
+              title="Highlight Color"
+            >
+              <HighlightIcon fontSize="small" />
+            </button>
 
-          {showHighlightPicker && (
-            <div className="absolute top-full left-0 mt-1 p-2 bg-white border border-gray-200 rounded-xl shadow-lg z-20 flex gap-1.5 w-max">
-              {TEJOVA_COLORS.map((c) => (
+            {showHighlightPicker && (
+              <div className="absolute top-full left-0 mt-1 p-2 bg-white border border-gray-200 rounded-xl shadow-lg z-30 flex gap-1.5 w-max">
+                {TEJOVA_COLORS.map((c) => (
+                  <button
+                    key={c.value}
+                    type="button"
+                    onClick={() => {
+                      editor.chain().focus().toggleHighlight({ color: c.value }).run();
+                      setShowHighlightPicker(false);
+                    }}
+                    className="w-5 h-5 rounded-full border border-gray-300 transition-transform hover:scale-110 cursor-pointer"
+                    style={{ backgroundColor: c.value }}
+                    title={c.name}
+                  />
+                ))}
                 <button
-                  key={c.value}
                   type="button"
                   onClick={() => {
-                    editor.chain().focus().toggleHighlight({ color: c.value }).run();
+                    editor.chain().focus().unsetHighlight().run();
                     setShowHighlightPicker(false);
                   }}
-                  className="w-5 h-5 rounded-full border border-gray-300 transition-transform hover:scale-110 cursor-pointer"
-                  style={{ backgroundColor: c.value }}
-                  title={c.name}
-                />
-              ))}
-              <button
-                type="button"
-                onClick={() => {
-                  editor.chain().focus().unsetHighlight().run();
-                  setShowHighlightPicker(false);
-                }}
-                className="text-[10px] text-gray-500 hover:text-black font-semibold px-1"
-              >
-                Reset
-              </button>
-            </div>
-          )}
+                  className="text-[10px] text-gray-500 hover:text-black font-semibold px-1"
+                >
+                  Reset
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="w-px h-5 bg-gray-300 mx-1" />
 
-        {/* Alignment */}
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().setTextAlign("left").run()}
-          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-            editor.isActive({ textAlign: "left" }) ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
-          }`}
-          title="Align Left"
-        >
-          <FormatAlignLeftIcon fontSize="small" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().setTextAlign("center").run()}
-          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-            editor.isActive({ textAlign: "center" }) ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
-          }`}
-          title="Align Center"
-        >
-          <FormatAlignCenterIcon fontSize="small" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().setTextAlign("right").run()}
-          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-            editor.isActive({ textAlign: "right" }) ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
-          }`}
-          title="Align Right"
-        >
-          <FormatAlignRightIcon fontSize="small" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
-          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-            editor.isActive({ textAlign: "justify" }) ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
-          }`}
-          title="Justify"
-        >
-          <FormatAlignJustifyIcon fontSize="small" />
-        </button>
-
-        <div className="w-px h-5 bg-gray-300 mx-1" />
-
-        {/* Lists */}
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-            editor.isActive("bulletList") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
-          }`}
-          title="Bullet List"
-        >
-          <FormatListBulletedIcon fontSize="small" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-            editor.isActive("orderedList") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
-          }`}
-          title="Numbered List"
-        >
-          <FormatListNumberedIcon fontSize="small" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-            editor.isActive("blockquote") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
-          }`}
-          title="Blockquote"
-        >
-          <FormatQuoteIcon fontSize="small" />
-        </button>
-
-        <div className="w-px h-5 bg-gray-300 mx-1" />
-
-        {/* Link */}
-        <button
-          type="button"
-          onClick={handleSetLink}
-          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-            editor.isActive("link") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
-          }`}
-          title="Insert Hyperlink"
-        >
-          <InsertLinkIcon fontSize="small" />
-        </button>
-
-        {editor.isActive("link") && (
+        {/* GROUP 5: ALIGNMENT */}
+        <div className="flex items-center gap-0.5">
           <button
             type="button"
-            onClick={() => editor.chain().focus().unsetLink().run()}
-            className="p-1.5 rounded-lg hover:bg-gray-200 text-red-600 cursor-pointer"
-            title="Remove Link"
+            onClick={() => editor.chain().focus().setTextAlign("left").run()}
+            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              editor.isActive({ textAlign: "left" }) ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+            }`}
+            title="Align Left"
           >
-            <LinkOffIcon fontSize="small" />
+            <FormatAlignLeftIcon fontSize="small" />
           </button>
-        )}
+
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().setTextAlign("center").run()}
+            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              editor.isActive({ textAlign: "center" }) ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+            }`}
+            title="Align Center"
+          >
+            <FormatAlignCenterIcon fontSize="small" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().setTextAlign("right").run()}
+            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              editor.isActive({ textAlign: "right" }) ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+            }`}
+            title="Align Right"
+          >
+            <FormatAlignRightIcon fontSize="small" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              editor.isActive({ textAlign: "justify" }) ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+            }`}
+            title="Justify"
+          >
+            <FormatAlignJustifyIcon fontSize="small" />
+          </button>
+        </div>
 
         <div className="w-px h-5 bg-gray-300 mx-1" />
 
-        {/* Inline Image Upload */}
-        <label className="p-1.5 rounded-lg hover:bg-gray-200 text-[#0A2342] flex items-center gap-1 cursor-pointer">
-          {uploadingImage ? (
-            <CircularProgress size={16} style={{ color: "#B87333" }} />
-          ) : (
-            <ImageIcon fontSize="small" />
+        {/* GROUP 6: LISTS */}
+        <div className="flex items-center gap-0.5">
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              editor.isActive("bulletList") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+            }`}
+            title="Bullet List"
+          >
+            <FormatListBulletedIcon fontSize="small" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              editor.isActive("orderedList") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+            }`}
+            title="Numbered List"
+          >
+            <FormatListNumberedIcon fontSize="small" />
+          </button>
+        </div>
+
+        <div className="w-px h-5 bg-gray-300 mx-1" />
+
+        {/* GROUP 7: BLOCKS (BLOCKQUOTE & HR) */}
+        <div className="flex items-center gap-0.5">
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              editor.isActive("blockquote") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+            }`}
+            title="Blockquote"
+          >
+            <FormatQuoteIcon fontSize="small" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().setHorizontalRule().run()}
+            className="p-1.5 rounded-lg hover:bg-gray-200 text-[#0A2342] cursor-pointer"
+            title="Insert Horizontal Line (<hr>)"
+          >
+            <HorizontalRuleIcon fontSize="small" />
+          </button>
+        </div>
+
+        <div className="w-px h-5 bg-gray-300 mx-1" />
+
+        {/* GROUP 8: INSERT (LINK, IMAGE, TABLE) */}
+        <div className="flex items-center gap-1">
+          {/* Link */}
+          <button
+            type="button"
+            onClick={handleSetLink}
+            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              editor.isActive("link") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+            }`}
+            title="Insert Hyperlink"
+          >
+            <InsertLinkIcon fontSize="small" />
+          </button>
+
+          {editor.isActive("link") && (
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().unsetLink().run()}
+              className="p-1.5 rounded-lg hover:bg-gray-200 text-red-600 cursor-pointer"
+              title="Remove Link"
+            >
+              <LinkOffIcon fontSize="small" />
+            </button>
           )}
-          <span className="text-[11px] font-bold">Add Image</span>
-          <input
-            type="file"
-            accept="image/jpeg,image/jpg,image/png,image/webp"
-            onChange={handleInlineImageSelect}
-            className="hidden"
-            disabled={uploadingImage}
-          />
-        </label>
+
+          {/* Inline Image */}
+          <label className="p-1.5 rounded-lg hover:bg-gray-200 text-[#0A2342] flex items-center gap-1 cursor-pointer">
+            {uploadingImage ? (
+              <CircularProgress size={16} style={{ color: "#B87333" }} />
+            ) : (
+              <ImageIcon fontSize="small" />
+            )}
+            <input
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              onChange={handleInlineImageSelect}
+              className="hidden"
+              disabled={uploadingImage}
+            />
+          </label>
+
+          {/* Insert Table Grid Dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                setShowTablePicker(!showTablePicker);
+                setShowColorPicker(false);
+                setShowHighlightPicker(false);
+              }}
+              className={`p-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1 ${
+                editor.isActive("table") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+              }`}
+              title="Insert Table"
+            >
+              <TableChartIcon fontSize="small" />
+              <span className="text-[11px] font-bold">Table</span>
+            </button>
+
+            {showTablePicker && (
+              <div className="absolute top-full right-0 mt-1 p-3 bg-white border border-gray-200 rounded-xl shadow-xl z-30 w-48 space-y-2">
+                <div className="text-[11px] font-bold text-[#0A2342] uppercase tracking-wider">
+                  Select Table Grid
+                </div>
+                <div className="grid grid-cols-2 gap-1 text-xs">
+                  {[
+                    { label: "2 × 2", cols: 2, rows: 2 },
+                    { label: "2 × 3", cols: 2, rows: 3 },
+                    { label: "3 × 3", cols: 3, rows: 3 },
+                    { label: "3 × 4", cols: 3, rows: 4 },
+                    { label: "4 × 4", cols: 4, rows: 4 },
+                    { label: "4 × 5", cols: 4, rows: 5 },
+                    { label: "5 × 5", cols: 5, rows: 5 },
+                  ].map((grid) => (
+                    <button
+                      key={grid.label}
+                      type="button"
+                      onClick={() => handleInsertTable(grid.cols, grid.rows)}
+                      className="px-2 py-1 bg-[#FAF9F6] hover:bg-[#B87333] hover:text-white border border-gray-200 rounded-lg text-gray-700 font-semibold transition-colors text-center cursor-pointer"
+                    >
+                      {grid.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* Contextual Table Action Toolbar (Shown when cursor is inside a table) */}
+      {editor.isActive("table") && (
+        <div className="px-3 py-1.5 bg-[#0A2342] text-white text-xs flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="font-bold text-[#D4AF37] uppercase text-[10px] tracking-wider mr-1">
+              Table Tools:
+            </span>
+
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().addRowBefore().run()}
+              className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[11px] font-medium transition-colors"
+            >
+              + Row Before
+            </button>
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().addRowAfter().run()}
+              className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[11px] font-medium transition-colors"
+            >
+              + Row After
+            </button>
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().deleteRow().run()}
+              className="px-2 py-0.5 bg-red-500/30 hover:bg-red-500/50 text-red-200 rounded text-[11px] font-medium transition-colors"
+            >
+              Delete Row
+            </button>
+
+            <span className="text-white/30">|</span>
+
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().addColumnBefore().run()}
+              className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[11px] font-medium transition-colors"
+            >
+              + Col Before
+            </button>
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().addColumnAfter().run()}
+              className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[11px] font-medium transition-colors"
+            >
+              + Col After
+            </button>
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().deleteColumn().run()}
+              className="px-2 py-0.5 bg-red-500/30 hover:bg-red-500/50 text-red-200 rounded text-[11px] font-medium transition-colors"
+            >
+              Delete Col
+            </button>
+
+            <span className="text-white/30">|</span>
+
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().toggleHeaderRow().run()}
+              className="px-2 py-0.5 bg-[#D4AF37]/30 hover:bg-[#D4AF37]/50 text-[#D4AF37] rounded text-[11px] font-bold transition-colors"
+            >
+              Toggle Header
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().deleteTable().run()}
+            className="px-2 py-0.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded text-[11px] flex items-center gap-1 transition-colors"
+          >
+            <DeleteSweepIcon fontSize="inherit" /> Delete Table
+          </button>
+        </div>
+      )}
 
       {/* Upload Error Banner */}
       {imageError && (

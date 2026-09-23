@@ -107,15 +107,17 @@ export const ArticleDetailPage = () => {
             </div>
 
             {/* Content Body */}
-            <div
-              className={`prose prose-lg max-w-none ${currentFontStyleClass} [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:text-[#0A2342] [&_h1]:mt-8 [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-[#0A2342] [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-[#0A2342] [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-lg [&_h4]:font-semibold [&_h4]:text-[#0A2342] [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-4 [&_blockquote]:border-l-4 [&_blockquote]:border-[#B87333] [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:my-4 [&_img]:rounded-lg [&_img]:max-w-full [&_img]:my-4 [&_img]:shadow-xs [&_img]:mx-auto [&_figcaption]:text-xs [&_figcaption]:text-gray-500 [&_figcaption]:text-center [&_figcaption]:italic [&_figcaption]:mt-1 [&_a]:text-[#B87333] [&_a]:underline [&_a]:hover:text-[#0A2342]`}
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(article.content || "", {
-                  ADD_TAGS: ["figure", "figcaption"],
-                  ADD_ATTR: ["target", "rel", "style"],
-                }),
-              }}
-            />
+            <div className="overflow-x-auto">
+              <div
+                className={`prose prose-lg max-w-none ${currentFontStyleClass} [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:text-[#0A2342] [&_h1]:mt-8 [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-[#0A2342] [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-[#0A2342] [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-lg [&_h4]:font-semibold [&_h4]:text-[#0A2342] [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-4 [&_blockquote]:border-l-4 [&_blockquote]:border-[#B87333] [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:my-4 [&_img]:rounded-lg [&_img]:max-w-full [&_img]:my-4 [&_img]:shadow-xs [&_img]:mx-auto [&_figcaption]:text-xs [&_figcaption]:text-gray-500 [&_figcaption]:text-center [&_figcaption]:italic [&_figcaption]:mt-1 [&_a]:text-[#B87333] [&_a]:underline [&_a]:hover:text-[#0A2342] [&_hr]:border-t-2 [&_hr]:border-[#B87333]/30 [&_hr]:my-8 [&_hr]:max-w-full [&_table]:w-full [&_table]:border-collapse [&_table]:my-6 [&_table]:border [&_table]:border-[#0A2342]/20 [&_table]:text-xs sm:[&_table]:text-sm [&_th]:bg-[#FAF9F6] [&_th]:border [&_th]:border-[#0A2342]/20 [&_th]:px-3 sm:[&_th]:px-4 [&_th]:py-2.5 [&_th]:text-left [&_th]:font-serif [&_th]:font-bold [&_th]:text-[#0A2342] [&_td]:border [&_td]:border-[#0A2342]/15 [&_td]:px-3 sm:[&_td]:px-4 [&_td]:py-2.5 [&_td]:text-[#0A2342] [&_tr:hover]:bg-[#FAF9F6]/50`}
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(article.content || "", {
+                    ADD_TAGS: ["figure", "figcaption", "table", "thead", "tbody", "tr", "th", "td", "hr"],
+                    ADD_ATTR: ["target", "rel", "style", "colspan", "rowspan", "src", "alt", "title", "class"],
+                  }),
+                }}
+              />
+            </div>
 
             {/* Author Bio Box */}
             <div className="mt-16 p-6 sm:p-8 bg-[#FAF9F6] rounded-xs border-l-4 border-l-[#B87333] border-y border-r border-[#B87333]/20 flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 shadow-xs">
