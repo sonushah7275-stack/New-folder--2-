@@ -4,6 +4,7 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import AdminBreadcrumb from "../components/AdminBreadcrumb";
@@ -14,6 +15,7 @@ import {
   createPillar,
   updatePillar,
   deletePillar,
+  uploadPillarImage,
 } from "../../Redux/slices/pillarSlice.js";
 
 export default function Pillars() {
@@ -24,6 +26,8 @@ export default function Pillars() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPillar, setEditingPillar] = useState(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [imageError, setImageError] = useState(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -31,7 +35,7 @@ export default function Pillars() {
     description: "",
     status: "Active",
     order: 1,
-    image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=500&q=80",
+    image: "",
     metrics: "Brand Pillar",
   });
 
@@ -40,6 +44,7 @@ export default function Pillars() {
   }, [dispatch]);
 
   const handleOpenModal = (pillar = null) => {
+    setImageError(null);
     if (pillar) {
       setEditingPillar(pillar);
       setFormData({
@@ -48,7 +53,7 @@ export default function Pillars() {
         description: pillar.description || "",
         status: pillar.status || (pillar.isActive !== false ? "Active" : "Draft"),
         order: pillar.order || 1,
-        image: pillar.image || "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=500&q=80",
+        image: pillar.image || "",
         metrics: pillar.metrics || "Brand Pillar",
       });
     } else {
@@ -59,16 +64,58 @@ export default function Pillars() {
         description: "",
         status: "Active",
         order: (pillars || []).length + 1,
-        image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=500&q=80",
+        image: "",
         metrics: "Brand Pillar",
       });
     }
     setIsModalOpen(true);
   };
 
+  const handleFileSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      setImageError("Please upload a JPG, JPEG, PNG, or WEBP image.");
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB limit
+    if (file.size > maxSize) {
+      setImageError("Image size must be 5 MB or less.");
+      return;
+    }
+
+    setImageError(null);
+    setUploadingCover(true);
+
+    try {
+      const imageUrl = await dispatch(uploadPillarImage(file)).unwrap();
+      if (imageUrl) {
+        setFormData((prev) => ({ ...prev, image: imageUrl }));
+      }
+    } catch (err) {
+      setImageError(err || "Image upload failed. Please try again.");
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData((prev) => ({ ...prev, image: "" }));
+    setImageError(null);
+  };
+
   const handleSavePillar = (e) => {
     e.preventDefault();
-    if (!formData.title) return;
+    if (!formData.title || !formData.title.trim()) return;
+    if (uploadingCover) return;
+
+    if (!formData.image) {
+      setImageError("Please upload a cover image.");
+      return;
+    }
 
     if (editingPillar) {
       const targetId = editingPillar._id || editingPillar.id;
@@ -288,18 +335,89 @@ export default function Pillars() {
             />
           </div>
 
+          {/* Cover Image Upload */}
           <div>
             <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
-              Cover Image URL
+              Cover Image *
             </label>
-            <input
-              type="text"
-              value={formData.image}
-              onChange={(e) =>
-                setFormData({ ...formData, image: e.target.value })
-              }
-              className="w-full px-3 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
-            />
+
+            {formData.image ? (
+              <div className="border border-[#B87333]/30 rounded-xl p-3 bg-[#FAF9F6]">
+                <div className="relative aspect-[16/9] w-full max-h-48 rounded-lg overflow-hidden border border-gray-200 mb-3 bg-gray-100">
+                  <img
+                    src={formData.image}
+                    alt="Pillar cover preview"
+                    className="w-full h-full object-cover"
+                  />
+                  {uploadingCover && (
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-xs flex flex-col items-center justify-center text-white text-xs font-semibold">
+                      <CircularProgress size={24} style={{ color: "#D4AF37" }} />
+                      <span className="mt-2">Uploading image...</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                    ✓ Image uploaded
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <label className="px-2.5 py-1 rounded-lg border border-[#B87333] text-[#B87333] hover:bg-[#B87333]/10 font-bold transition-colors cursor-pointer">
+                      <span>Change Image</span>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                        disabled={uploadingCover}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      disabled={uploadingCover}
+                      className="px-2.5 py-1 rounded-lg border border-red-300 text-red-600 hover:bg-red-50 font-bold transition-colors cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <label className="border-2 border-dashed border-[#B87333]/40 hover:border-[#B87333] rounded-xl p-6 bg-[#FAF9F6] hover:bg-white transition-all flex flex-col items-center justify-center cursor-pointer group text-center">
+                {uploadingCover ? (
+                  <div className="py-2 text-center">
+                    <CircularProgress size={28} style={{ color: "#B87333" }} />
+                    <p className="text-xs font-semibold text-[#0A2342] mt-2">
+                      Uploading image to Cloudinary...
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <CloudUploadIcon className="text-3xl text-[#B87333] group-hover:scale-110 transition-transform mb-2" />
+                    <span className="text-xs font-bold text-[#0A2342]">
+                      Upload Cover Image
+                    </span>
+                    <span className="text-[11px] text-gray-500 mt-1">
+                      JPG, JPEG, PNG, WEBP • Max 5MB
+                    </span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  disabled={uploadingCover}
+                />
+              </label>
+            )}
+
+            {imageError && (
+              <p className="text-xs text-red-600 font-medium mt-1.5">
+                ⚠️ {imageError}
+              </p>
+            )}
           </div>
 
           <div className="pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
