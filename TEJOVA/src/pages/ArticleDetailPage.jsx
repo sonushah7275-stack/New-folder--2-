@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import DOMPurify from "dompurify";
 import { PageContainer } from "../components/layout/PageContainer";
 import { ArticleGrid } from "../components/journal/ArticleGrid";
 import { Clock, Calendar, ArrowLeft, RefreshCw } from "lucide-react";
@@ -107,8 +108,13 @@ export const ArticleDetailPage = () => {
 
             {/* Content Body */}
             <div
-              className={`prose prose-lg max-w-none ${currentFontStyleClass}`}
-              dangerouslySetInnerHTML={{ __html: article.content }}
+              className={`prose prose-lg max-w-none ${currentFontStyleClass} [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:text-[#0A2342] [&_h1]:mt-8 [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-[#0A2342] [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-[#0A2342] [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-lg [&_h4]:font-semibold [&_h4]:text-[#0A2342] [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-4 [&_blockquote]:border-l-4 [&_blockquote]:border-[#B87333] [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:my-4 [&_img]:rounded-lg [&_img]:max-w-full [&_img]:my-4 [&_img]:shadow-xs [&_img]:mx-auto [&_figcaption]:text-xs [&_figcaption]:text-gray-500 [&_figcaption]:text-center [&_figcaption]:italic [&_figcaption]:mt-1 [&_a]:text-[#B87333] [&_a]:underline [&_a]:hover:text-[#0A2342]`}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(article.content || "", {
+                  ADD_TAGS: ["figure", "figcaption"],
+                  ADD_ATTR: ["target", "rel", "style"],
+                }),
+              }}
             />
 
             {/* Author Bio Box */}

@@ -17,7 +17,7 @@ export const uploadMedia = async (req, res, next) => {
 
     // Target folder under TEJOVA/
     const targetFolder = (req.body.folder || req.query.folder || "general").toLowerCase().trim();
-    const validFolders = ["products", "journal", "pillars", "content", "general", "users"];
+    const validFolders = ["products", "journal", "journal/content", "pillars", "content", "general", "users"];
     const folder = validFolders.includes(targetFolder) ? targetFolder : "general";
 
     // Upload to Cloudinary

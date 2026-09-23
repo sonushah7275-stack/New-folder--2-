@@ -11,6 +11,7 @@ import AdminBreadcrumb from "../components/AdminBreadcrumb";
 import AdminTable from "../components/AdminTable";
 import StatusBadge from "../components/StatusBadge";
 import AdminModal from "../components/AdminModal";
+import RichTextEditor from "../components/RichTextEditor";
 import {
   fetchJournals,
   createJournal,
@@ -495,14 +496,11 @@ export default function Journals() {
             <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
               Article Content
             </label>
-            <textarea
-              rows="6"
-              value={formData.content}
-              onChange={(e) =>
-                setFormData({ ...formData, content: e.target.value })
+            <RichTextEditor
+              content={formData.content}
+              onChange={(html) =>
+                setFormData((prev) => ({ ...prev, content: html }))
               }
-              placeholder="Write or paste your article content here..."
-              className="w-full px-3 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333] font-sans"
             />
           </div>
 
