@@ -214,12 +214,171 @@ const CustomHorizontalRule = Node.create({
   },
 });
 
-// Custom Tiptap Highlight Box Node Extension
+// Whitelisted Font Style Options for Selected Text
+export const FONT_STYLE_OPTIONS = [
+  {
+    id: "serif-old-style",
+    name: "Serif Old Style",
+    fontFamily: "'DM Serif Display', 'Cormorant Garamond', Georgia, serif",
+    fontWeight: null,
+    fontStyle: null,
+  },
+  {
+    id: "technology-variable",
+    name: "Technology Variable",
+    fontFamily: "'Share Tech Mono', monospace",
+    fontWeight: null,
+    fontStyle: null,
+  },
+  {
+    id: "feeling-vintage",
+    name: "Feeling Vintage",
+    fontFamily: "'Cormorant Garamond', Georgia, serif",
+    fontWeight: null,
+    fontStyle: "italic",
+  },
+  {
+    id: "feeling-sincere",
+    name: "Feeling Sincere",
+    fontFamily: "'Inter', system-ui, sans-serif",
+    fontWeight: null,
+    fontStyle: null,
+  },
+  {
+    id: "feeling-rugged",
+    name: "Feeling Rugged",
+    fontFamily: "'Rokkitt', serif",
+    fontWeight: "600",
+    fontStyle: null,
+  },
+  {
+    id: "dm-sans",
+    name: "DM Sans Regular (Weight 400)",
+    fontFamily: "'DM Sans', sans-serif",
+    fontWeight: "400",
+    fontStyle: null,
+  },
+];
+
+// Custom Tiptap Font Family & Style Extension for Selected Text
+const FontFamily = Extension.create({
+  name: "fontFamily",
+  addOptions() {
+    return {
+      types: ["textStyle"],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          fontFamily: {
+            default: null,
+            parseHTML: (element) => element.style.fontFamily?.replace(/['"]+/g, "") || null,
+            renderHTML: (attributes) => {
+              if (!attributes.fontFamily) {
+                return {};
+              }
+              return {
+                style: `font-family: ${attributes.fontFamily}`,
+              };
+            },
+          },
+          fontWeight: {
+            default: null,
+            parseHTML: (element) => element.style.fontWeight || null,
+            renderHTML: (attributes) => {
+              if (!attributes.fontWeight) {
+                return {};
+              }
+              return {
+                style: `font-weight: ${attributes.fontWeight}`,
+              };
+            },
+          },
+          fontStyle: {
+            default: null,
+            parseHTML: (element) => element.style.fontStyle || null,
+            renderHTML: (attributes) => {
+              if (!attributes.fontStyle) {
+                return {};
+              }
+              return {
+                style: `font-style: ${attributes.fontStyle}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setFontStyle:
+        (styleId) =>
+        ({ chain }) => {
+          const opt = FONT_STYLE_OPTIONS.find((o) => o.id === styleId);
+          if (!opt) return false;
+          return chain()
+            .setMark("textStyle", {
+              fontFamily: opt.fontFamily,
+              fontWeight: opt.fontWeight,
+              fontStyle: opt.fontStyle,
+            })
+            .run();
+        },
+      unsetFontStyle:
+        () =>
+        ({ chain }) => {
+          return chain()
+            .setMark("textStyle", { fontFamily: null, fontWeight: null, fontStyle: null })
+            .removeEmptyTextStyle()
+            .run();
+        },
+    };
+  },
+});
+
+// Controlled Highlight Box Color Palette
+export const HIGHLIGHT_BOX_COLORS = [
+  { name: "Cream", bgColor: "#FAF9F6", borderColor: "#B87333" },
+  { name: "Gold", bgColor: "#FFFBEB", borderColor: "#D4AF37" },
+  { name: "Copper", bgColor: "#FDF8F3", borderColor: "#B87333" },
+  { name: "Sage", bgColor: "#F4F7F4", borderColor: "#668F6B" },
+  { name: "Deep Green", bgColor: "#1F4D3B", borderColor: "#D4AF37" },
+  { name: "Midnight Blue", bgColor: "#0A2342", borderColor: "#D4AF37" },
+];
+
+// Custom Tiptap Highlight Box Node Extension with Color Attributes
 const HighlightBox = Node.create({
   name: "highlightBox",
   group: "block",
   content: "block+",
   defining: true,
+
+  addAttributes() {
+    return {
+      bgColor: {
+        default: "#FAF9F6",
+        parseHTML: (element) => element.getAttribute("data-bg-color") || element.style.backgroundColor || "#FAF9F6",
+        renderHTML: (attributes) => {
+          return {
+            "data-bg-color": attributes.bgColor || "#FAF9F6",
+          };
+        },
+      },
+      borderColor: {
+        default: "#B87333",
+        parseHTML: (element) => element.getAttribute("data-border-color") || element.style.borderColor || "#B87333",
+        renderHTML: (attributes) => {
+          return {
+            "data-border-color": attributes.borderColor || "#B87333",
+          };
+        },
+      },
+    };
+  },
 
   parseHTML() {
     return [
@@ -230,10 +389,16 @@ const HighlightBox = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
+    const bgColor = HTMLAttributes["data-bg-color"] || "#FAF9F6";
+    const borderColor = HTMLAttributes["data-border-color"] || "#B87333";
+    const isDarkBg = bgColor === "#0A2342" || bgColor === "#1F4D3B";
+    const textColor = isDarkBg ? "#FAF9F6" : "#0A2342";
+
     return [
       "aside",
       mergeAttributes(HTMLAttributes, {
-        class: "tejova-highlight-box p-5 my-6 bg-[#FAF9F6] border-l-4 border-[#B87333] rounded-r-xl text-[#0A2342] shadow-2xs font-serif leading-relaxed",
+        class: "tejova-highlight-box p-5 my-6 rounded-r-xl shadow-2xs leading-relaxed",
+        style: `background-color: ${bgColor}; border-left: 4px solid ${borderColor}; color: ${textColor};`,
         "data-type": "highlight-box",
       }),
       0,
@@ -243,9 +408,14 @@ const HighlightBox = Node.create({
   addCommands() {
     return {
       toggleHighlightBox:
-        () =>
+        (attrs = {}) =>
         ({ chain }) => {
-          return chain().toggleWrap(this.name).run();
+          return chain().toggleWrap(this.name, attrs).run();
+        },
+      setHighlightBoxColor:
+        (bgColor, borderColor) =>
+        ({ chain }) => {
+          return chain().updateAttributes(this.name, { bgColor, borderColor }).run();
         },
     };
   },
@@ -269,8 +439,11 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showHighlightPicker, setShowHighlightPicker] = useState(false);
   const [showHrColorPicker, setShowHrColorPicker] = useState(false);
+  const [showBoxColorPicker, setShowBoxColorPicker] = useState(false);
   const [showTablePicker, setShowTablePicker] = useState(false);
   const [selectedHrColor, setSelectedHrColor] = useState("#B87333");
+  const [selectedBoxBg, setSelectedBoxBg] = useState("#FAF9F6");
+  const [selectedBoxBorder, setSelectedBoxBorder] = useState("#B87333");
   const [captionInput, setCaptionInput] = useState("");
   const [pendingImageUrl, setPendingImageUrl] = useState("");
   const [showCaptionModal, setShowCaptionModal] = useState(false);
@@ -287,6 +460,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
       Underline,
       TextStyle,
       FontSize,
+      FontFamily,
       LineHeight,
       CustomHorizontalRule,
       HighlightBox,
@@ -510,6 +684,32 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             {FONT_SIZES.map((size) => (
               <option key={size} value={size}>
                 {size}
+              </option>
+            ))}
+          </select>
+
+          {/* Article Font Style Selector for Selected Text */}
+          <select
+            value={
+              FONT_STYLE_OPTIONS.find((opt) =>
+                editor.isActive("textStyle", { fontFamily: opt.fontFamily })
+              )?.id || ""
+            }
+            onChange={(e) => {
+              const val = e.target.value;
+              if (!val) {
+                editor.chain().focus().unsetFontStyle().run();
+              } else {
+                editor.chain().focus().setFontStyle(val).run();
+              }
+            }}
+            className="px-2 py-1 border border-[#0A2342]/20 rounded-lg bg-white text-[#0A2342] font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-[#B87333]"
+            title="Apply Font Style to Selected Text"
+          >
+            <option value="">Font Style (Default)</option>
+            {FONT_STYLE_OPTIONS.map((style) => (
+              <option key={style.id} value={style.id}>
+                {style.name}
               </option>
             ))}
           </select>
@@ -802,19 +1002,68 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             <FormatQuoteIcon fontSize="small" />
           </button>
 
-          {/* Highlight Box Button */}
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleHighlightBox().run()}
-            className={`px-2 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1 border ${
-              editor.isActive("highlightBox")
-                ? "bg-[#0A2342] text-white border-[#0A2342]"
-                : "bg-white text-[#0A2342] border-gray-300 hover:bg-gray-100"
-            }`}
-            title="Convert selected text into TEJOVA Editorial Highlight Box"
-          >
-            <span>Highlight Box</span>
-          </button>
+          {/* Highlight Box Button + Color Popover */}
+          <div className="relative flex items-center bg-white rounded-lg border border-gray-300 shadow-2xs overflow-hidden">
+            <button
+              type="button"
+              onClick={() => {
+                if (editor.isActive("highlightBox")) {
+                  editor.chain().focus().toggleHighlightBox().run();
+                } else {
+                  editor.chain().focus().toggleHighlightBox({ bgColor: selectedBoxBg, borderColor: selectedBoxBorder }).run();
+                }
+              }}
+              className={`px-2 py-1 text-xs font-semibold cursor-pointer flex items-center gap-1 ${
+                editor.isActive("highlightBox") ? "bg-[#0A2342] text-white" : "hover:bg-gray-100 text-[#0A2342]"
+              }`}
+              title="Highlight Box"
+            >
+              <span>Highlight Box</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowBoxColorPicker(!showBoxColorPicker);
+                setShowHrColorPicker(false);
+                setShowColorPicker(false);
+                setShowHighlightPicker(false);
+                setShowTablePicker(false);
+              }}
+              className="px-2 py-1 text-[11px] font-bold text-gray-600 hover:bg-gray-100 border-l border-gray-200 cursor-pointer flex items-center gap-1"
+              title="Highlight Box Color"
+            >
+              <span
+                className="w-3 h-3 rounded-full border inline-block"
+                style={{ backgroundColor: selectedBoxBg, borderColor: selectedBoxBorder }}
+              />
+              <span>Box Color ▾</span>
+            </button>
+
+            {showBoxColorPicker && (
+              <div className="absolute top-full left-0 mt-1 p-2 bg-white border border-gray-200 rounded-xl shadow-lg z-30 flex gap-1.5 w-max">
+                {HIGHLIGHT_BOX_COLORS.map((c) => (
+                  <button
+                    key={c.name}
+                    type="button"
+                    onClick={() => {
+                      setSelectedBoxBg(c.bgColor);
+                      setSelectedBoxBorder(c.borderColor);
+                      if (editor.isActive("highlightBox")) {
+                        editor.chain().focus().setHighlightBoxColor(c.bgColor, c.borderColor).run();
+                      } else {
+                        editor.chain().focus().toggleHighlightBox({ bgColor: c.bgColor, borderColor: c.borderColor }).run();
+                      }
+                      setShowBoxColorPicker(false);
+                    }}
+                    className="w-5 h-5 rounded-full border-2 transition-transform hover:scale-110 cursor-pointer"
+                    style={{ backgroundColor: c.bgColor, borderColor: c.borderColor }}
+                    title={`Apply ${c.name} Box Style`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Horizontal Line Button + Color Picker Popover */}
           <div className="relative flex items-center bg-white rounded-lg border border-gray-300 shadow-2xs overflow-hidden">
