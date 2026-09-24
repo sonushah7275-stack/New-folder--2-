@@ -41,7 +41,7 @@ export default function Journals() {
     author: "Editorial Team",
     excerpt: "",
     content: "",
-    fontStyle: "tejova-editorial",
+    fontStyle: "serif-old-style",
     status: "Draft",
     coverImage: "",
   });
@@ -75,7 +75,7 @@ export default function Journals() {
         author: article.author || "Editorial Team",
         excerpt: article.excerpt || "",
         content: article.content || "",
-        fontStyle: article.fontStyle || "tejova-editorial",
+        fontStyle: article.fontStyle || "serif-old-style",
         status: article.status || "Draft",
         coverImage: article.coverImage || "",
       });
@@ -88,7 +88,7 @@ export default function Journals() {
         author: "Editorial Team",
         excerpt: "",
         content: "",
-        fontStyle: "tejova-editorial",
+        fontStyle: "serif-old-style",
         status: "Draft",
         coverImage: "",
       });
@@ -479,16 +479,18 @@ export default function Journals() {
               Article Font Style
             </label>
             <select
-              value={formData.fontStyle || "tejova-editorial"}
+              value={formData.fontStyle || "serif-old-style"}
               onChange={(e) =>
                 setFormData({ ...formData, fontStyle: e.target.value })
               }
               className="w-full px-3 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl bg-white text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
             >
-              <option value="tejova-editorial">TEJOVA Editorial</option>
-              <option value="modern-editorial">Modern Editorial</option>
-              <option value="classic-serif">Classic Serif</option>
-              <option value="clean-sans">Clean Sans</option>
+              <option value="serif-old-style">Serif Old Style</option>
+              <option value="technology-variable">Technology Variable</option>
+              <option value="feeling-vintage">Feeling Vintage</option>
+              <option value="feeling-sincere">Feeling Sincere</option>
+              <option value="feeling-rugged">Feeling Rugged</option>
+              <option value="dm-sans">DM Sans Regular</option>
             </select>
           </div>
 

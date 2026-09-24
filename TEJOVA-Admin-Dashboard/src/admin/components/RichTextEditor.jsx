@@ -214,6 +214,43 @@ const CustomHorizontalRule = Node.create({
   },
 });
 
+// Custom Tiptap Highlight Box Node Extension
+const HighlightBox = Node.create({
+  name: "highlightBox",
+  group: "block",
+  content: "block+",
+  defining: true,
+
+  parseHTML() {
+    return [
+      { tag: "aside.tejova-highlight-box" },
+      { tag: "aside[data-type='highlight-box']" },
+      { tag: "div.tejova-highlight-box" },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "aside",
+      mergeAttributes(HTMLAttributes, {
+        class: "tejova-highlight-box p-5 my-6 bg-[#FAF9F6] border-l-4 border-[#B87333] rounded-r-xl text-[#0A2342] shadow-2xs font-serif leading-relaxed",
+        "data-type": "highlight-box",
+      }),
+      0,
+    ];
+  },
+
+  addCommands() {
+    return {
+      toggleHighlightBox:
+        () =>
+        ({ chain }) => {
+          return chain().toggleWrap(this.name).run();
+        },
+    };
+  },
+});
+
 // TEJOVA Color Palette
 const TEJOVA_COLORS = [
   { name: "Midnight Blue", value: "#0A2342" },
@@ -252,6 +289,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
       FontSize,
       LineHeight,
       CustomHorizontalRule,
+      HighlightBox,
       Color,
       Highlight.configure({ multicolor: true }),
       TextAlign.configure({
@@ -762,6 +800,20 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             title="Blockquote"
           >
             <FormatQuoteIcon fontSize="small" />
+          </button>
+
+          {/* Highlight Box Button */}
+          <button
+            type="button"
+            onClick={() => editor.chain().focus().toggleHighlightBox().run()}
+            className={`px-2 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1 border ${
+              editor.isActive("highlightBox")
+                ? "bg-[#0A2342] text-white border-[#0A2342]"
+                : "bg-white text-[#0A2342] border-gray-300 hover:bg-gray-100"
+            }`}
+            title="Convert selected text into TEJOVA Editorial Highlight Box"
+          >
+            <span>Highlight Box</span>
           </button>
 
           {/* Horizontal Line Button + Color Picker Popover */}

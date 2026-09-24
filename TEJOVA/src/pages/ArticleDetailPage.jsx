@@ -8,7 +8,23 @@ import { Clock, Calendar, ArrowLeft, RefreshCw } from "lucide-react";
 import { fetchArticleBySlug } from "../Redux/slices/journalSlice";
 import { articles as staticArticles } from "../data/articles";
 
+/**
+ * TEJOVA Article Font Style Class Mapping
+ * Note on Font Sources:
+ * - "Serif Old Style": Google Fonts ('DM Serif Display' / 'Cormorant Garamond')
+ * - "Technology Variable": Uses public Google Font replacement 'Share Tech Mono'
+ * - "Feeling Vintage": Google Fonts ('Cormorant Garamond' Italic)
+ * - "Feeling Sincere": Google Fonts ('Inter')
+ * - "Feeling Rugged": Uses public Google Font replacement 'Rokkitt' (Slab Serif)
+ * - "DM Sans Regular": Google Fonts ('DM Sans', weight 400)
+ */
 const fontStyleClasses = {
+  "serif-old-style": "font-serif text-[#0A2342]/90 leading-relaxed text-base sm:text-lg space-y-6",
+  "technology-variable": "[font-family:'Share_Tech_Mono',monospace] text-[#0A2342]/90 leading-relaxed text-base sm:text-lg space-y-6 tracking-wide",
+  "feeling-vintage": "font-serif italic text-[#0A2342]/90 leading-relaxed text-base sm:text-lg space-y-6",
+  "feeling-sincere": "font-sans text-[#0A2342]/85 leading-loose text-base sm:text-lg space-y-6",
+  "feeling-rugged": "[font-family:'Rokkitt',serif] font-semibold text-[#0A2342] leading-snug text-base sm:text-lg space-y-6 uppercase tracking-tight",
+  "dm-sans": "[font-family:'DM_Sans',sans-serif] font-normal text-[#0A2342]/90 leading-normal text-base sm:text-md space-y-5",
   "tejova-editorial": "font-serif text-[#0A2342]/90 leading-relaxed text-base sm:text-lg space-y-6",
   "modern-editorial": "font-sans text-[#0A2342]/85 leading-loose text-base sm:text-lg space-y-6",
   "classic-serif": "font-serif text-[#0A2342] leading-relaxed text-base sm:text-lg space-y-6",
@@ -39,10 +55,10 @@ export const ArticleDetailPage = () => {
     author: typeof rawArticle.author === "object" ? rawArticle.author?.name || "TEJOVA Editorial" : rawArticle.author || "TEJOVA Editorial",
     authorRole: "Wellness Researcher",
     content: rawArticle.content || "<p>Detailed article content loading...</p>",
-    fontStyle: rawArticle.fontStyle || "tejova-editorial",
+    fontStyle: rawArticle.fontStyle || "serif-old-style",
   };
 
-  const currentFontStyleClass = fontStyleClasses[article.fontStyle] || fontStyleClasses["tejova-editorial"];
+  const currentFontStyleClass = fontStyleClasses[article.fontStyle] || fontStyleClasses["serif-old-style"];
 
   const relatedArticles = allArticles && allArticles.length > 0
     ? allArticles.filter(a => a.slug !== slug).slice(0, 3)
@@ -109,11 +125,11 @@ export const ArticleDetailPage = () => {
             {/* Content Body */}
             <div className="overflow-x-auto">
               <div
-                className={`prose prose-lg max-w-none ${currentFontStyleClass} [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:text-[#0A2342] [&_h1]:mt-8 [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-[#0A2342] [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-[#0A2342] [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-lg [&_h4]:font-semibold [&_h4]:text-[#0A2342] [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-4 [&_blockquote]:border-l-4 [&_blockquote]:border-[#B87333] [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:my-4 [&_img]:rounded-lg [&_img]:max-w-full [&_img]:my-4 [&_img]:shadow-xs [&_img]:mx-auto [&_figcaption]:text-xs [&_figcaption]:text-gray-500 [&_figcaption]:text-center [&_figcaption]:italic [&_figcaption]:mt-1 [&_a]:text-[#B87333] [&_a]:underline [&_a]:hover:text-[#0A2342] [&_hr]:my-8 [&_hr]:max-w-full [&_table]:w-full [&_table]:border-collapse [&_table]:my-6 [&_table]:border [&_table]:border-[#0A2342]/20 [&_table]:text-xs sm:[&_table]:text-sm [&_th]:bg-[#FAF9F6] [&_th]:border [&_th]:border-[#0A2342]/20 [&_th]:px-3 sm:[&_th]:px-4 [&_th]:py-2.5 [&_th]:text-left [&_th]:font-serif [&_th]:font-bold [&_th]:text-[#0A2342] [&_td]:border [&_td]:border-[#0A2342]/15 [&_td]:px-3 sm:[&_td]:px-4 [&_td]:py-2.5 [&_td]:text-[#0A2342] [&_tr:hover]:bg-[#FAF9F6]/50`}
+                className={`prose prose-lg max-w-none ${currentFontStyleClass} [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:text-[#0A2342] [&_h1]:mt-8 [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-[#0A2342] [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-[#0A2342] [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-lg [&_h4]:font-semibold [&_h4]:text-[#0A2342] [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-4 [&_blockquote]:border-l-4 [&_blockquote]:border-[#B87333] [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:my-4 [&_img]:rounded-lg [&_img]:max-w-full [&_img]:my-4 [&_img]:shadow-xs [&_img]:mx-auto [&_figcaption]:text-xs [&_figcaption]:text-gray-500 [&_figcaption]:text-center [&_figcaption]:italic [&_figcaption]:mt-1 [&_a]:text-[#B87333] [&_a]:underline [&_a]:hover:text-[#0A2342] [&_hr]:my-8 [&_hr]:max-w-full [&_table]:w-full [&_table]:border-collapse [&_table]:my-6 [&_table]:border [&_table]:border-[#0A2342]/20 [&_table]:text-xs sm:[&_table]:text-sm [&_th]:bg-[#FAF9F6] [&_th]:border [&_th]:border-[#0A2342]/20 [&_th]:px-3 sm:[&_th]:px-4 [&_th]:py-2.5 [&_th]:text-left [&_th]:font-serif [&_th]:font-bold [&_th]:text-[#0A2342] [&_td]:border [&_td]:border-[#0A2342]/15 [&_td]:px-3 sm:[&_td]:px-4 [&_td]:py-2.5 [&_td]:text-[#0A2342] [&_tr:hover]:bg-[#FAF9F6]/50 [&_aside]:bg-[#FAF9F6] [&_aside]:border-l-4 [&_aside]:border-[#B87333] [&_aside]:p-5 [&_aside]:my-6 [&_aside]:rounded-r-xl [&_aside]:text-[#0A2342] [&_aside]:shadow-2xs [&_.tejova-highlight-box]:bg-[#FAF9F6] [&_.tejova-highlight-box]:border-l-4 [&_.tejova-highlight-box]:border-[#B87333] [&_.tejova-highlight-box]:p-5 [&_.tejova-highlight-box]:my-6 [&_.tejova-highlight-box]:rounded-r-xl [&_.tejova-highlight-box]:text-[#0A2342] [&_.tejova-highlight-box]:shadow-2xs`}
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(article.content || "", {
-                    ADD_TAGS: ["figure", "figcaption", "table", "thead", "tbody", "tr", "th", "td", "hr"],
-                    ADD_ATTR: ["target", "rel", "style", "colspan", "rowspan", "src", "alt", "title", "class", "data-color"],
+                    ADD_TAGS: ["aside", "figure", "figcaption", "table", "thead", "tbody", "tr", "th", "td", "hr"],
+                    ADD_ATTR: ["target", "rel", "style", "colspan", "rowspan", "src", "alt", "title", "class", "data-color", "data-type"],
                     ALLOWED_STYLE_PROPERTIES: [
                       "color",
                       "background-color",

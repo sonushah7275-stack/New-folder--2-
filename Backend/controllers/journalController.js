@@ -138,8 +138,19 @@ export const createArticle = async (req, res, next) => {
     }
 
     const articleStatus = status === "PUBLISHED" ? "PUBLISHED" : "DRAFT";
-    const validFontStyles = ["tejova-editorial", "modern-editorial", "classic-serif", "clean-sans"];
-    const selectedFontStyle = validFontStyles.includes(fontStyle) ? fontStyle : "tejova-editorial";
+    const validFontStyles = [
+      "serif-old-style",
+      "technology-variable",
+      "feeling-vintage",
+      "feeling-sincere",
+      "feeling-rugged",
+      "dm-sans",
+      "tejova-editorial",
+      "modern-editorial",
+      "classic-serif",
+      "clean-sans",
+    ];
+    const selectedFontStyle = validFontStyles.includes(fontStyle) ? fontStyle : "serif-old-style";
 
     const article = await Journal.create({
       title: title.trim(),
@@ -217,7 +228,18 @@ export const updateArticle = async (req, res, next) => {
     if (updates.content !== undefined) article.content = updates.content.trim();
     if (updates.coverImage !== undefined) article.coverImage = updates.coverImage;
     if (updates.fontStyle !== undefined) {
-      const validFontStyles = ["tejova-editorial", "modern-editorial", "classic-serif", "clean-sans"];
+      const validFontStyles = [
+        "serif-old-style",
+        "technology-variable",
+        "feeling-vintage",
+        "feeling-sincere",
+        "feeling-rugged",
+        "dm-sans",
+        "tejova-editorial",
+        "modern-editorial",
+        "classic-serif",
+        "clean-sans",
+      ];
       if (validFontStyles.includes(updates.fontStyle)) {
         article.fontStyle = updates.fontStyle;
       }

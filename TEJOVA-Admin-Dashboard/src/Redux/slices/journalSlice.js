@@ -27,7 +27,7 @@ const formatJournalForUI = (art) => {
     excerpt: art.excerpt || "",
     content: art.content || "",
     coverImage: art.coverImage || "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80",
-    fontStyle: art.fontStyle || "tejova-editorial",
+    fontStyle: art.fontStyle || "serif-old-style",
     status: uiStatus,
     rawStatus: art.status,
     publishedDate: dateFormatted,
@@ -97,7 +97,7 @@ export const createJournal = createAsyncThunk(
         excerpt: articleData.excerpt,
         content: articleData.content,
         coverImage: articleData.coverImage,
-        fontStyle: articleData.fontStyle || "tejova-editorial",
+        fontStyle: articleData.fontStyle || "serif-old-style",
         status: articleData.status === "Published" ? "PUBLISHED" : "DRAFT",
         isFeatured: Boolean(articleData.isFeatured),
       };

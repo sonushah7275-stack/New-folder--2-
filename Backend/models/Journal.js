@@ -35,10 +35,21 @@ const journalSchema = new mongoose.Schema(
     fontStyle: {
       type: String,
       enum: {
-        values: ['tejova-editorial', 'modern-editorial', 'classic-serif', 'clean-sans'],
+        values: [
+          'serif-old-style',
+          'technology-variable',
+          'feeling-vintage',
+          'feeling-sincere',
+          'feeling-rugged',
+          'dm-sans',
+          'tejova-editorial',
+          'modern-editorial',
+          'classic-serif',
+          'clean-sans'
+        ],
         message: '{VALUE} is not a valid font style'
       },
-      default: 'tejova-editorial'
+      default: 'serif-old-style'
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,
