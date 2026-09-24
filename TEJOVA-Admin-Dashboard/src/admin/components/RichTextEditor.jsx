@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useEditor, EditorContent, Extension } from "@tiptap/react";
+import { useEditor, EditorContent, Extension, Node, mergeAttributes } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Underline } from "@tiptap/extension-underline";
 import { TextStyle } from "@tiptap/extension-text-style";
@@ -33,7 +33,6 @@ import PaletteIcon from "@mui/icons-material/Palette";
 import HighlightIcon from "@mui/icons-material/Highlight";
 import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
 import TableChartIcon from "@mui/icons-material/TableChart";
-import AddRowBeforeIcon from "@mui/icons-material/MoveToInbox";
 import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import CircularProgress from "@mui/material/CircularProgress";
 
@@ -54,6 +53,9 @@ export const FONT_SIZES = [
   "36px",
   "48px",
 ];
+
+// Whitelisted Line Heights
+export const ALLOWED_LINE_HEIGHTS = ["1.0", "1.15", "1.25", "1.5", "1.75", "2.0"];
 
 // Custom Tiptap Font Size Extension
 const FontSize = Extension.create({
@@ -104,16 +106,108 @@ const FontSize = Extension.create({
   },
 });
 
+// Custom Tiptap Line Height Extension
+const LineHeight = Extension.create({
+  name: "lineHeight",
+  addOptions() {
+    return {
+      types: ["paragraph", "heading", "blockquote"],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          lineHeight: {
+            default: null,
+            parseHTML: (element) => element.style.lineHeight || null,
+            renderHTML: (attributes) => {
+              if (!attributes.lineHeight || !ALLOWED_LINE_HEIGHTS.includes(attributes.lineHeight)) {
+                return {};
+              }
+              return {
+                style: `line-height: ${attributes.lineHeight}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setLineHeight:
+        (lineHeight) =>
+        ({ commands }) => {
+          if (!ALLOWED_LINE_HEIGHTS.includes(lineHeight)) return false;
+          return this.options.types.some((type) => commands.updateAttributes(type, { lineHeight }));
+        },
+      unsetLineHeight:
+        () =>
+        ({ commands }) => {
+          return this.options.types.some((type) => commands.updateAttributes(type, { lineHeight: null }));
+        },
+    };
+  },
+});
+
+// Custom Tiptap Horizontal Rule Node with Color Attribute
+const CustomHorizontalRule = Node.create({
+  name: "horizontalRule",
+  group: "block",
+  selectable: true,
+  draggable: true,
+  addAttributes() {
+    return {
+      color: {
+        default: "#B87333",
+        parseHTML: (element) => {
+          return (
+            element.style.borderColor ||
+            element.style.borderTopColor ||
+            element.getAttribute("data-color") ||
+            "#B87333"
+          );
+        },
+        renderHTML: (attributes) => {
+          const color = attributes.color || "#B87333";
+          return {
+            style: `border: none; border-top: 2px solid ${color}; margin: 2rem 0; opacity: 1;`,
+            "data-color": color,
+          };
+        },
+      },
+    };
+  },
+  parseHTML() {
+    return [{ tag: "hr" }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ["hr", mergeAttributes(HTMLAttributes)];
+  },
+  addCommands() {
+    return {
+      setHorizontalRule:
+        (options = {}) =>
+        ({ chain }) => {
+          const color = options.color || "#B87333";
+          return chain().insertContent({ type: this.name, attrs: { color } }).run();
+        },
+    };
+  },
+});
+
 // TEJOVA Color Palette
 const TEJOVA_COLORS = [
   { name: "Midnight Blue", value: "#0A2342" },
   { name: "Copper", value: "#B87333" },
   { name: "Gold", value: "#D4AF37" },
+  { name: "Cream", value: "#FAF9F6" },
   { name: "Deep Green", value: "#1F4D3B" },
   { name: "Sage", value: "#668F6B" },
   { name: "Earth Brown", value: "#886F4F" },
   { name: "Dark Text", value: "#1A1A1A" },
-  { name: "Muted Text", value: "#666666" },
 ];
 
 export default function RichTextEditor({ content = "", onChange, placeholder = "Write your article content..." }) {
@@ -121,7 +215,9 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
   const [imageError, setImageError] = useState(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showHighlightPicker, setShowHighlightPicker] = useState(false);
+  const [showHrColorPicker, setShowHrColorPicker] = useState(false);
   const [showTablePicker, setShowTablePicker] = useState(false);
+  const [selectedHrColor, setSelectedHrColor] = useState("#B87333");
   const [captionInput, setCaptionInput] = useState("");
   const [pendingImageUrl, setPendingImageUrl] = useState("");
   const [showCaptionModal, setShowCaptionModal] = useState(false);
@@ -129,6 +225,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
+        horizontalRule: false,
         heading: {
           levels: [1, 2, 3, 4],
         },
@@ -136,6 +233,8 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
       Underline,
       TextStyle,
       FontSize,
+      LineHeight,
+      CustomHorizontalRule,
       Color,
       Highlight.configure({ multicolor: true }),
       TextAlign.configure({
@@ -286,8 +385,19 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
     setShowTablePicker(false);
   };
 
-  // Get active font size
+  const handleInsertHr = (color) => {
+    const targetColor = color || selectedHrColor || "#B87333";
+    editor.chain().focus().setHorizontalRule({ color: targetColor }).run();
+    setShowHrColorPicker(false);
+  };
+
+  // Get active formatting attributes
   const activeFontSize = editor.getAttributes("textStyle").fontSize || "";
+  const activeLineHeight =
+    editor.getAttributes("paragraph").lineHeight ||
+    editor.getAttributes("heading").lineHeight ||
+    editor.getAttributes("blockquote").lineHeight ||
+    "";
 
   return (
     <div className="border border-[#0A2342]/30 rounded-xl overflow-hidden bg-white shadow-xs">
@@ -318,7 +428,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
 
         <div className="w-px h-5 bg-gray-300 mx-1" />
 
-        {/* GROUP 2: TYPOGRAPHY (FONT SIZE & HEADINGS) */}
+        {/* GROUP 2: TYPOGRAPHY (FONT SIZE, LINE HEIGHT, HEADINGS) */}
         <div className="flex items-center gap-1.5">
           {/* Font Size Selector */}
           <select
@@ -338,6 +448,28 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             {FONT_SIZES.map((size) => (
               <option key={size} value={size}>
                 {size}
+              </option>
+            ))}
+          </select>
+
+          {/* Line Height Selector */}
+          <select
+            value={activeLineHeight}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (!val) {
+                editor.chain().focus().unsetLineHeight().run();
+              } else {
+                editor.chain().focus().setLineHeight(val).run();
+              }
+            }}
+            className="px-2 py-1 border border-[#0A2342]/20 rounded-lg bg-white text-[#0A2342] font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-[#B87333]"
+            title="Line Height"
+          >
+            <option value="">Line Height (Default)</option>
+            {ALLOWED_LINE_HEIGHTS.map((lh) => (
+              <option key={lh} value={lh}>
+                {lh}
               </option>
             ))}
           </select>
@@ -434,6 +566,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
                 setShowColorPicker(!showColorPicker);
                 setShowHighlightPicker(false);
                 setShowTablePicker(false);
+                setShowHrColorPicker(false);
               }}
               className="p-1.5 rounded-lg hover:bg-gray-200 text-[#0A2342] flex items-center gap-1 cursor-pointer"
               title="Text Color"
@@ -478,6 +611,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
                 setShowHighlightPicker(!showHighlightPicker);
                 setShowColorPicker(false);
                 setShowTablePicker(false);
+                setShowHrColorPicker(false);
               }}
               className="p-1.5 rounded-lg hover:bg-gray-200 text-[#0A2342] flex items-center gap-1 cursor-pointer"
               title="Highlight Color"
@@ -593,7 +727,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
 
         <div className="w-px h-5 bg-gray-300 mx-1" />
 
-        {/* GROUP 7: BLOCKS (BLOCKQUOTE & HR) */}
+        {/* GROUP 7: BLOCKS (BLOCKQUOTE & HORIZONTAL LINE WITH COLOR) */}
         <div className="flex items-center gap-0.5">
           <button
             type="button"
@@ -606,14 +740,49 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             <FormatQuoteIcon fontSize="small" />
           </button>
 
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().setHorizontalRule().run()}
-            className="p-1.5 rounded-lg hover:bg-gray-200 text-[#0A2342] cursor-pointer"
-            title="Insert Horizontal Line (<hr>)"
-          >
-            <HorizontalRuleIcon fontSize="small" />
-          </button>
+          {/* Horizontal Line Insert & Color Picker */}
+          <div className="relative flex items-center bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => handleInsertHr(selectedHrColor)}
+              className="p-1 hover:bg-gray-100 text-[#0A2342] cursor-pointer flex items-center gap-0.5"
+              title="Insert Horizontal Line (<hr>)"
+            >
+              <HorizontalRuleIcon fontSize="small" style={{ color: selectedHrColor }} />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowHrColorPicker(!showHrColorPicker);
+                setShowColorPicker(false);
+                setShowHighlightPicker(false);
+                setShowTablePicker(false);
+              }}
+              className="px-1 py-1 text-[10px] font-bold text-gray-500 hover:text-black border-l border-gray-200 cursor-pointer"
+              title="Line Color"
+            >
+              Color ▾
+            </button>
+
+            {showHrColorPicker && (
+              <div className="absolute top-full left-0 mt-1 p-2 bg-white border border-gray-200 rounded-xl shadow-lg z-30 flex gap-1.5 w-max">
+                {TEJOVA_COLORS.map((c) => (
+                  <button
+                    key={c.value}
+                    type="button"
+                    onClick={() => {
+                      setSelectedHrColor(c.value);
+                      handleInsertHr(c.value);
+                    }}
+                    className="w-5 h-5 rounded-full border border-gray-300 transition-transform hover:scale-110 cursor-pointer"
+                    style={{ backgroundColor: c.value }}
+                    title={`Insert line with ${c.name}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="w-px h-5 bg-gray-300 mx-1" />
@@ -667,6 +836,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
                 setShowTablePicker(!showTablePicker);
                 setShowColorPicker(false);
                 setShowHighlightPicker(false);
+                setShowHrColorPicker(false);
               }}
               className={`p-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1 ${
                 editor.isActive("table") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
