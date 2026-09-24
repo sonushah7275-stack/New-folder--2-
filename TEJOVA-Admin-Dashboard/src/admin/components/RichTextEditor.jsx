@@ -111,7 +111,7 @@ const LineHeight = Extension.create({
   name: "lineHeight",
   addOptions() {
     return {
-      types: ["paragraph", "heading", "blockquote"],
+      types: ["paragraph", "heading", "blockquote", "listItem"],
     };
   },
   addGlobalAttributes() {
@@ -139,14 +139,30 @@ const LineHeight = Extension.create({
     return {
       setLineHeight:
         (lineHeight) =>
-        ({ commands }) => {
+        ({ chain, state }) => {
           if (!ALLOWED_LINE_HEIGHTS.includes(lineHeight)) return false;
-          return this.options.types.some((type) => commands.updateAttributes(type, { lineHeight }));
+          const { selection, tr } = state;
+          state.doc.nodesBetween(selection.from, selection.to, (node, pos) => {
+            if (this.options.types.includes(node.type.name)) {
+              tr.setNodeMarkup(pos, undefined, {
+                ...node.attrs,
+                lineHeight,
+              });
+            }
+          });
+          return chain().focus().run();
         },
       unsetLineHeight:
         () =>
-        ({ commands }) => {
-          return this.options.types.some((type) => commands.updateAttributes(type, { lineHeight: null }));
+        ({ chain, state }) => {
+          const { selection, tr } = state;
+          state.doc.nodesBetween(selection.from, selection.to, (node, pos) => {
+            if (this.options.types.includes(node.type.name)) {
+              const { lineHeight, ...restAttrs } = node.attrs;
+              tr.setNodeMarkup(pos, undefined, restAttrs);
+            }
+          });
+          return chain().focus().run();
         },
     };
   },
@@ -221,6 +237,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
   const [captionInput, setCaptionInput] = useState("");
   const [pendingImageUrl, setPendingImageUrl] = useState("");
   const [showCaptionModal, setShowCaptionModal] = useState(false);
+  const [, setSelectionUpdateCounter] = useState(0);
 
   const editor = useEditor({
     extensions: [
@@ -276,6 +293,9 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
       }),
     ],
     content: content || "",
+    onSelectionUpdate: () => {
+      setSelectionUpdateCounter((prev) => prev + 1);
+    },
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       if (onChange) {
@@ -387,7 +407,11 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
 
   const handleInsertHr = (color) => {
     const targetColor = color || selectedHrColor || "#B87333";
-    editor.chain().focus().setHorizontalRule({ color: targetColor }).run();
+    if (editor.isActive("horizontalRule")) {
+      editor.chain().focus().updateAttributes("horizontalRule", { color: targetColor }).run();
+    } else {
+      editor.chain().focus().setHorizontalRule({ color: targetColor }).run();
+    }
     setShowHrColorPicker(false);
   };
 
@@ -469,7 +493,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             <option value="">Line Height (Default)</option>
             {ALLOWED_LINE_HEIGHTS.map((lh) => (
               <option key={lh} value={lh}>
-                {lh}
+                Line Height: {lh}
               </option>
             ))}
           </select>
@@ -728,7 +752,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
         <div className="w-px h-5 bg-gray-300 mx-1" />
 
         {/* GROUP 7: BLOCKS (BLOCKQUOTE & HORIZONTAL LINE WITH COLOR) */}
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
@@ -740,15 +764,16 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             <FormatQuoteIcon fontSize="small" />
           </button>
 
-          {/* Horizontal Line Insert & Color Picker */}
-          <div className="relative flex items-center bg-white rounded-lg border border-gray-200 overflow-hidden">
+          {/* Horizontal Line Button + Color Picker Popover */}
+          <div className="relative flex items-center bg-white rounded-lg border border-gray-300 shadow-2xs overflow-hidden">
             <button
               type="button"
               onClick={() => handleInsertHr(selectedHrColor)}
-              className="p-1 hover:bg-gray-100 text-[#0A2342] cursor-pointer flex items-center gap-0.5"
+              className="px-2 py-1 hover:bg-gray-100 text-[#0A2342] font-semibold text-xs cursor-pointer flex items-center gap-1"
               title="Insert Horizontal Line (<hr>)"
             >
               <HorizontalRuleIcon fontSize="small" style={{ color: selectedHrColor }} />
+              <span>Divider</span>
             </button>
 
             <button
@@ -759,10 +784,14 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
                 setShowHighlightPicker(false);
                 setShowTablePicker(false);
               }}
-              className="px-1 py-1 text-[10px] font-bold text-gray-500 hover:text-black border-l border-gray-200 cursor-pointer"
+              className="px-2 py-1 text-[11px] font-bold text-gray-600 hover:bg-gray-100 border-l border-gray-200 cursor-pointer flex items-center gap-1"
               title="Line Color"
             >
-              Color ▾
+              <span
+                className="w-3 h-3 rounded-full border border-gray-400 inline-block"
+                style={{ backgroundColor: selectedHrColor }}
+              />
+              <span>Color ▾</span>
             </button>
 
             {showHrColorPicker && (
@@ -777,7 +806,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
                     }}
                     className="w-5 h-5 rounded-full border border-gray-300 transition-transform hover:scale-110 cursor-pointer"
                     style={{ backgroundColor: c.value }}
-                    title={`Insert line with ${c.name}`}
+                    title={`Apply ${c.name} (${c.value})`}
                   />
                 ))}
               </div>
