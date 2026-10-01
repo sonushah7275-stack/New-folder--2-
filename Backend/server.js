@@ -20,6 +20,8 @@ import contentRoutes from "./routes/contentRoutes.js";
 import mediaRoutes from "./routes/mediaRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
+import pageRoutes from "./routes/pageRoutes.js";
+import { seedDefaultCmsPages } from "./utils/seedCms.js";
 
 import DataInitializationService from "./services/DataInitializeService.js";
 
@@ -27,11 +29,12 @@ dotenv.config();
 
 const app = express();
 
-// Connect to Database and initialize default Admin User
+// Connect to Database and initialize default Admin User & CMS pages
 connectDB().then(async () => {
   try {
     const dataInit = new DataInitializationService();
     await dataInit.initializeAdminUser();
+    await seedDefaultCmsPages();
   } catch (error) {
     console.error("⚠️ Data initialization error:", error.message);
   }
@@ -113,6 +116,7 @@ app.use("/api/content", contentRoutes);
 app.use("/api/media", mediaRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/pages", pageRoutes);
 
 // 404 Route Not Found Handler
 app.use(notFoundHandler);

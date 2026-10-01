@@ -32,9 +32,11 @@ export const AppRoutes = () => {
       <Route path="/products" element={<ProductsPage />} />
       <Route path="/products/:slug" element={<ProductDetailPage />} />
 
-      {/* Journal */}
+      {/* Journal / Blog */}
       <Route path="/journal" element={<JournalPage />} />
       <Route path="/journal/:slug" element={<ArticleDetailPage />} />
+      <Route path="/blog" element={<JournalPage />} />
+      <Route path="/blog/:slug" element={<ArticleDetailPage />} />
 
       {/* Other pages */}
       <Route path="/about" element={<AboutPage />} />

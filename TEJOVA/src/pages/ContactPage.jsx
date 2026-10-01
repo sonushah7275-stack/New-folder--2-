@@ -7,6 +7,7 @@ import { Button } from "../components/common/Button";
 import { Mail, Phone, MapPin, CheckCircle, Clock } from "lucide-react";
 import { submitContactMessage, clearContactStatus } from "../Redux/slices/contactSlice";
 import { fetchPublicSettings } from "../Redux/slices/settingsSlice";
+import { fetchPageBySlug } from "../Redux/slices/contentSlice";
 
 export const ContactPage = () => {
   const dispatch = useDispatch();
@@ -14,10 +15,15 @@ export const ContactPage = () => {
     (state) => state.contact
   );
   const { publicSettings } = useSelector((state) => state.settings);
+  const { pagesMap } = useSelector((state) => state.content);
 
   useEffect(() => {
     dispatch(fetchPublicSettings());
+    dispatch(fetchPageBySlug("contact"));
   }, [dispatch]);
+
+  const contactCmsPage = pagesMap?.contact;
+
 
   const supportEmail = publicSettings?.supportEmail || "care@tejova.com";
   const contactPhone = publicSettings?.contactPhone || "+1 (800) 555-TEJOVA";

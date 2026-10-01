@@ -27,12 +27,15 @@ export const uploadMedia = async (req, res, next) => {
       req.file.originalname
     );
 
+    const isVideo = req.file.mimetype && req.file.mimetype.startsWith("video/");
+    const resourceType = isVideo ? "video" : "image";
+
     // Save metadata in database
     const mediaRecord = await Media.create({
       fileName: req.file.originalname,
       url: uploadResult.url,
       publicId: uploadResult.publicId,
-      resourceType: "image",
+      resourceType,
       mimeType: req.file.mimetype,
       size: req.file.size,
       alt: req.body.alt ? req.body.alt.trim() : req.file.originalname,
@@ -42,13 +45,14 @@ export const uploadMedia = async (req, res, next) => {
 
     return res.status(201).json({
       success: true,
-      message: "Image uploaded successfully.",
+      message: `${isVideo ? "Video" : "Image"} uploaded successfully.`,
       data: {
         id: mediaRecord._id,
         url: uploadResult.url,
         secureUrl: uploadResult.secureUrl,
         publicId: uploadResult.publicId,
         fileName: mediaRecord.fileName,
+        resourceType: mediaRecord.resourceType,
         folder: mediaRecord.folder,
         alt: mediaRecord.alt,
         createdAt: mediaRecord.createdAt,

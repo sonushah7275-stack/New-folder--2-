@@ -16,6 +16,7 @@ import NewsLetter from "./admin/pages/NewsLetter";
 import Media from "./admin/pages/Media";
 import Content from "./admin/pages/Content";
 import Settings from "./admin/pages/Settings";
+import PageCmsEditor from "./admin/pages/PageCmsEditor";
 
 export default function App() {
   return (
@@ -40,6 +41,7 @@ export default function App() {
           <Route path="media" element={<Media />} />
 
           {/* Secondary Navigation */}
+          <Route path="pages" element={<PageCmsEditor />} />
           <Route path="content" element={<Content />} />
           <Route path="settings" element={<Settings />} />
 

@@ -54,6 +54,11 @@ export const loginUser = createAsyncThunk(
 export const fetchCurrentUser = createAsyncThunk(
   "auth/fetchCurrentUser",
   async (_, { rejectWithValue }) => {
+    const token = localStorage.getItem("tejova_user_token");
+    if (!token) {
+      // Unauthenticated visitor on startup — cleanly set user state without error
+      return rejectWithValue(null);
+    }
     try {
       const response = await api.get("/auth/me");
       return response.data?.user || response.data;

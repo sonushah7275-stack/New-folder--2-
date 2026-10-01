@@ -453,6 +453,8 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
     extensions: [
       StarterKit.configure({
         horizontalRule: false,
+        link: false,
+        underline: false,
         heading: {
           levels: [1, 2, 3, 4],
         },
@@ -1210,8 +1212,8 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
 
       {/* Contextual Table Action Toolbar (Shown when cursor is inside a table) */}
       {editor.isActive("table") && (
-        <div className="px-3 py-1.5 bg-[#0A2342] text-white text-xs flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="px-3 py-2 bg-[#0A2342] text-white text-xs flex flex-wrap items-center justify-between gap-2 overflow-x-auto max-w-full border-b border-white/10">
+          <div className="flex items-center gap-1.5 flex-wrap min-w-max">
             <span className="font-bold text-[#D4AF37] uppercase text-[10px] tracking-wider mr-1">
               Table Tools:
             </span>
@@ -1219,21 +1221,21 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             <button
               type="button"
               onClick={() => editor.chain().focus().addRowBefore().run()}
-              className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[11px] font-medium transition-colors"
+              className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-[11px] font-medium transition-colors cursor-pointer"
             >
               + Row Before
             </button>
             <button
               type="button"
               onClick={() => editor.chain().focus().addRowAfter().run()}
-              className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[11px] font-medium transition-colors"
+              className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-[11px] font-medium transition-colors cursor-pointer"
             >
               + Row After
             </button>
             <button
               type="button"
               onClick={() => editor.chain().focus().deleteRow().run()}
-              className="px-2 py-0.5 bg-red-500/30 hover:bg-red-500/50 text-red-200 rounded text-[11px] font-medium transition-colors"
+              className="px-2 py-1 bg-red-500/30 hover:bg-red-500/50 text-red-200 rounded text-[11px] font-medium transition-colors cursor-pointer"
             >
               Delete Row
             </button>
@@ -1243,21 +1245,21 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             <button
               type="button"
               onClick={() => editor.chain().focus().addColumnBefore().run()}
-              className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[11px] font-medium transition-colors"
+              className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-[11px] font-medium transition-colors cursor-pointer"
             >
               + Col Before
             </button>
             <button
               type="button"
               onClick={() => editor.chain().focus().addColumnAfter().run()}
-              className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[11px] font-medium transition-colors"
+              className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-[11px] font-medium transition-colors cursor-pointer"
             >
               + Col After
             </button>
             <button
               type="button"
               onClick={() => editor.chain().focus().deleteColumn().run()}
-              className="px-2 py-0.5 bg-red-500/30 hover:bg-red-500/50 text-red-200 rounded text-[11px] font-medium transition-colors"
+              className="px-2 py-1 bg-red-500/30 hover:bg-red-500/50 text-red-200 rounded text-[11px] font-medium transition-colors cursor-pointer"
             >
               Delete Col
             </button>
@@ -1267,7 +1269,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleHeaderRow().run()}
-              className="px-2 py-0.5 bg-[#D4AF37]/30 hover:bg-[#D4AF37]/50 text-[#D4AF37] rounded text-[11px] font-bold transition-colors"
+              className="px-2 py-1 bg-[#D4AF37]/30 hover:bg-[#D4AF37]/50 text-[#D4AF37] rounded text-[11px] font-bold transition-colors cursor-pointer"
             >
               Toggle Header
             </button>
@@ -1276,7 +1278,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
           <button
             type="button"
             onClick={() => editor.chain().focus().deleteTable().run()}
-            className="px-2 py-0.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded text-[11px] flex items-center gap-1 transition-colors"
+            className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white font-bold rounded text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
           >
             <DeleteSweepIcon fontSize="inherit" /> Delete Table
           </button>
@@ -1293,10 +1295,13 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
         </div>
       )}
 
-      {/* Editor Content Area */}
+      {/* Editor Content Area with Responsive Table Container */}
       <div className="p-4 min-h-[260px] max-h-[500px] overflow-y-auto prose prose-sm max-w-none focus:outline-none">
-        <EditorContent editor={editor} />
+        <div className="overflow-x-auto w-full max-w-full [&_table]:min-w-[480px] [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:border [&_th]:border-gray-300 [&_th]:px-3 [&_th]:py-2 [&_th]:bg-[#FAF9F6] [&_th]:font-serif [&_th]:font-bold [&_th]:text-[#0A2342] [&_td]:border [&_td]:border-gray-300 [&_td]:px-3 [&_td]:py-2 [&_td]:text-[#0A2342]">
+          <EditorContent editor={editor} />
+        </div>
       </div>
+
 
       {/* Optional Caption Modal */}
       {showCaptionModal && (

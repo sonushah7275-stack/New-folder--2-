@@ -34,7 +34,7 @@ export const uploadToCloudinary = (buffer, folderName = "general", originalName 
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: folderPath,
-        resource_type: "image",
+        resource_type: "auto",
         quality: "auto",
         fetch_format: "auto",
       },

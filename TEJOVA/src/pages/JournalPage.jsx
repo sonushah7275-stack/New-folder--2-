@@ -5,6 +5,7 @@ import { ArticleCard } from "../components/journal/ArticleCard";
 import { ArticleGrid } from "../components/journal/ArticleGrid";
 import { SectionHeading } from "../components/common/SectionHeading";
 import { fetchArticles } from "../Redux/slices/journalSlice";
+import { fetchPageBySlug } from "../Redux/slices/contentSlice";
 import { articles as staticArticles } from "../data/articles";
 
 const categories = ["All", "Vitality", "Nourishment", "Lifestyle", "Longevity", "Conscious Living"];
@@ -12,12 +13,19 @@ const categories = ["All", "Vitality", "Nourishment", "Lifestyle", "Longevity", 
 export const JournalPage = () => {
   const dispatch = useDispatch();
   const { articles: apiArticles, loading, error } = useSelector((state) => state.journal);
+  const { pagesMap } = useSelector((state) => state.content);
   const [selectedCategory, setSelectedCategory] = useState("All");
+
+  useEffect(() => {
+    dispatch(fetchPageBySlug("blog"));
+  }, [dispatch]);
 
   useEffect(() => {
     const params = selectedCategory !== "All" ? { tag: selectedCategory } : {};
     dispatch(fetchArticles(params));
   }, [dispatch, selectedCategory]);
+
+  const blogCmsPage = pagesMap?.blog || pagesMap?.journal;
 
   const displayArticles =
     apiArticles && apiArticles.length > 0
@@ -39,11 +47,14 @@ export const JournalPage = () => {
 
   return (
     <PageContainer>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-14">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-14 space-y-12">
         <SectionHeading
-          subtitle="Conscious Living Journal"
-          title="Essays & Insights"
-          description="Reflections on biological vitality, clean nourishment, daily mindfulness and long-term health span."
+          subtitle={blogCmsPage?.hero?.subtitle || "Conscious Living Journal"}
+          title={blogCmsPage?.hero?.title || "The Sovereign Journal"}
+          description={
+            blogCmsPage?.hero?.description ||
+            "Reflections on biological vitality, clean nourishment, daily mindfulness and long-term health span."
+          }
         />
 
         {/* API States */}

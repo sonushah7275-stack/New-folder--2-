@@ -13,37 +13,55 @@ import { Shield, RefreshCw, Feather } from "lucide-react";
 import { fetchPillars } from "../Redux/slices/pillarSlice";
 import { fetchProducts } from "../Redux/slices/productSlice";
 import { fetchArticles } from "../Redux/slices/journalSlice";
+import { fetchPageBySlug } from "../Redux/slices/contentSlice";
+import DOMPurify from "dompurify";
 
 export const LongevityPage = () => {
   const dispatch = useDispatch();
   const { pillars: apiPillars } = useSelector((state) => state.pillar);
   const { products: apiProducts } = useSelector((state) => state.product);
   const { articles: apiArticles } = useSelector((state) => state.journal);
+  const { pagesMap } = useSelector((state) => state.content);
 
   useEffect(() => {
     dispatch(fetchPillars());
     dispatch(fetchProducts());
     dispatch(fetchArticles());
+    dispatch(fetchPageBySlug("longevity"));
   }, [dispatch]);
 
+  const longevityCmsPage = pagesMap?.longevity;
   const dbPillar = apiPillars.find(
     (p) => p.slug === "longevity" || p.name?.toLowerCase() === "longevity"
   );
   const fallbackPillar = staticPillars.find((p) => p.id === "longevity") || staticPillars[3];
 
-  const longevityData = {
-    ...fallbackPillar,
-    longDescription: dbPillar?.description || fallbackPillar.longDescription,
-  };
+  const heroSubtitle = longevityCmsPage?.hero?.subtitle || "Longevity";
+  const heroTitle = longevityCmsPage?.hero?.title || "Longer Life. Cellular Protection.";
+  const heroDescription =
+    longevityCmsPage?.hero?.description ||
+    dbPillar?.description ||
+    fallbackPillar.longDescription;
+  const heroMedia =
+    longevityCmsPage?.hero?.mediaUrl || longevityCmsPage?.hero?.media?.url || fallbackPillar.heroImage;
+
+  const richContentSection = longevityCmsPage?.sections?.find(
+    (s) => s.type === "rich_content" || s.sectionId === "sec_longevity_body"
+  );
 
   const relatedProducts =
     apiProducts && apiProducts.length > 0
-      ? apiProducts.map((p) => ({
-          ...p,
-          id: p._id || p.id,
-          image: p.image || (p.images && p.images[0]?.url ? p.images[0].url : p.images?.[0]) || "/assets/images/product-restore-renew.svg",
-          category: typeof p.category === "object" ? p.category?.name : p.category || "Longevity",
-        })).slice(0, 2)
+      ? apiProducts
+          .map((p) => ({
+            ...p,
+            id: p._id || p.id,
+            image:
+              p.image ||
+              (p.images && p.images[0]?.url ? p.images[0].url : p.images?.[0]) ||
+              "/assets/images/product-restore-renew.svg",
+            category: typeof p.category === "object" ? p.category?.name : p.category || "Longevity",
+          }))
+          .slice(0, 2)
       : staticProducts.filter(
           (p) =>
             p.category === "Longevity" ||
@@ -53,12 +71,14 @@ export const LongevityPage = () => {
 
   const relatedArticles =
     apiArticles && apiArticles.length > 0
-      ? apiArticles.map((a) => ({
-          ...a,
-          id: a._id || a.id,
-          category: a.category || a.tags?.[0] || "Longevity",
-          image: a.image || a.featuredImage || "/assets/images/longevity-forest.svg",
-        })).slice(0, 2)
+      ? apiArticles
+          .map((a) => ({
+            ...a,
+            id: a._id || a.id,
+            category: a.category || a.tags?.[0] || "Longevity",
+            image: a.image || a.featuredImage || "/assets/images/longevity-forest.svg",
+          }))
+          .slice(0, 2)
       : staticArticles.filter((a) => a.category === "Longevity").slice(0, 2);
 
   return (
@@ -68,25 +88,24 @@ export const LongevityPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           <div className="lg:col-span-6 space-y-6">
             <span className="text-xs uppercase tracking-[0.25em] text-[#B87333] font-semibold block">
-              Longevity
+              {heroSubtitle}
             </span>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-[72px] text-[#0A2342] leading-tight font-medium">
-              Longer Life. <br />
-              Cellular Protection.
+              {heroTitle}
             </h1>
             <p className="text-base sm:text-lg text-[#0A2342]/85 font-light leading-relaxed">
-              {longevityData.longDescription}
+              {heroDescription}
             </p>
             <div className="pt-2">
               <Button to="/products/restore-and-renew" variant="primary" icon>
-                Explore Sleep & Renewal Formulations
+                {longevityCmsPage?.hero?.ctaText || "Explore Sleep & Renewal Formulations"}
               </Button>
             </div>
           </div>
           <div className="lg:col-span-6">
             <div className="aspect-[4/3] rounded-xs overflow-hidden border border-[#B87333]/30 shadow-xs bg-[#FAF9F6]">
               <img
-                src={longevityData.heroImage}
+                src={heroMedia}
                 alt="Timeless forest longevity landscape"
                 className="w-full h-full object-cover"
               />
@@ -94,6 +113,25 @@ export const LongevityPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Dynamic Rich Content Section if present */}
+      {richContentSection && richContentSection.content && (
+        <section className="py-12 max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="bg-[#FAF9F6] p-8 sm:p-12 rounded-xs border border-[#B87333]/30 shadow-xs space-y-4">
+            {richContentSection.title && (
+              <h2 className="font-serif text-2xl sm:text-3xl text-[#0A2342] font-medium">
+                {richContentSection.title}
+              </h2>
+            )}
+            <div
+              className="prose max-w-none text-base text-[#0A2342]/85 font-light leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(richContentSection.content),
+              }}
+            />
+          </div>
+        </section>
+      )}
 
       {/* Longevity Pillars */}
       <section className="py-16 sm:py-20 bg-[#FAF9F6] border-y border-[#B87333]/30 my-12 sm:my-16">
@@ -104,7 +142,7 @@ export const LongevityPage = () => {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            {longevityData.highlights.map((item, idx) => (
+            {fallbackPillar.highlights.map((item, idx) => (
               <TextReveal
                 key={item.title}
                 delay={idx * 0.1}

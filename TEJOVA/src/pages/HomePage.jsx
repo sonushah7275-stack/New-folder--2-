@@ -11,7 +11,7 @@ import { LongevitySection } from "../components/home/LongevitySection";
 import { ProductSection } from "../components/home/ProductSection";
 import { JournalSection } from "../components/home/JournalSection";
 import { CTASection } from "../components/home/CTASection";
-import { fetchPublicContent } from "../Redux/slices/contentSlice";
+import { fetchPublicContent, fetchPageBySlug } from "../Redux/slices/contentSlice";
 import { fetchPublicSettings } from "../Redux/slices/settingsSlice";
 import { fetchPillars } from "../Redux/slices/pillarSlice";
 
@@ -20,6 +20,7 @@ export const HomePage = () => {
 
   useEffect(() => {
     dispatch(fetchPublicContent());
+    dispatch(fetchPageBySlug("home"));
     dispatch(fetchPublicSettings());
     dispatch(fetchPillars());
   }, [dispatch]);

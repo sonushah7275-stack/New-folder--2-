@@ -35,13 +35,14 @@ const mainNavItems = [
   { name: "Categories", icon: "Category", path: "/admin/categories" },
   { name: "Orders", icon: "ShoppingBag", path: "/admin/orders" },
   { name: "Customers", icon: "People", path: "/admin/customers" },
-  { name: "Journal", icon: "MenuBook", path: "/admin/journal" },
+  { name: "Blog", icon: "MenuBook", path: "/admin/journal" },
   { name: "Pillars", icon: "BarChart", path: "/admin/pillars" },
   { name: "Newsletter", icon: "Mail", path: "/admin/newsletter" },
   { name: "Media", icon: "PermMedia", path: "/admin/media" },
 ];
 
 const secondaryNavItems = [
+  { name: "Pages (CMS)", icon: "EditNote", path: "/admin/pages" },
   { name: "Content", icon: "EditNote", path: "/admin/content" },
   { name: "Settings", icon: "Settings", path: "/admin/settings" },
 ];

@@ -1,24 +1,39 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { PageContainer } from '../components/layout/PageContainer';
 import { SectionHeading } from '../components/common/SectionHeading';
 import { Button } from '../components/common/Button';
 import { pillars } from '../data/pillars';
+import { fetchPageBySlug } from '../Redux/slices/contentSlice';
 import heroLandscape from '../assets/images/hero-landscape.svg';
 
 export const AboutPage = () => {
+  const dispatch = useDispatch();
+  const { pagesMap } = useSelector((state) => state.content);
+
+  useEffect(() => {
+    dispatch(fetchPageBySlug("about"));
+  }, [dispatch]);
+
+  const aboutCmsPage = pagesMap?.about;
+
+  const heroSubtitle = aboutCmsPage?.hero?.subtitle || "Our Brand Story";
+  const heroTitle = aboutCmsPage?.hero?.title || "We Believe Wellness Should Expand Your Life, Not Limit It.";
+  const heroDescription = aboutCmsPage?.hero?.description || "TEJOVA was born out of a quiet realization: true health isn't found in rigid routines or synthetic quick fixes, but in living in harmonious resonance with natural biological laws.";
+  const heroMedia = aboutCmsPage?.hero?.mediaUrl || aboutCmsPage?.hero?.media?.url || heroLandscape;
+
   return (
     <PageContainer>
-      
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 text-center">
         <span className="text-xs uppercase tracking-[0.3em] text-[#B87333] font-semibold block mb-4">
-          Our Brand Story
+          {heroSubtitle}
         </span>
         <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-[72px] text-[#0A2342] leading-tight max-w-4xl mx-auto mb-6 font-medium">
-          We Believe Wellness Should Expand Your Life, Not Limit It.
+          {heroTitle}
         </h1>
         <p className="text-base sm:text-lg lg:text-xl text-[#0A2342]/85 font-light max-w-2xl mx-auto leading-relaxed">
-          TEJOVA was born out of a quiet realization: true health isn't found in rigid routines or synthetic quick fixes, but in living in harmonious resonance with natural biological laws.
+          {heroDescription}
         </p>
       </section>
 
@@ -26,7 +41,7 @@ export const AboutPage = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 sm:mb-20">
         <div className="aspect-[21/9] rounded-xs overflow-hidden border border-[#B87333]/30 shadow-xs">
           <img
-            src={heroLandscape}
+            src={heroMedia}
             alt="Sunrise over pristine wilderness"
             className="w-full h-full object-cover"
           />

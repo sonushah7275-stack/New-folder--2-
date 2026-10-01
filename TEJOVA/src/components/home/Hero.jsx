@@ -1,10 +1,23 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { Button } from '../common/Button';
 import { Sparkles, ArrowRight, ShieldCheck, Leaf, Sun } from 'lucide-react';
 import heroLandscape from '../../assets/images/hero-landscape.svg';
 
 export const Hero = () => {
+  const { pagesMap } = useSelector((state) => state.content);
+  const homeHero = pagesMap?.home?.hero;
+
+  const subtitle = homeHero?.subtitle || "TEJOVA — Conscious Living";
+  const title = homeHero?.title || "Master Your Sovereignty. Unleash Your Vitality.";
+  const description =
+    homeHero?.description ||
+    "Elevate your daily harmony with pure, natural vitality and conscious wellness rituals. Rooted in ancient wisdom, refined for modern living.";
+  const ctaText = homeHero?.ctaText || "Begin Your Journey";
+  const ctaLink = homeHero?.ctaLink || "/products";
+  const mediaUrl = homeHero?.mediaUrl || homeHero?.media?.url || heroLandscape;
+
   return (
     <section className="relative bg-[#F5F3EF] text-[#0A2342] pt-24 pb-16 sm:pt-28 sm:pb-20 lg:pt-36 lg:pb-24 overflow-hidden">
       
@@ -27,7 +40,7 @@ export const Hero = () => {
             >
               <Sparkles className="w-3.5 h-3.5 text-[#B87333]" />
               <span className="text-xs font-medium uppercase tracking-[0.2em] text-[#B87333]">
-                TEJOVA — Conscious Living
+                {subtitle}
               </span>
             </motion.div>
 
@@ -38,7 +51,7 @@ export const Hero = () => {
               transition={{ duration: 0.7, delay: 0.1 }}
               className="font-serif text-4xl sm:text-5xl lg:text-6xl xl:text-[72px] font-medium tracking-tight leading-[1.08] mb-6 text-[#0A2342]"
             >
-              Expand Your <span className="italic font-normal text-[#B87333]">Light.</span>
+              {title}
             </motion.h1>
 
             {/* Supporting Copy: 16px–18px (~1.6 line height) */}
@@ -48,7 +61,7 @@ export const Hero = () => {
               transition={{ duration: 0.7, delay: 0.2 }}
               className="text-base sm:text-lg text-[#0A2342]/85 leading-relaxed max-w-xl mb-8 font-normal"
             >
-              Elevate your daily harmony with pure, natural vitality and conscious wellness rituals. Rooted in ancient wisdom, refined for modern living.
+              {description}
             </motion.p>
 
             {/* CTAs */}
@@ -58,8 +71,8 @@ export const Hero = () => {
               transition={{ duration: 0.7, delay: 0.3 }}
               className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto mb-10"
             >
-              <Button to="/products" variant="primary" size="lg" icon className="w-full sm:w-auto">
-                Begin Your Journey
+              <Button to={ctaLink} variant="primary" size="lg" icon className="w-full sm:w-auto">
+                {ctaText}
               </Button>
               <Button to="/about" variant="secondary" size="lg" className="w-full sm:w-auto">
                 Discover TEJOVA
@@ -99,7 +112,7 @@ export const Hero = () => {
             >
               <div className="aspect-4/5 sm:aspect-4/3 lg:aspect-4/5 w-full overflow-hidden relative">
                 <img
-                  src={heroLandscape}
+                  src={mediaUrl}
                   alt="Serene nature landscape representing TEJOVA conscious vitality"
                   className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                 />

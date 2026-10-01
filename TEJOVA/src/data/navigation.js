@@ -4,7 +4,7 @@ export const navLinks = [
   { name: "Lifestyle", path: "/lifestyle" },
   { name: "Longevity", path: "/longevity" },
   { name: "Products", path: "/products" },
-  { name: "Journal", path: "/journal" },
+  { name: "Blog", path: "/blog" },
 ];
 
 export const secondaryNavLinks = [
@@ -21,7 +21,7 @@ export const footerColumns = [
       { name: "Lifestyle", path: "/lifestyle" },
       { name: "Longevity", path: "/longevity" },
       { name: "Products", path: "/products" },
-      { name: "Journal", path: "/journal" },
+      { name: "Blog", path: "/blog" },
     ]
   },
   {

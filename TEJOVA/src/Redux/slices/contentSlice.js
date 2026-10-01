@@ -26,9 +26,28 @@ export const fetchPublicContent = createAsyncThunk(
   }
 );
 
+/**
+ * Fetch dynamic CMS page by slug
+ * GET /api/pages/:slug
+ */
+export const fetchPageBySlug = createAsyncThunk(
+  "content/fetchPageBySlug",
+  async (slug, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/pages/${slug}`);
+      return { slug, page: response.data?.data };
+    } catch (error) {
+      const message =
+        error.response?.data?.message || `Failed to load page '${slug}'.`;
+      return rejectWithValue(message);
+    }
+  }
+);
+
 const initialState = {
   blocks: [],
   contentMap: {},
+  pagesMap: {},
   loading: false,
   error: null,
 };
@@ -56,6 +75,11 @@ const contentSlice = createSlice({
       .addCase(fetchPublicContent.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(fetchPageBySlug.fulfilled, (state, action) => {
+        if (action.payload?.slug && action.payload?.page) {
+          state.pagesMap[action.payload.slug] = action.payload.page;
+        }
       });
   },
 });

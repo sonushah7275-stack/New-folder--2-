@@ -96,27 +96,5 @@ export const pillars = [
       { title: "Autophagy Fasting", time: "14 Hours", desc: "Intermittent overnight fasting to allow cellular clearing and mitochondrial renewal." },
       { title: "Evening Journaling", time: "15 Mins", desc: "Reflect on gratitude and quiet the mind before restorative deep sleep." }
     ]
-  },
-  {
-    id: "products",
-    title: "Products",
-    tagline: "Nature's Solutions. Everyday Support.",
-    subtitle: "Pure, Potent Adaptogens & Botanicals",
-    description: "Ethically harvested, scientifically backed whole-food formulations designed to support your daily wellness journey.",
-    longDescription: "Our range of luxury botanical formulas is crafted in small batches using non-GMO, organic ingredients. Each formula is designed to integrate seamlessly into your morning, afternoon, and evening rituals.",
-    image: productVitalityTonic,
-    heroImage: productEarthSerum,
-    slug: "products",
-    link: "/products",
-    highlights: [
-      { title: "100% Pure Organic", desc: "Free from synthetic fillers, artificial binders, and heavy metals." },
-      { title: "Bio-Available Formulations", desc: "High efficacy liposomal and botanical extraction methods." },
-      { title: "Sustainably Sourced", desc: "Wildcrafted ingredients sourced directly from ethical bio-farms." }
-    ],
-    practices: [
-      { title: "Daily Morning Tonic", time: "7:30 AM", desc: "Blend 1 scoop of Vitality Tonic into warm lemon water." },
-      { title: "Botanical Skin Renewal", time: "Morning & Night", desc: "Apply 3 drops of Earth Ritual Serum to clean skin for radiant hydration." },
-      { title: "Evening Sleep Powder", time: "9:30 PM", desc: "Mix Restore & Renew Magnesium in warm botanical tea." }
-    ]
   }
 ];
