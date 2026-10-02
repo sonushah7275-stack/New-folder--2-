@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import cloudinary from "../config/cloudinary.js";
 
 /**
@@ -21,7 +22,7 @@ export const normalizeCloudinaryText = (text) => {
 };
 
 /**
- * Recursively normalize Cloudinary URLs across object data structures
+ * Safely normalize Cloudinary URLs across object data structures without corrupting Mongoose ObjectIds
  * @param {any} data - Data structure (object, array, string)
  * @returns {any} - Data structure with normalized HTTPS Cloudinary URLs
  */
@@ -30,18 +31,26 @@ export const normalizeCloudinaryData = (data) => {
   if (typeof data === "string") {
     return normalizeCloudinaryText(data);
   }
-  if (Array.isArray(data)) {
-    return data.map((item) => normalizeCloudinaryData(item));
+  if (typeof data !== "object") {
+    return data;
   }
-  if (typeof data === "object") {
-    const plain = data.toObject ? data.toObject() : data;
-    const result = Array.isArray(plain) ? [] : { ...plain };
-    for (const key of Object.keys(plain)) {
-      result[key] = normalizeCloudinaryData(plain[key]);
+  if (data._bsontype === "ObjectID" || data instanceof mongoose.Types.ObjectId) {
+    return data;
+  }
+  if (data instanceof Date || Buffer.isBuffer(data)) {
+    return data;
+  }
+
+  try {
+    const jsonString = JSON.stringify(data);
+    if (!jsonString || !jsonString.includes("http://res.cloudinary.com/")) {
+      return JSON.parse(jsonString);
     }
-    return result;
+    const normalizedJsonString = jsonString.replace(/http:\/\/res\.cloudinary\.com\//gi, "https://res.cloudinary.com/");
+    return JSON.parse(normalizedJsonString);
+  } catch (err) {
+    return data;
   }
-  return data;
 };
 
 /**
