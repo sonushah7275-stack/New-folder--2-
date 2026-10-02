@@ -20,15 +20,35 @@ export const PillarSection = () => {
 
   const displayPillars =
     pillarSec?.items && pillarSec.items.length > 0
-      ? pillarSec.items.map((item) => ({
-          id: item.id || item.link?.replace('/', '') || 'pillar',
-          kicker: item.kicker,
-          title: item.title,
-          tagline: item.subtitle,
-          description: item.description,
-          heroImage: item.image,
-          link: item.link || `/${item.title?.toLowerCase()}`,
-        }))
+      ? pillarSec.items.map((item, idx) => {
+          const fallbackPillar =
+            staticPillars.find(
+              (p) =>
+                p.id === item.id ||
+                p.slug === item.id ||
+                p.title?.toLowerCase() === item.title?.toLowerCase()
+            ) || staticPillars[idx] || {};
+
+          const imgUrl =
+            item.image ||
+            item.mediaUrl ||
+            item.media?.url ||
+            item.imageUrl ||
+            item.coverImage ||
+            pillarSec?.media?.url ||
+            fallbackPillar.image;
+
+          return {
+            id: item.id || item.link?.replace('/', '') || 'pillar',
+            kicker: item.kicker || fallbackPillar.kicker,
+            title: item.title || fallbackPillar.title,
+            tagline: item.subtitle || fallbackPillar.tagline,
+            description: item.description || fallbackPillar.description,
+            image: imgUrl,
+            heroImage: imgUrl,
+            link: item.link || `/${item.title?.toLowerCase() || fallbackPillar.slug}`,
+          };
+        })
       : staticPillars;
 
   return (
