@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Pillar from "../models/Pillar.js";
 import { slugify } from "../utils/slugify.js";
+import { normalizeCloudinaryData } from "../utils/cloudinaryHelper.js";
 
 /**
  * Get all wellness pillars
@@ -20,7 +21,7 @@ export const getPillars = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      data: pillars,
+      data: normalizeCloudinaryData(pillars),
     });
   } catch (error) {
     next(error);
@@ -52,7 +53,7 @@ export const getPillarByIdOrSlug = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      data: pillar,
+      data: normalizeCloudinaryData(pillar),
     });
   } catch (error) {
     next(error);

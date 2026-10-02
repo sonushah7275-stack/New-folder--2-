@@ -1,4 +1,5 @@
 import Page from '../models/Page.js';
+import { normalizeCloudinaryData } from '../utils/cloudinaryHelper.js';
 
 /**
  * Get all pages
@@ -13,7 +14,7 @@ export const getAllPages = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      data: pages
+      data: normalizeCloudinaryData(pages)
     });
   } catch (error) {
     next(error);
@@ -55,7 +56,7 @@ export const getPageBySlug = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      data: page
+      data: normalizeCloudinaryData(page)
     });
   } catch (error) {
     next(error);

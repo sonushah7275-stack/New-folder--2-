@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Journal from "../models/Journal.js";
 import { slugify } from "../utils/slugify.js";
+import { normalizeCloudinaryUrl, normalizeCloudinaryText, normalizeCloudinaryData } from "../utils/cloudinaryHelper.js";
 
 /**
  * Get journal articles with pagination, search, and category/tag filters
@@ -50,7 +51,7 @@ export const getArticles = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      data: articles,
+      data: normalizeCloudinaryData(articles),
       pagination: {
         page,
         limit,
@@ -86,7 +87,7 @@ export const getArticleBySlug = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      data: article,
+      data: normalizeCloudinaryData(article),
     });
   } catch (error) {
     next(error);
@@ -156,8 +157,8 @@ export const createArticle = async (req, res, next) => {
       title: title.trim(),
       slug: generatedSlug,
       excerpt: excerpt ? excerpt.trim() : "",
-      content: content.trim(),
-      coverImage: coverImage || "",
+      content: normalizeCloudinaryText(content.trim()),
+      coverImage: normalizeCloudinaryUrl(coverImage || ""),
       fontStyle: selectedFontStyle,
       author: req.user._id,
       category: category ? category.trim() : "",
@@ -170,7 +171,7 @@ export const createArticle = async (req, res, next) => {
     return res.status(201).json({
       success: true,
       message: "Article created successfully.",
-      data: article,
+      data: normalizeCloudinaryData(article),
     });
   } catch (error) {
     next(error);
@@ -225,8 +226,8 @@ export const updateArticle = async (req, res, next) => {
     }
 
     if (updates.excerpt !== undefined) article.excerpt = updates.excerpt.trim();
-    if (updates.content !== undefined) article.content = updates.content.trim();
-    if (updates.coverImage !== undefined) article.coverImage = updates.coverImage;
+    if (updates.content !== undefined) article.content = normalizeCloudinaryText(updates.content.trim());
+    if (updates.coverImage !== undefined) article.coverImage = normalizeCloudinaryUrl(updates.coverImage);
     if (updates.fontStyle !== undefined) {
       const validFontStyles = [
         "serif-old-style",

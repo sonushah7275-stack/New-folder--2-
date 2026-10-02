@@ -1,6 +1,50 @@
 import cloudinary from "../config/cloudinary.js";
 
 /**
+ * Normalize Cloudinary URL to HTTPS protocol
+ * @param {string} url - Input image or media URL
+ * @returns {string} - HTTPS normalized Cloudinary URL
+ */
+export const normalizeCloudinaryUrl = (url) => {
+  if (!url || typeof url !== "string") return url;
+  return url.replace(/^http:\/\/res\.cloudinary\.com\//i, "https://res.cloudinary.com/");
+};
+
+/**
+ * Normalize any HTML or text containing Cloudinary image URLs to HTTPS
+ * @param {string} text - HTML content or text string
+ * @returns {string} - Text with HTTPS normalized Cloudinary URLs
+ */
+export const normalizeCloudinaryText = (text) => {
+  if (!text || typeof text !== "string") return text;
+  return text.replace(/http:\/\/res\.cloudinary\.com\//gi, "https://res.cloudinary.com/");
+};
+
+/**
+ * Recursively normalize Cloudinary URLs across object data structures
+ * @param {any} data - Data structure (object, array, string)
+ * @returns {any} - Data structure with normalized HTTPS Cloudinary URLs
+ */
+export const normalizeCloudinaryData = (data) => {
+  if (!data) return data;
+  if (typeof data === "string") {
+    return normalizeCloudinaryText(data);
+  }
+  if (Array.isArray(data)) {
+    return data.map((item) => normalizeCloudinaryData(item));
+  }
+  if (typeof data === "object") {
+    const plain = data.toObject ? data.toObject() : data;
+    const result = Array.isArray(plain) ? [] : { ...plain };
+    for (const key of Object.keys(plain)) {
+      result[key] = normalizeCloudinaryData(plain[key]);
+    }
+    return result;
+  }
+  return data;
+};
+
+/**
  * Upload image buffer to Cloudinary with automatic optimization
  * @param {Buffer} buffer - File buffer from multer memory storage
  * @param {string} folderName - Subfolder name under TEJOVA (products, journal, pillars, content, general)
@@ -19,9 +63,10 @@ export const uploadToCloudinary = (buffer, folderName = "general", originalName 
     if (!isConfigured) {
       // Return structured mock result in local development if credentials are demo placeholders
       const mockPublicId = `TEJOVA/${folderName}/mock_${Date.now()}`;
+      const mockUrl = `https://res.cloudinary.com/demo/image/upload/v12345678/${mockPublicId}.jpg`;
       return resolve({
-        url: `https://res.cloudinary.com/demo/image/upload/v12345678/${mockPublicId}.jpg`,
-        secureUrl: `https://res.cloudinary.com/demo/image/upload/v12345678/${mockPublicId}.jpg`,
+        url: mockUrl,
+        secureUrl: mockUrl,
         publicId: mockPublicId,
         format: "jpg",
         bytes: buffer ? buffer.length : 1024,
@@ -42,9 +87,10 @@ export const uploadToCloudinary = (buffer, folderName = "general", originalName 
         if (error) {
           return reject(error);
         }
+        const secureUrl = normalizeCloudinaryUrl(result.secure_url || result.url);
         resolve({
-          url: result.url,
-          secureUrl: result.secure_url,
+          url: secureUrl,
+          secureUrl: secureUrl,
           publicId: result.public_id,
           format: result.format,
           bytes: result.bytes,

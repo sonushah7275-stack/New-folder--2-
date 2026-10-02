@@ -1,5 +1,5 @@
 import Media from "../models/Media.js";
-import { uploadToCloudinary, deleteFromCloudinary } from "../utils/cloudinaryHelper.js";
+import { uploadToCloudinary, deleteFromCloudinary, normalizeCloudinaryUrl, normalizeCloudinaryData } from "../utils/cloudinaryHelper.js";
 
 /**
  * Upload an image to Cloudinary and record metadata in Media model
@@ -29,11 +29,12 @@ export const uploadMedia = async (req, res, next) => {
 
     const isVideo = req.file.mimetype && req.file.mimetype.startsWith("video/");
     const resourceType = isVideo ? "video" : "image";
+    const secureUrl = normalizeCloudinaryUrl(uploadResult.secureUrl || uploadResult.url);
 
     // Save metadata in database
     const mediaRecord = await Media.create({
       fileName: req.file.originalname,
-      url: uploadResult.url,
+      url: secureUrl,
       publicId: uploadResult.publicId,
       resourceType,
       mimeType: req.file.mimetype,
@@ -48,8 +49,8 @@ export const uploadMedia = async (req, res, next) => {
       message: `${isVideo ? "Video" : "Image"} uploaded successfully.`,
       data: {
         id: mediaRecord._id,
-        url: uploadResult.url,
-        secureUrl: uploadResult.secureUrl,
+        url: secureUrl,
+        secureUrl: secureUrl,
         publicId: uploadResult.publicId,
         fileName: mediaRecord.fileName,
         resourceType: mediaRecord.resourceType,
@@ -131,7 +132,7 @@ export const getMediaAssets = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      data: mediaList,
+      data: normalizeCloudinaryData(mediaList),
       pagination: {
         page,
         limit,

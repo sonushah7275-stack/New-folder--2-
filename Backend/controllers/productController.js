@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Product from "../models/Product.js";
 import { slugify } from "../utils/slugify.js";
+import { normalizeCloudinaryData } from "../utils/cloudinaryHelper.js";
 
 /**
  * Get all products with pagination, search, category, and featured filters
@@ -55,7 +56,7 @@ export const getProducts = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      data: products,
+      data: normalizeCloudinaryData(products),
       pagination: {
         page,
         limit,
@@ -91,7 +92,7 @@ export const getProductBySlug = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      data: product,
+      data: normalizeCloudinaryData(product),
     });
   } catch (error) {
     next(error);
@@ -125,7 +126,7 @@ export const getProductById = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      data: product,
+      data: normalizeCloudinaryData(product),
     });
   } catch (error) {
     next(error);
@@ -192,7 +193,7 @@ export const createProduct = async (req, res, next) => {
       compareAtPrice: compareAtPrice ? Number(compareAtPrice) : null,
       sku: sku ? sku.trim() : undefined,
       stock: stock !== undefined ? Number(stock) : 0,
-      images: Array.isArray(images) ? images : [],
+      images: Array.isArray(images) ? normalizeCloudinaryData(images) : [],
       category: category && mongoose.Types.ObjectId.isValid(category) ? category : null,
       benefits: Array.isArray(benefits) ? benefits : [],
       ingredients: Array.isArray(ingredients) ? ingredients : [],
@@ -206,7 +207,7 @@ export const createProduct = async (req, res, next) => {
     return res.status(201).json({
       success: true,
       message: "Product created successfully.",
-      data: product,
+      data: normalizeCloudinaryData(product),
     });
   } catch (error) {
     next(error);
@@ -264,7 +265,7 @@ export const updateProduct = async (req, res, next) => {
     if (updates.compareAtPrice !== undefined) product.compareAtPrice = updates.compareAtPrice ? Number(updates.compareAtPrice) : null;
     if (updates.sku !== undefined) product.sku = updates.sku ? updates.sku.trim() : undefined;
     if (updates.stock !== undefined) product.stock = Number(updates.stock);
-    if (Array.isArray(updates.images)) product.images = updates.images;
+    if (Array.isArray(updates.images)) product.images = normalizeCloudinaryData(updates.images);
     if (updates.category !== undefined) {
       product.category = updates.category && mongoose.Types.ObjectId.isValid(updates.category) ? updates.category : null;
     }
