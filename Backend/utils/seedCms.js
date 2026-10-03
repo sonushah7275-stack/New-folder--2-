@@ -541,13 +541,13 @@ export const seedDefaultCmsPages = async () => {
     ];
 
     for (const pageData of pagesToSeed) {
-      await Page.findOneAndUpdate(
-        { slug: pageData.slug },
-        pageData,
-        { upsert: true, new: true }
-      );
+      const existingPage = await Page.findOne({ slug: pageData.slug });
+      if (!existingPage) {
+        await Page.create(pageData);
+        console.log(`🌱 Default CMS page '${pageData.slug}' created.`);
+      }
     }
-    console.log('✅ Default CMS Pages seeded successfully.');
+    console.log('✅ CMS Pages initialization check completed.');
   } catch (error) {
     console.error('❌ Error seeding default CMS pages:', error.message);
   }
