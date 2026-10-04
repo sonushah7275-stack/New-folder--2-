@@ -16,6 +16,7 @@ router.get("/:idOrSlug", getCategoryByIdOrSlug);
 
 // Admin Protected Routes
 router.post("/", protect, adminOnly, createCategory);
+router.put("/:id", protect, adminOnly, updateCategory);
 router.patch("/:id", protect, adminOnly, updateCategory);
 router.delete("/:id", protect, adminOnly, deleteCategory);
 

@@ -58,9 +58,10 @@ const journalSchema = new mongoose.Schema(
       index: true
     },
     category: {
-      type: String,
-      trim: true,
-      default: ''
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
+      required: [true, 'Journal category is required'],
+      index: true
     },
     tags: [
       {

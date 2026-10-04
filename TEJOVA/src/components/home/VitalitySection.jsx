@@ -1,9 +1,18 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { TextReveal } from '../common/TextReveal';
 import { Button } from '../common/Button';
 import vitalityStudio from '../../assets/images/vitality-studio.svg';
 
 export const VitalitySection = () => {
+  const { pagesMap } = useSelector((state) => state.content);
+  const homePage = pagesMap?.home;
+  const sec = homePage?.sections?.find(
+    (s) => (s.type === "vitality" || s.sectionId === "sec_vitality" || s.type === "protocol_cards") && s.isVisible !== false
+  );
+
+  const mediaUrl = sec?.media?.url || sec?.mediaUrl || sec?.image || vitalityStudio;
+
   return (
     <section className="py-16 sm:py-20 lg:py-24 bg-[#F5F3EF]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,7 +24,7 @@ export const VitalitySection = () => {
             <TextReveal>
               <div className="aspect-[16/10] overflow-hidden rounded-xs border border-[#B87333]/30 shadow-xs bg-[#FAF9F6]">
                 <img
-                  src={vitalityStudio}
+                  src={mediaUrl}
                   alt="Indoor yoga practice in a modern biological architecture studio with natural lighting"
                   className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                 />

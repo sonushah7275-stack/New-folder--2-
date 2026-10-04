@@ -19,8 +19,8 @@ export const JournalSection = () => {
       ? apiArticles.slice(0, 3).map((a) => ({
           ...a,
           id: a._id || a.id,
-          category: a.category || a.tags?.[0] || "Conscious Living",
-          image: a.image || a.featuredImage || "/assets/images/lifestyle-meditation.svg",
+          category: typeof a.category === "object" ? a.category?.name || "Vitality" : a.category || a.tags?.[0] || "Vitality",
+          image: a.coverImage || a.image || a.featuredImage || "/assets/images/lifestyle-meditation.svg",
         }))
       : staticArticles.slice(0, 3);
 

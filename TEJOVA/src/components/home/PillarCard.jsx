@@ -11,7 +11,7 @@ export const PillarCard = ({ pillar }) => {
       {/* Image Container with Subtle Zoom effect */}
       <div className="relative aspect-[4/3] overflow-hidden bg-[#F5F3EF]">
         <img
-          src={pillar.image}
+          src={pillar.image || pillar.heroImage || pillar.mediaUrl || pillar.media?.url}
           alt={pillar.title}
           loading="lazy"
           className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"

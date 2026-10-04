@@ -35,7 +35,7 @@ export const ArticleCard = ({ article, featured = false }) => {
           <div className="lg:col-span-5 p-6 md:p-10 flex flex-col justify-between bg-[#FAF9F6]">
             <div>
               <div className="flex items-center space-x-3 mb-3 text-xs font-semibold uppercase tracking-wider text-[#B87333]">
-                <span>{article?.category || "Wellness"}</span>
+                <span>{typeof article?.category === "object" ? article.category?.name || "Vitality" : article?.category || "Vitality"}</span>
                 <span>•</span>
                 <span className="flex items-center text-[#0A2342]/70 font-normal">
                   <Clock className="w-3.5 h-3.5 mr-1" /> {article?.readTime || "5 min read"}
@@ -80,7 +80,7 @@ export const ArticleCard = ({ article, featured = false }) => {
           className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
         <span className="absolute top-3 left-3 z-10 text-[10px] font-semibold uppercase tracking-wider bg-[#FAF9F6]/90 backdrop-blur-md text-[#B87333] px-2.5 py-1 rounded-xs border border-[#B87333]/30">
-          {article?.category || "Wellness"}
+          {typeof article?.category === "object" ? article.category?.name || "Vitality" : article?.category || "Vitality"}
         </span>
       </div>
 

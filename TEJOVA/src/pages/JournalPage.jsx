@@ -8,7 +8,7 @@ import { fetchArticles } from "../Redux/slices/journalSlice";
 import { fetchPageBySlug } from "../Redux/slices/contentSlice";
 import { articles as staticArticles } from "../data/articles";
 
-const categories = ["All", "Vitality", "Nourishment", "Lifestyle", "Longevity", "Conscious Living"];
+const categories = ["All", "Vitality", "Nourishment", "Lifestyle", "Longevity"];
 
 export const JournalPage = () => {
   const dispatch = useDispatch();
@@ -21,7 +21,7 @@ export const JournalPage = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    const params = selectedCategory !== "All" ? { tag: selectedCategory } : {};
+    const params = selectedCategory !== "All" ? { category: selectedCategory } : {};
     dispatch(fetchArticles(params));
   }, [dispatch, selectedCategory]);
 
@@ -32,8 +32,8 @@ export const JournalPage = () => {
       ? apiArticles.map((a) => ({
           ...a,
           id: a._id || a.id,
-          category: a.category || a.tags?.[0] || "Conscious Living",
-          image: a.image || a.featuredImage || "/assets/images/lifestyle-meditation.svg",
+          category: typeof a.category === "object" ? a.category?.name || "Vitality" : a.category || a.tags?.[0] || "Vitality",
+          image: a.coverImage || a.image || a.featuredImage || "/assets/images/lifestyle-meditation.svg",
           date: a.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : a.date || "Recently Published",
           readTime: a.readTime || "5 min read",
           author: typeof a.author === "object" ? a.author?.name || "TEJOVA Editorial" : a.author || "TEJOVA Editorial",

@@ -1,7 +1,39 @@
 import mongoose from "mongoose";
 import Journal from "../models/Journal.js";
+import Category from "../models/Category.js";
 import { slugify } from "../utils/slugify.js";
 import { normalizeCloudinaryUrl, normalizeCloudinaryText, normalizeCloudinaryData } from "../utils/cloudinaryHelper.js";
+
+const ALLOWED_PILLAR_CATEGORIES = ["Vitality", "Nourishment", "Lifestyle", "Longevity"];
+
+/**
+ * Helper to resolve a category string or ObjectId to a valid Category ObjectId
+ */
+const resolveCategoryId = async (categoryInput) => {
+  if (!categoryInput) {
+    const defaultCat = await Category.findOne({ slug: "vitality" });
+    return defaultCat?._id || null;
+  }
+
+  // If already a valid ObjectId
+  if (mongoose.Types.ObjectId.isValid(categoryInput)) {
+    const existingCat = await Category.findById(categoryInput);
+    if (existingCat) return existingCat._id;
+  }
+
+  const raw = categoryInput.toString().trim();
+  const slug = slugify(raw);
+
+  const matchedCat = await Category.findOne({
+    $or: [{ name: { $regex: `^${raw}$`, $options: "i" } }, { slug: slug }],
+  });
+
+  if (matchedCat) return matchedCat._id;
+
+  // Fallback to Vitality
+  const fallbackCat = await Category.findOne({ slug: "vitality" });
+  return fallbackCat?._id || null;
+};
 
 /**
  * Get journal articles with pagination, search, and category/tag filters
@@ -30,11 +62,23 @@ export const getArticles = async (req, res, next) => {
       ];
     }
 
-    if (category) {
-      query.category = { $regex: category, $options: "i" };
+    const categoryFilter = category || tag;
+    if (categoryFilter && categoryFilter !== "All") {
+      if (mongoose.Types.ObjectId.isValid(categoryFilter)) {
+        query.category = categoryFilter;
+      } else {
+        const catDocs = await Category.find({
+          $or: [
+            { name: { $regex: categoryFilter, $options: "i" } },
+            { slug: { $regex: categoryFilter, $options: "i" } },
+          ],
+        }).select("_id");
+        const catIds = catDocs.map((c) => c._id);
+        query.category = { $in: catIds };
+      }
     }
 
-    if (tag) {
+    if (tag && tag !== categoryFilter) {
       query.tags = tag;
     }
 
@@ -45,6 +89,7 @@ export const getArticles = async (req, res, next) => {
     const total = await Journal.countDocuments(query);
     const articles = await Journal.find(query)
       .populate("author", "name email avatar")
+      .populate("category", "name slug description status isActive")
       .sort({ publishedAt: -1, createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -73,10 +118,9 @@ export const getArticleBySlug = async (req, res, next) => {
   try {
     const { slug } = req.params;
 
-    const article = await Journal.findOne({ slug: slug.toLowerCase() }).populate(
-      "author",
-      "name email avatar"
-    );
+    const article = await Journal.findOne({ slug: slug.toLowerCase() })
+      .populate("author", "name email avatar")
+      .populate("category", "name slug description status isActive");
 
     if (!article) {
       return res.status(404).json({
@@ -138,6 +182,14 @@ export const createArticle = async (req, res, next) => {
       });
     }
 
+    const categoryId = await resolveCategoryId(category);
+    if (!categoryId) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid article category. Allowed categories: Vitality, Nourishment, Lifestyle, Longevity.",
+      });
+    }
+
     const articleStatus = status === "PUBLISHED" ? "PUBLISHED" : "DRAFT";
     const validFontStyles = [
       "serif-old-style",
@@ -161,12 +213,15 @@ export const createArticle = async (req, res, next) => {
       coverImage: normalizeCloudinaryUrl(coverImage || ""),
       fontStyle: selectedFontStyle,
       author: req.user._id,
-      category: category ? category.trim() : "",
+      category: categoryId,
       tags: Array.isArray(tags) ? tags : [],
       status: articleStatus,
       publishedAt: articleStatus === "PUBLISHED" ? new Date() : null,
       isFeatured: Boolean(isFeatured),
     });
+
+    await article.populate("category", "name slug description status isActive");
+    await article.populate("author", "name email avatar");
 
     return res.status(201).json({
       success: true,
@@ -245,7 +300,10 @@ export const updateArticle = async (req, res, next) => {
         article.fontStyle = updates.fontStyle;
       }
     }
-    if (updates.category !== undefined) article.category = updates.category.trim();
+    if (updates.category !== undefined) {
+      const catId = await resolveCategoryId(updates.category);
+      if (catId) article.category = catId;
+    }
     if (Array.isArray(updates.tags)) article.tags = updates.tags;
     if (updates.isFeatured !== undefined) article.isFeatured = Boolean(updates.isFeatured);
 
@@ -258,10 +316,13 @@ export const updateArticle = async (req, res, next) => {
 
     await article.save();
 
+    await article.populate("category", "name slug description status isActive");
+    await article.populate("author", "name email avatar");
+
     return res.status(200).json({
       success: true,
       message: "Article updated successfully.",
-      data: article,
+      data: normalizeCloudinaryData(article),
     });
   } catch (error) {
     next(error);
@@ -296,6 +357,7 @@ export const deleteArticle = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: "Article deleted successfully.",
+      data: { id },
     });
   } catch (error) {
     next(error);

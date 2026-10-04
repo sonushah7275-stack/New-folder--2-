@@ -9,7 +9,8 @@ const categorySchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, 'Category name is required'],
-      trim: true
+      trim: true,
+      unique: true
     },
     slug: {
       type: String,
@@ -39,9 +40,15 @@ const categorySchema = new mongoose.Schema(
     }
   },
   {
-    timestamps: true
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
   }
 );
+
+categorySchema.virtual('status').get(function () {
+  return this.isActive ? 'ACTIVE' : 'INACTIVE';
+});
 
 const Category = mongoose.model('Category', categorySchema);
 

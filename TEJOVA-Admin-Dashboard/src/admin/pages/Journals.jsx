@@ -37,7 +37,7 @@ export default function Journals() {
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
-    category: "Mindfulness",
+    category: "Vitality",
     author: "Editorial Team",
     excerpt: "",
     content: "",
@@ -68,11 +68,15 @@ export default function Journals() {
     setImageError(null);
     if (article) {
       setEditingArticle(article);
+      const catVal =
+        typeof article.category === "object"
+          ? article.category?.name || "Vitality"
+          : article.category || "Vitality";
       setFormData({
         title: article.title || "",
         slug: article.slug || "",
-        category: article.category || "Mindfulness",
-        author: article.author || "Editorial Team",
+        category: catVal,
+        author: typeof article.author === "object" ? article.author?.name || "Editorial Team" : article.author || "Editorial Team",
         excerpt: article.excerpt || "",
         content: article.content || "",
         fontStyle: article.fontStyle || "serif-old-style",
@@ -84,7 +88,7 @@ export default function Journals() {
       setFormData({
         title: "",
         slug: "",
-        category: "Mindfulness",
+        category: "Vitality",
         author: "Editorial Team",
         excerpt: "",
         content: "",
@@ -282,10 +286,10 @@ export default function Journals() {
                 </div>
               </td>
               <td className="py-3.5 px-4 text-xs font-semibold text-gray-700">
-                {art.category}
+                {typeof art.category === "object" ? art.category?.name || "Vitality" : art.category || "Vitality"}
               </td>
               <td className="py-3.5 px-4 text-xs text-[#0A2342] font-semibold">
-                {art.author}
+                {typeof art.author === "object" ? art.author?.name || "Editorial Team" : art.author || "Editorial Team"}
               </td>
               <td className="py-3.5 px-4 text-xs text-gray-500">
                 {art.publishedDate}
@@ -358,11 +362,10 @@ export default function Journals() {
                 }
                 className="w-full px-3 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl bg-white text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
               >
-                <option value="Mindfulness">Mindfulness</option>
-                <option value="Wellness">Wellness</option>
-                <option value="Supplements">Supplements</option>
-                <option value="Yoga">Yoga</option>
+                <option value="Vitality">Vitality</option>
+                <option value="Nourishment">Nourishment</option>
                 <option value="Lifestyle">Lifestyle</option>
+                <option value="Longevity">Longevity</option>
               </select>
             </div>
 

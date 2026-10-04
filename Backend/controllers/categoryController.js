@@ -9,11 +9,14 @@ import { slugify } from "../utils/slugify.js";
  */
 export const getCategories = async (req, res, next) => {
   try {
-    const { all } = req.query;
+    const { all, status } = req.query;
     const query = {};
 
-    // Public users see active categories only unless admin requests all
-    if (all !== "true") {
+    if (status) {
+      const upperStatus = status.toString().toUpperCase().trim();
+      if (upperStatus === "ACTIVE") query.isActive = true;
+      if (upperStatus === "INACTIVE") query.isActive = false;
+    } else if (all !== "true") {
       query.isActive = true;
     }
 
@@ -67,7 +70,7 @@ export const getCategoryByIdOrSlug = async (req, res, next) => {
  */
 export const createCategory = async (req, res, next) => {
   try {
-    const { name, slug, description, image, isActive, sortOrder } = req.body;
+    const { name, slug, description, image, status, isActive, sortOrder } = req.body;
 
     if (!name || name.trim() === "") {
       return res.status(400).json({
@@ -85,20 +88,29 @@ export const createCategory = async (req, res, next) => {
       });
     }
 
-    const existingCategory = await Category.findOne({ slug: generatedSlug });
+    const existingCategory = await Category.findOne({
+      $or: [{ slug: generatedSlug }, { name: name.trim() }],
+    });
     if (existingCategory) {
       return res.status(409).json({
         success: false,
-        message: "A category with this slug already exists.",
+        message: "A category with this name or slug already exists.",
       });
     }
+
+    const categoryActive =
+      status !== undefined
+        ? status.toString().toUpperCase() === "ACTIVE"
+        : isActive !== undefined
+        ? Boolean(isActive)
+        : true;
 
     const category = await Category.create({
       name: name.trim(),
       slug: generatedSlug,
       description: description ? description.trim() : "",
       image: image || "",
-      isActive: isActive !== undefined ? Boolean(isActive) : true,
+      isActive: categoryActive,
       sortOrder: sortOrder !== undefined ? Number(sortOrder) : 0,
     });
 
@@ -114,13 +126,13 @@ export const createCategory = async (req, res, next) => {
 
 /**
  * Update category
- * PATCH /api/categories/:id
+ * PATCH/PUT /api/categories/:id
  * Protected: Admin Only
  */
 export const updateCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, slug, description, image, isActive, sortOrder } = req.body;
+    const { name, slug, description, image, status, isActive, sortOrder } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
@@ -158,7 +170,11 @@ export const updateCategory = async (req, res, next) => {
 
     if (description !== undefined) category.description = description.trim();
     if (image !== undefined) category.image = image;
-    if (isActive !== undefined) category.isActive = Boolean(isActive);
+    if (status !== undefined) {
+      category.isActive = status.toString().toUpperCase() === "ACTIVE";
+    } else if (isActive !== undefined) {
+      category.isActive = Boolean(isActive);
+    }
     if (sortOrder !== undefined) category.sortOrder = Number(sortOrder);
 
     await category.save();
@@ -174,7 +190,7 @@ export const updateCategory = async (req, res, next) => {
 };
 
 /**
- * Delete category
+ * Delete category safely with usage check
  * DELETE /api/categories/:id
  * Protected: Admin Only
  */
@@ -189,14 +205,30 @@ export const deleteCategory = async (req, res, next) => {
       });
     }
 
-    const category = await Category.findByIdAndDelete(id);
-
+    const category = await Category.findById(id);
     if (!category) {
       return res.status(404).json({
         success: false,
         message: "Category not found.",
       });
     }
+
+    // Safety Check: Verify if any Journal articles or Products reference this category
+    const Journal = mongoose.model("Journal");
+    const Product = mongoose.model("Product");
+
+    const journalCount = await Journal.countDocuments({ category: id });
+    const productCount = await Product.countDocuments({ category: id });
+    const totalCount = journalCount + productCount;
+
+    if (totalCount > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `This category is currently used by ${totalCount} items (${journalCount} articles, ${productCount} products). Please reassign or deactivate it before deleting.`,
+      });
+    }
+
+    await Category.findByIdAndDelete(id);
 
     return res.status(200).json({
       success: true,

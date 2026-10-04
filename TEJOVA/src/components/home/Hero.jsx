@@ -16,7 +16,7 @@ export const Hero = () => {
     "Elevate your daily harmony with pure, natural vitality and conscious wellness rituals. Rooted in ancient wisdom, refined for modern living.";
   const ctaText = homeHero?.ctaText || "Begin Your Journey";
   const ctaLink = homeHero?.ctaLink || "/products";
-  const mediaUrl = homeHero?.mediaUrl || homeHero?.media?.url || heroLandscape;
+  const mediaUrl = homeHero?.mediaUrl || homeHero?.media?.url || homeHero?.image || heroLandscape;
 
   return (
     <section className="relative bg-[#F5F3EF] text-[#0A2342] pt-24 pb-16 sm:pt-28 sm:pb-20 lg:pt-36 lg:pb-24 overflow-hidden">

@@ -1,9 +1,18 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { TextReveal } from '../common/TextReveal';
 import { Button } from '../common/Button';
 import nourishmentBowl from '../../assets/images/nourishment-bowl.svg';
 
 export const NourishmentSection = () => {
+  const { pagesMap } = useSelector((state) => state.content);
+  const homePage = pagesMap?.home;
+  const sec = homePage?.sections?.find(
+    (s) => (s.type === "nourishment" || s.sectionId === "sec_nourishment") && s.isVisible !== false
+  );
+
+  const mediaUrl = sec?.media?.url || sec?.mediaUrl || sec?.image || nourishmentBowl;
+
   return (
     <section className="py-16 sm:py-20 lg:py-24 bg-[#FAF9F6]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -45,7 +54,7 @@ export const NourishmentSection = () => {
             <TextReveal>
               <div className="aspect-[16/10] overflow-hidden rounded-xs border border-[#B87333]/30 shadow-xs">
                 <img
-                  src={nourishmentBowl}
+                  src={mediaUrl}
                   alt="Fresh organic whole food bowl symbolizing natural nourishment"
                   className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                 />

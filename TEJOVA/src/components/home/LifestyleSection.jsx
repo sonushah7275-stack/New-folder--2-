@@ -1,9 +1,18 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { TextReveal } from '../common/TextReveal';
 import { Button } from '../common/Button';
 import lifestyleMeditation from '../../assets/images/lifestyle-meditation.svg';
 
 export const LifestyleSection = () => {
+  const { pagesMap } = useSelector((state) => state.content);
+  const homePage = pagesMap?.home;
+  const sec = homePage?.sections?.find(
+    (s) => (s.type === "lifestyle" || s.sectionId === "sec_lifestyle") && s.isVisible !== false
+  );
+
+  const mediaUrl = sec?.media?.url || sec?.mediaUrl || sec?.image || lifestyleMeditation;
+
   return (
     <section className="py-16 sm:py-20 lg:py-24 bg-[#F5F3EF]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,7 +24,7 @@ export const LifestyleSection = () => {
             <TextReveal>
               <div className="aspect-[16/10] overflow-hidden rounded-xs border border-[#B87333]/30 shadow-xs">
                 <img
-                  src={lifestyleMeditation}
+                  src={mediaUrl}
                   alt="Person practicing meditation at sunrise in nature"
                   className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                 />

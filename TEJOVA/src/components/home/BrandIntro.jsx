@@ -7,14 +7,16 @@ import brandBotanical from '../../assets/images/brand-botanical.svg';
 export const BrandIntro = () => {
   const { pagesMap } = useSelector((state) => state.content);
   const homePage = pagesMap?.home;
-  const sec = homePage?.sections?.find((s) => s.type === "brand_philosophy");
+  const sec = homePage?.sections?.find(
+    (s) => (s.type === "brand_philosophy" || s.type === "brand_story" || s.sectionId === "sec_brand_philosophy") && s.isVisible !== false
+  );
 
   const title = sec?.title || "Beyond Wellness. A Sovereign Lifestyle.";
   const subtitle = sec?.subtitle || sec?.kicker || "BRAND PHILOSOPHY";
   const contentHtml = sec?.content || "<p>TEJOVA is a premium performance protocol dedicated to engineering your ultimate state of being. We unite ancient yogic wisdom with modern biological science to elevate your daily existence through our four core pillars: Vitality, Nourishment, Lifestyle, and Longevity.</p><p>We believe true luxury is a highly functioning body and a calm, commanding mind. By integrating conscious daily habits and pure, natural nourishment, we help you reclaim your life force and thrive from within.</p>";
   const ctaText = sec?.cta?.text || "Discover Our Protocol →";
   const ctaUrl = sec?.cta?.url || "/vitality";
-  const mediaUrl = sec?.media?.url || brandBotanical;
+  const mediaUrl = sec?.media?.url || sec?.mediaUrl || sec?.image || brandBotanical;
   const badgeText = sec?.badge || "PEAK VITALITY";
 
   return (
