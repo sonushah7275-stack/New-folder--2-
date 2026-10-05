@@ -59,7 +59,7 @@ export const LifestylePage = () => {
               p.image ||
               (p.images && p.images[0]?.url ? p.images[0].url : p.images?.[0]) ||
               "/assets/images/lifestyle-meditation.svg",
-            category: typeof p.category === "object" ? p.category?.name : p.category || "Lifestyle",
+            category: typeof p.category === "object" ? p.category?.name || "Lifestyle" : p.category || "Lifestyle",
           }))
           .slice(0, 3)
       : staticProducts.filter(
@@ -72,7 +72,7 @@ export const LifestylePage = () => {
           .map((a) => ({
             ...a,
             id: a._id || a.id,
-            category: a.category || a.tags?.[0] || "Conscious Living",
+            category: typeof a.category === "object" ? a.category?.name || "Lifestyle" : a.category || a.tags?.[0] || "Lifestyle",
             image: a.image || a.featuredImage || "/assets/images/lifestyle-meditation.svg",
           }))
           .slice(0, 2)

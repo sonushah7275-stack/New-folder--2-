@@ -30,7 +30,7 @@ export const ProductsPage = () => {
           ...p,
           id: p._id || p.id,
           image: p.image || (p.images && p.images[0]?.url ? p.images[0].url : p.images?.[0]) || "/assets/images/product-vitality-tonic.svg",
-          category: typeof p.category === "object" ? p.category?.name : p.category || "Wellness",
+          category: typeof p.category === "object" ? p.category?.name || "Vitality" : p.category || "Vitality",
           rating: p.rating || 4.9,
         }))
       : !loading && !error
@@ -40,7 +40,7 @@ export const ProductsPage = () => {
   const categoryNames = [
     "All",
     ...(apiCategories && apiCategories.length > 0
-      ? apiCategories.map((c) => c.name)
+      ? apiCategories.map((c) => (typeof c === "object" ? c.name || "" : c)).filter(Boolean)
       : ["Vitality", "Nourishment", "Lifestyle", "Longevity"]),
   ];
 

@@ -48,7 +48,7 @@ export const ArticleDetailPage = () => {
   const article = {
     ...rawArticle,
     id: rawArticle._id || rawArticle.id,
-    category: rawArticle.category || rawArticle.tags?.[0] || "Conscious Living",
+    category: typeof rawArticle.category === "object" ? rawArticle.category?.name || "Vitality" : rawArticle.category || rawArticle.tags?.[0] || "Vitality",
     image: rawArticle.coverImage || rawArticle.image || rawArticle.featuredImage || "/assets/images/lifestyle-meditation.svg",
     date: rawArticle.publishedAt ? new Date(rawArticle.publishedAt).toLocaleDateString() : rawArticle.date || "Recently Published",
     readTime: rawArticle.readTime || "5 min read",
@@ -99,7 +99,7 @@ export const ArticleDetailPage = () => {
             {/* Category & Title */}
             <div className="space-y-4 text-center max-w-3xl mx-auto mb-10">
               <span className="inline-block px-3.5 py-1 bg-[#FAF9F6] text-[#B87333] text-xs uppercase tracking-widest font-semibold rounded-xs border border-[#B87333]/30">
-                {article.category}
+                {typeof article.category === "object" ? article.category?.name || "Vitality" : article.category || "Vitality"}
               </span>
 
               <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-[#0A2342] leading-tight font-medium">

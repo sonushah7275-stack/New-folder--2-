@@ -20,7 +20,7 @@ export const ProductSection = () => {
           ...p,
           id: p._id || p.id,
           image: p.image || (p.images && p.images[0]?.url ? p.images[0].url : p.images?.[0]) || "/assets/images/product-vitality-tonic.svg",
-          category: typeof p.category === "object" ? p.category?.name : p.category || "Wellness",
+          category: typeof p.category === "object" ? p.category?.name || "Vitality" : p.category || "Vitality",
         }))
       : staticProducts.slice(0, 4);
 

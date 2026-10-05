@@ -69,7 +69,7 @@ export const VitalityPage = () => {
               p.image ||
               (p.images && p.images[0]?.url ? p.images[0].url : p.images?.[0]) ||
               "/assets/images/product-vitality-tonic.svg",
-            category: typeof p.category === "object" ? p.category?.name : p.category || "Wellness",
+            category: typeof p.category === "object" ? p.category?.name || "Vitality" : p.category || "Vitality",
           }))
           .slice(0, 3)
       : staticProducts.filter(
@@ -82,7 +82,7 @@ export const VitalityPage = () => {
           .map((a) => ({
             ...a,
             id: a._id || a.id,
-            category: a.category || a.tags?.[0] || "Vitality",
+            category: typeof a.category === "object" ? a.category?.name || "Vitality" : a.category || a.tags?.[0] || "Vitality",
             image: a.image || a.featuredImage || "/assets/images/lifestyle-meditation.svg",
           }))
           .slice(0, 2)

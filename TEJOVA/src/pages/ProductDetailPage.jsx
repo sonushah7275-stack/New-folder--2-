@@ -136,7 +136,7 @@ export const ProductDetailPage = () => {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm uppercase tracking-[0.25em] font-semibold text-[#B87333]">
-                    {product.category}
+                    {typeof product.category === 'object' ? product.category?.name || "Wellness" : product.category || "Wellness"}
                   </span>
                   {product.rating && (
                     <div className="flex items-center text-[#B87333] text-xs font-medium">

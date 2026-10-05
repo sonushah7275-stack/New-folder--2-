@@ -206,7 +206,7 @@ export default function Media() {
                   <InsertDriveFileIcon className="text-4xl text-gray-400" />
                 )}
                 <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#0A2342]/80 text-[#FAF9F6]">
-                  {file.category}
+                  {typeof file.category === "object" ? file.category?.name || "General" : file.category || "General"}
                 </span>
               </div>
 
@@ -258,7 +258,7 @@ export default function Media() {
                     </div>
                   </td>
                   <td className="py-3 px-4 font-semibold text-gray-600">
-                    {file.category}
+                    {typeof file.category === "object" ? file.category?.name || "General" : file.category || "General"}
                   </td>
                   <td className="py-3 px-4 text-gray-500">{file.size}</td>
                   <td className="py-3 px-4 text-gray-500">{file.dimensions}</td>
@@ -314,7 +314,7 @@ export default function Media() {
                   Category
                 </span>
                 <span className="font-semibold text-[#0A2342]">
-                  {selectedFile.category}
+                  {typeof selectedFile.category === "object" ? selectedFile.category?.name || "General" : selectedFile.category || "General"}
                 </span>
               </div>
               <div>

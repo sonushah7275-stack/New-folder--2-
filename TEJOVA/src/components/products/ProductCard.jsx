@@ -31,7 +31,7 @@ export const ProductCard = ({ product }) => {
           {/* 2. Category & Rating */}
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-semibold uppercase tracking-wider text-[#B87333]">
-              {product.category}
+              {typeof product.category === 'object' ? product.category?.name || "Vitality" : product.category || "Vitality"}
             </span>
             {product.rating && (
               <div className="flex items-center text-[#B87333] text-xs font-medium">

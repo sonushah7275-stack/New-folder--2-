@@ -69,7 +69,7 @@ export const NourishmentPage = () => {
               p.image ||
               (p.images && p.images[0]?.url ? p.images[0].url : p.images?.[0]) ||
               "/assets/images/product-earth-serum.svg",
-            category: typeof p.category === "object" ? p.category?.name : p.category || "Nourishment",
+            category: typeof p.category === "object" ? p.category?.name || "Nourishment" : p.category || "Nourishment",
           }))
           .slice(0, 2)
       : staticProducts.filter(
@@ -82,7 +82,7 @@ export const NourishmentPage = () => {
           .map((a) => ({
             ...a,
             id: a._id || a.id,
-            category: a.category || a.tags?.[0] || "Nourishment",
+            category: typeof a.category === "object" ? a.category?.name || "Nourishment" : a.category || a.tags?.[0] || "Nourishment",
             image: a.image || a.featuredImage || "/assets/images/nourishment-bowl.svg",
           }))
           .slice(0, 2)

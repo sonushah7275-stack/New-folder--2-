@@ -318,7 +318,7 @@ export default function Products() {
               product.images?.[0]?.url ||
               (typeof product.images?.[0] === "string" ? product.images[0] : "") ||
               "";
-            const categoryName = product.category?.name || product.category || "General";
+            const categoryName = typeof product.category === "object" ? product.category?.name || "General" : product.category || "General";
             const statusLabel = product.isActive ? "Active" : "Inactive";
 
             return (

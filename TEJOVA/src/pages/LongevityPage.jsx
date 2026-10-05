@@ -59,7 +59,7 @@ export const LongevityPage = () => {
               p.image ||
               (p.images && p.images[0]?.url ? p.images[0].url : p.images?.[0]) ||
               "/assets/images/product-restore-renew.svg",
-            category: typeof p.category === "object" ? p.category?.name : p.category || "Longevity",
+            category: typeof p.category === "object" ? p.category?.name || "Longevity" : p.category || "Longevity",
           }))
           .slice(0, 2)
       : staticProducts.filter(
@@ -75,7 +75,7 @@ export const LongevityPage = () => {
           .map((a) => ({
             ...a,
             id: a._id || a.id,
-            category: a.category || a.tags?.[0] || "Longevity",
+            category: typeof a.category === "object" ? a.category?.name || "Longevity" : a.category || a.tags?.[0] || "Longevity",
             image: a.image || a.featuredImage || "/assets/images/longevity-forest.svg",
           }))
           .slice(0, 2)
