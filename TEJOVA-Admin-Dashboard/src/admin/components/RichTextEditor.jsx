@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useEditor, EditorContent, Extension, Node, mergeAttributes } from "@tiptap/react";
+import {
+  useEditor,
+  EditorContent,
+  Extension,
+  Node,
+  mergeAttributes,
+} from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Underline } from "@tiptap/extension-underline";
 import { TextStyle } from "@tiptap/extension-text-style";
@@ -55,7 +61,14 @@ export const FONT_SIZES = [
 ];
 
 // Whitelisted Line Heights
-export const ALLOWED_LINE_HEIGHTS = ["1.0", "1.15", "1.25", "1.5", "1.75", "2.0"];
+export const ALLOWED_LINE_HEIGHTS = [
+  "1.0",
+  "1.15",
+  "1.25",
+  "1.5",
+  "1.75",
+  "2.0",
+];
 
 // Custom Tiptap Font Size Extension
 const FontSize = Extension.create({
@@ -77,7 +90,10 @@ const FontSize = Extension.create({
               return FONT_SIZES.includes(size) ? size : null;
             },
             renderHTML: (attributes) => {
-              if (!attributes.fontSize || !FONT_SIZES.includes(attributes.fontSize)) {
+              if (
+                !attributes.fontSize ||
+                !FONT_SIZES.includes(attributes.fontSize)
+              ) {
                 return {};
               }
               return {
@@ -100,7 +116,10 @@ const FontSize = Extension.create({
       unsetFontSize:
         () =>
         ({ chain }) => {
-          return chain().setMark("textStyle", { fontSize: null }).removeEmptyTextStyle().run();
+          return chain()
+            .setMark("textStyle", { fontSize: null })
+            .removeEmptyTextStyle()
+            .run();
         },
     };
   },
@@ -123,7 +142,10 @@ const LineHeight = Extension.create({
             default: null,
             parseHTML: (element) => element.style.lineHeight || null,
             renderHTML: (attributes) => {
-              if (!attributes.lineHeight || !ALLOWED_LINE_HEIGHTS.includes(attributes.lineHeight)) {
+              if (
+                !attributes.lineHeight ||
+                !ALLOWED_LINE_HEIGHTS.includes(attributes.lineHeight)
+              ) {
                 return {};
               }
               return {
@@ -208,7 +230,9 @@ const CustomHorizontalRule = Node.create({
         (options = {}) =>
         ({ chain }) => {
           const color = options.color || "#B87333";
-          return chain().insertContent({ type: this.name, attrs: { color } }).run();
+          return chain()
+            .insertContent({ type: this.name, attrs: { color } })
+            .run();
         },
     };
   },
@@ -275,7 +299,8 @@ const FontFamily = Extension.create({
         attributes: {
           fontFamily: {
             default: null,
-            parseHTML: (element) => element.style.fontFamily?.replace(/['"]+/g, "") || null,
+            parseHTML: (element) =>
+              element.style.fontFamily?.replace(/['"]+/g, "") || null,
             renderHTML: (attributes) => {
               if (!attributes.fontFamily) {
                 return {};
@@ -332,7 +357,11 @@ const FontFamily = Extension.create({
         () =>
         ({ chain }) => {
           return chain()
-            .setMark("textStyle", { fontFamily: null, fontWeight: null, fontStyle: null })
+            .setMark("textStyle", {
+              fontFamily: null,
+              fontWeight: null,
+              fontStyle: null,
+            })
             .removeEmptyTextStyle()
             .run();
         },
@@ -361,7 +390,10 @@ const HighlightBox = Node.create({
     return {
       bgColor: {
         default: "#FAF9F6",
-        parseHTML: (element) => element.getAttribute("data-bg-color") || element.style.backgroundColor || "#FAF9F6",
+        parseHTML: (element) =>
+          element.getAttribute("data-bg-color") ||
+          element.style.backgroundColor ||
+          "#FAF9F6",
         renderHTML: (attributes) => {
           return {
             "data-bg-color": attributes.bgColor || "#FAF9F6",
@@ -370,7 +402,10 @@ const HighlightBox = Node.create({
       },
       borderColor: {
         default: "#B87333",
-        parseHTML: (element) => element.getAttribute("data-border-color") || element.style.borderColor || "#B87333",
+        parseHTML: (element) =>
+          element.getAttribute("data-border-color") ||
+          element.style.borderColor ||
+          "#B87333",
         renderHTML: (attributes) => {
           return {
             "data-border-color": attributes.borderColor || "#B87333",
@@ -397,7 +432,8 @@ const HighlightBox = Node.create({
     return [
       "aside",
       mergeAttributes(HTMLAttributes, {
-        class: "tejova-highlight-box p-5 my-6 rounded-r-xl shadow-2xs leading-relaxed",
+        class:
+          "tejova-highlight-box p-5 my-6 rounded-r-xl shadow-2xs leading-relaxed",
         style: `background-color: ${bgColor}; border-left: 4px solid ${borderColor}; color: ${textColor};`,
         "data-type": "highlight-box",
       }),
@@ -415,7 +451,9 @@ const HighlightBox = Node.create({
       setHighlightBoxColor:
         (bgColor, borderColor) =>
         ({ chain }) => {
-          return chain().updateAttributes(this.name, { bgColor, borderColor }).run();
+          return chain()
+            .updateAttributes(this.name, { bgColor, borderColor })
+            .run();
         },
     };
   },
@@ -433,7 +471,11 @@ const TEJOVA_COLORS = [
   { name: "Dark Text", value: "#1A1A1A" },
 ];
 
-export default function RichTextEditor({ content = "", onChange, placeholder = "Write your article content..." }) {
+export default function RichTextEditor({
+  content = "",
+  onChange,
+  placeholder = "Write your article content...",
+}) {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageError, setImageError] = useState(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -475,29 +517,34 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
         inline: false,
         allowBase64: false,
         HTMLAttributes: {
-          class: "rounded-lg max-w-full my-4 border border-gray-200 shadow-xs mx-auto block",
+          class:
+            "rounded-lg max-w-full my-4 border border-gray-200 shadow-xs mx-auto block",
         },
       }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: "text-[#B87333] underline hover:text-[#0A2342] transition-colors font-medium",
+          class:
+            "text-[#B87333] underline hover:text-[#0A2342] transition-colors font-medium",
         },
       }),
       Table.configure({
         resizable: true,
         HTMLAttributes: {
-          class: "border-collapse border border-[#0A2342]/20 my-4 w-full text-xs font-sans shadow-xs rounded-lg overflow-hidden",
+          class:
+            "border-collapse border border-[#0A2342]/20 my-4 w-full text-xs font-sans shadow-xs rounded-lg overflow-hidden",
         },
       }),
       TableRow.configure({
         HTMLAttributes: {
-          class: "border-b border-[#0A2342]/15 hover:bg-[#FAF9F6]/50 transition-colors",
+          class:
+            "border-b border-[#0A2342]/15 hover:bg-[#FAF9F6]/50 transition-colors",
         },
       }),
       TableHeader.configure({
         HTMLAttributes: {
-          class: "bg-[#FAF9F6] border border-[#0A2342]/20 px-3 py-2 text-left font-serif font-bold text-[#0A2342]",
+          class:
+            "bg-[#FAF9F6] border border-[#0A2342]/20 px-3 py-2 text-left font-serif font-bold text-[#0A2342]",
         },
       }),
       TableCell.configure({
@@ -545,7 +592,9 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
 
     const maxSize = 5 * 1024 * 1024; // 5MB limit
     if (file.size > maxSize) {
-      setImageError("Image size exceeds 5MB limit. Please select a smaller file.");
+      setImageError(
+        "Image size exceeds 5MB limit. Please select a smaller file.",
+      );
       return;
     }
 
@@ -561,7 +610,8 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      const imageUrl = response.data?.data?.url || response.data?.data?.secureUrl;
+      const imageUrl =
+        response.data?.data?.url || response.data?.data?.secureUrl;
       if (imageUrl) {
         setPendingImageUrl(imageUrl);
         setCaptionInput("");
@@ -585,15 +635,11 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
         .chain()
         .focus()
         .insertContent(
-          `<figure class="my-6 text-center"><img src="${pendingImageUrl}" alt="${caption}" title="${caption}" class="rounded-lg max-w-full mx-auto shadow-xs border border-gray-200" /><figcaption class="text-xs text-gray-500 font-serif italic mt-2">${caption}</figcaption></figure><p></p>`
+          `<figure class="my-6 text-center"><img src="${pendingImageUrl}" alt="${caption}" title="${caption}" class="rounded-lg max-w-full mx-auto shadow-xs border border-gray-200" /><figcaption class="text-xs text-gray-500 font-serif italic mt-2">${caption}</figcaption></figure><p></p>`,
         )
         .run();
     } else {
-      editor
-        .chain()
-        .focus()
-        .setImage({ src: pendingImageUrl })
-        .run();
+      editor.chain().focus().setImage({ src: pendingImageUrl }).run();
     }
 
     setShowCaptionModal(false);
@@ -611,18 +657,31 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
       return;
     }
 
-    editor.chain().focus().extendMarkRange("link").setLink({ href: url.trim() }).run();
+    editor
+      .chain()
+      .focus()
+      .extendMarkRange("link")
+      .setLink({ href: url.trim() })
+      .run();
   };
 
   const handleInsertTable = (cols, rows) => {
-    editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+    editor
+      .chain()
+      .focus()
+      .insertTable({ rows, cols, withHeaderRow: true })
+      .run();
     setShowTablePicker(false);
   };
 
   const handleInsertHr = (color) => {
     const targetColor = color || selectedHrColor || "#B87333";
     if (editor.isActive("horizontalRule")) {
-      editor.chain().focus().updateAttributes("horizontalRule", { color: targetColor }).run();
+      editor
+        .chain()
+        .focus()
+        .updateAttributes("horizontalRule", { color: targetColor })
+        .run();
     } else {
       editor.chain().focus().setHorizontalRule({ color: targetColor }).run();
     }
@@ -694,7 +753,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
           <select
             value={
               FONT_STYLE_OPTIONS.find((opt) =>
-                editor.isActive("textStyle", { fontFamily: opt.fontFamily })
+                editor.isActive("textStyle", { fontFamily: opt.fontFamily }),
               )?.id || ""
             }
             onChange={(e) => {
@@ -744,20 +803,24 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
               editor.isActive("heading", { level: 1 })
                 ? "h1"
                 : editor.isActive("heading", { level: 2 })
-                ? "h2"
-                : editor.isActive("heading", { level: 3 })
-                ? "h3"
-                : editor.isActive("heading", { level: 4 })
-                ? "h4"
-                : "p"
+                  ? "h2"
+                  : editor.isActive("heading", { level: 3 })
+                    ? "h3"
+                    : editor.isActive("heading", { level: 4 })
+                      ? "h4"
+                      : "p"
             }
             onChange={(e) => {
               const val = e.target.value;
               if (val === "p") editor.chain().focus().setParagraph().run();
-              else if (val === "h1") editor.chain().focus().toggleHeading({ level: 1 }).run();
-              else if (val === "h2") editor.chain().focus().toggleHeading({ level: 2 }).run();
-              else if (val === "h3") editor.chain().focus().toggleHeading({ level: 3 }).run();
-              else if (val === "h4") editor.chain().focus().toggleHeading({ level: 4 }).run();
+              else if (val === "h1")
+                editor.chain().focus().toggleHeading({ level: 1 }).run();
+              else if (val === "h2")
+                editor.chain().focus().toggleHeading({ level: 2 }).run();
+              else if (val === "h3")
+                editor.chain().focus().toggleHeading({ level: 3 }).run();
+              else if (val === "h4")
+                editor.chain().focus().toggleHeading({ level: 4 }).run();
             }}
             className="px-2 py-1 border border-[#0A2342]/20 rounded-lg bg-white text-[#0A2342] font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-[#B87333]"
           >
@@ -777,7 +840,9 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             type="button"
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive("bold") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+              editor.isActive("bold")
+                ? "bg-[#0A2342] text-white"
+                : "hover:bg-gray-200 text-[#0A2342]"
             }`}
             title="Bold (Ctrl+B)"
           >
@@ -788,7 +853,9 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             type="button"
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive("italic") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+              editor.isActive("italic")
+                ? "bg-[#0A2342] text-white"
+                : "hover:bg-gray-200 text-[#0A2342]"
             }`}
             title="Italic (Ctrl+I)"
           >
@@ -799,7 +866,9 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             type="button"
             onClick={() => editor.chain().focus().toggleUnderline().run()}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive("underline") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+              editor.isActive("underline")
+                ? "bg-[#0A2342] text-white"
+                : "hover:bg-gray-200 text-[#0A2342]"
             }`}
             title="Underline (Ctrl+U)"
           >
@@ -810,7 +879,9 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             type="button"
             onClick={() => editor.chain().focus().toggleStrike().run()}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive("strike") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+              editor.isActive("strike")
+                ? "bg-[#0A2342] text-white"
+                : "hover:bg-gray-200 text-[#0A2342]"
             }`}
             title="Strikethrough"
           >
@@ -823,7 +894,8 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
         {/* GROUP 4: COLOR */}
         <div className="flex items-center gap-0.5">
           {/* Text Color */}
-          <div className="relative">
+          {/* Text Color */}
+          <div className="relative z-40">
             <button
               type="button"
               onClick={() => {
@@ -831,6 +903,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
                 setShowHighlightPicker(false);
                 setShowTablePicker(false);
                 setShowHrColorPicker(false);
+                setShowBoxColorPicker(false);
               }}
               className="p-1.5 rounded-lg hover:bg-gray-200 text-[#0A2342] flex items-center gap-1 cursor-pointer"
               title="Text Color"
@@ -839,7 +912,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             </button>
 
             {showColorPicker && (
-              <div className="absolute top-full left-0 mt-1 p-2 bg-white border border-gray-200 rounded-xl shadow-lg z-30 flex gap-1.5 w-max">
+              <div className="absolute top-full left-0 mt-6 p-3 bg-white border border-gray-200 rounded-xl shadow-xl z-[9999] flex flex-wrap gap-2 w-max">
                 {TEJOVA_COLORS.map((c) => (
                   <button
                     key={c.value}
@@ -853,6 +926,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
                     title={c.name}
                   />
                 ))}
+
                 <button
                   type="button"
                   onClick={() => {
@@ -868,7 +942,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
           </div>
 
           {/* Highlight Color */}
-          <div className="relative">
+          <div className="relative z-40">
             <button
               type="button"
               onClick={() => {
@@ -876,6 +950,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
                 setShowColorPicker(false);
                 setShowTablePicker(false);
                 setShowHrColorPicker(false);
+                setShowBoxColorPicker(false);
               }}
               className="p-1.5 rounded-lg hover:bg-gray-200 text-[#0A2342] flex items-center gap-1 cursor-pointer"
               title="Highlight Color"
@@ -884,13 +959,18 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             </button>
 
             {showHighlightPicker && (
-              <div className="absolute top-full left-0 mt-1 p-2 bg-white border border-gray-200 rounded-xl shadow-lg z-30 flex gap-1.5 w-max">
+              <div className="absolute top-full left-0 mt-6 p-3 bg-white border border-gray-200 rounded-xl shadow-xl z-[9999] flex flex-wrap gap-2 w-max">
                 {TEJOVA_COLORS.map((c) => (
                   <button
                     key={c.value}
                     type="button"
                     onClick={() => {
-                      editor.chain().focus().toggleHighlight({ color: c.value }).run();
+                      editor
+                        .chain()
+                        .focus()
+                        .toggleHighlight({ color: c.value })
+                        .run();
+
                       setShowHighlightPicker(false);
                     }}
                     className="w-5 h-5 rounded-full border border-gray-300 transition-transform hover:scale-110 cursor-pointer"
@@ -898,6 +978,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
                     title={c.name}
                   />
                 ))}
+
                 <button
                   type="button"
                   onClick={() => {
@@ -921,7 +1002,9 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             type="button"
             onClick={() => editor.chain().focus().setTextAlign("left").run()}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive({ textAlign: "left" }) ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+              editor.isActive({ textAlign: "left" })
+                ? "bg-[#0A2342] text-white"
+                : "hover:bg-gray-200 text-[#0A2342]"
             }`}
             title="Align Left"
           >
@@ -932,7 +1015,9 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             type="button"
             onClick={() => editor.chain().focus().setTextAlign("center").run()}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive({ textAlign: "center" }) ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+              editor.isActive({ textAlign: "center" })
+                ? "bg-[#0A2342] text-white"
+                : "hover:bg-gray-200 text-[#0A2342]"
             }`}
             title="Align Center"
           >
@@ -943,7 +1028,9 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             type="button"
             onClick={() => editor.chain().focus().setTextAlign("right").run()}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive({ textAlign: "right" }) ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+              editor.isActive({ textAlign: "right" })
+                ? "bg-[#0A2342] text-white"
+                : "hover:bg-gray-200 text-[#0A2342]"
             }`}
             title="Align Right"
           >
@@ -954,7 +1041,9 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             type="button"
             onClick={() => editor.chain().focus().setTextAlign("justify").run()}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive({ textAlign: "justify" }) ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+              editor.isActive({ textAlign: "justify" })
+                ? "bg-[#0A2342] text-white"
+                : "hover:bg-gray-200 text-[#0A2342]"
             }`}
             title="Justify"
           >
@@ -970,7 +1059,9 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             type="button"
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive("bulletList") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+              editor.isActive("bulletList")
+                ? "bg-[#0A2342] text-white"
+                : "hover:bg-gray-200 text-[#0A2342]"
             }`}
             title="Bullet List"
           >
@@ -981,7 +1072,9 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             type="button"
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive("orderedList") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+              editor.isActive("orderedList")
+                ? "bg-[#0A2342] text-white"
+                : "hover:bg-gray-200 text-[#0A2342]"
             }`}
             title="Numbered List"
           >
@@ -997,7 +1090,9 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             type="button"
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive("blockquote") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+              editor.isActive("blockquote")
+                ? "bg-[#0A2342] text-white"
+                : "hover:bg-gray-200 text-[#0A2342]"
             }`}
             title="Blockquote"
           >
@@ -1005,18 +1100,27 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
           </button>
 
           {/* Highlight Box Button + Color Popover */}
-          <div className="relative flex items-center bg-white rounded-lg border border-gray-300 shadow-2xs overflow-hidden">
+          <div className="relative z-50 flex items-center bg-white rounded-lg border border-gray-300 shadow-2xs">
             <button
               type="button"
               onClick={() => {
                 if (editor.isActive("highlightBox")) {
                   editor.chain().focus().toggleHighlightBox().run();
                 } else {
-                  editor.chain().focus().toggleHighlightBox({ bgColor: selectedBoxBg, borderColor: selectedBoxBorder }).run();
+                  editor
+                    .chain()
+                    .focus()
+                    .toggleHighlightBox({
+                      bgColor: selectedBoxBg,
+                      borderColor: selectedBoxBorder,
+                    })
+                    .run();
                 }
               }}
               className={`px-2 py-1 text-xs font-semibold cursor-pointer flex items-center gap-1 ${
-                editor.isActive("highlightBox") ? "bg-[#0A2342] text-white" : "hover:bg-gray-100 text-[#0A2342]"
+                editor.isActive("highlightBox")
+                  ? "bg-[#0A2342] text-white"
+                  : "hover:bg-gray-100 text-[#0A2342]"
               }`}
               title="Highlight Box"
             >
@@ -1037,13 +1141,16 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             >
               <span
                 className="w-3 h-3 rounded-full border inline-block"
-                style={{ backgroundColor: selectedBoxBg, borderColor: selectedBoxBorder }}
+                style={{
+                  backgroundColor: selectedBoxBg,
+                  borderColor: selectedBoxBorder,
+                }}
               />
               <span>Box Color ▾</span>
             </button>
 
             {showBoxColorPicker && (
-              <div className="absolute top-full left-0 mt-1 p-2 bg-white border border-gray-200 rounded-xl shadow-lg z-30 flex gap-1.5 w-max">
+              <div className="absolute top-full left-0 mt-2 p-3 bg-white border border-gray-200 rounded-xl shadow-xl z-[9999] flex flex-wrap gap-2 w-max">
                 {HIGHLIGHT_BOX_COLORS.map((c) => (
                   <button
                     key={c.name}
@@ -1052,14 +1159,28 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
                       setSelectedBoxBg(c.bgColor);
                       setSelectedBoxBorder(c.borderColor);
                       if (editor.isActive("highlightBox")) {
-                        editor.chain().focus().setHighlightBoxColor(c.bgColor, c.borderColor).run();
+                        editor
+                          .chain()
+                          .focus()
+                          .setHighlightBoxColor(c.bgColor, c.borderColor)
+                          .run();
                       } else {
-                        editor.chain().focus().toggleHighlightBox({ bgColor: c.bgColor, borderColor: c.borderColor }).run();
+                        editor
+                          .chain()
+                          .focus()
+                          .toggleHighlightBox({
+                            bgColor: c.bgColor,
+                            borderColor: c.borderColor,
+                          })
+                          .run();
                       }
                       setShowBoxColorPicker(false);
                     }}
                     className="w-5 h-5 rounded-full border-2 transition-transform hover:scale-110 cursor-pointer"
-                    style={{ backgroundColor: c.bgColor, borderColor: c.borderColor }}
+                    style={{
+                      backgroundColor: c.bgColor,
+                      borderColor: c.borderColor,
+                    }}
                     title={`Apply ${c.name} Box Style`}
                   />
                 ))}
@@ -1068,14 +1189,17 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
           </div>
 
           {/* Horizontal Line Button + Color Picker Popover */}
-          <div className="relative flex items-center bg-white rounded-lg border border-gray-300 shadow-2xs overflow-hidden">
+          <div className="relative z-50 flex items-center bg-white rounded-lg border border-gray-300 shadow-2xs">
             <button
               type="button"
               onClick={() => handleInsertHr(selectedHrColor)}
               className="px-2 py-1 hover:bg-gray-100 text-[#0A2342] font-semibold text-xs cursor-pointer flex items-center gap-1"
               title="Insert Horizontal Line (<hr>)"
             >
-              <HorizontalRuleIcon fontSize="small" style={{ color: selectedHrColor }} />
+              <HorizontalRuleIcon
+                fontSize="small"
+                style={{ color: selectedHrColor }}
+              />
               <span>Divider</span>
             </button>
 
@@ -1126,7 +1250,9 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             type="button"
             onClick={handleSetLink}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive("link") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+              editor.isActive("link")
+                ? "bg-[#0A2342] text-white"
+                : "hover:bg-gray-200 text-[#0A2342]"
             }`}
             title="Insert Hyperlink"
           >
@@ -1161,7 +1287,7 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
           </label>
 
           {/* Insert Table Grid Dropdown */}
-          <div className="relative">
+          <div className="relative z-40">
             <button
               type="button"
               onClick={() => {
@@ -1169,9 +1295,12 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
                 setShowColorPicker(false);
                 setShowHighlightPicker(false);
                 setShowHrColorPicker(false);
+                setShowBoxColorPicker(false);
               }}
               className={`p-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1 ${
-                editor.isActive("table") ? "bg-[#0A2342] text-white" : "hover:bg-gray-200 text-[#0A2342]"
+                editor.isActive("table")
+                  ? "bg-[#0A2342] text-white"
+                  : "hover:bg-gray-200 text-[#0A2342]"
               }`}
               title="Insert Table"
             >
@@ -1180,10 +1309,11 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             </button>
 
             {showTablePicker && (
-              <div className="absolute top-full right-0 mt-1 p-3 bg-white border border-gray-200 rounded-xl shadow-xl z-30 w-48 space-y-2">
+              <div className="absolute top-full right-0 mt-2 p-3 bg-white border border-gray-200 rounded-xl shadow-xl z-[9999] w-48 space-y-2">
                 <div className="text-[11px] font-bold text-[#0A2342] uppercase tracking-wider">
                   Select Table Grid
                 </div>
+
                 <div className="grid grid-cols-2 gap-1 text-xs">
                   {[
                     { label: "2 × 2", cols: 2, rows: 2 },
@@ -1197,8 +1327,11 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
                     <button
                       key={grid.label}
                       type="button"
-                      onClick={() => handleInsertTable(grid.cols, grid.rows)}
-                      className="px-2 py-1 bg-[#FAF9F6] hover:bg-[#B87333] hover:text-white border border-gray-200 rounded-lg text-gray-700 font-semibold transition-colors text-center cursor-pointer"
+                      onClick={() => {
+                        handleInsertTable(grid.cols, grid.rows);
+                        setShowTablePicker(false);
+                      }}
+                      className="px-2 py-1.5 bg-[#FAF9F6] hover:bg-[#B87333] hover:text-white border border-gray-200 rounded-lg text-gray-700 font-semibold transition-colors text-center cursor-pointer"
                     >
                       {grid.label}
                     </button>
@@ -1289,7 +1422,11 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
       {imageError && (
         <div className="px-3 py-1.5 bg-red-50 text-red-600 text-xs font-semibold border-b border-red-100 flex items-center justify-between">
           <span>⚠️ {imageError}</span>
-          <button type="button" onClick={() => setImageError(null)} className="underline cursor-pointer">
+          <button
+            type="button"
+            onClick={() => setImageError(null)}
+            className="underline cursor-pointer"
+          >
             Dismiss
           </button>
         </div>
@@ -1302,7 +1439,6 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
         </div>
       </div>
 
-
       {/* Optional Caption Modal */}
       {showCaptionModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
@@ -1312,7 +1448,11 @@ export default function RichTextEditor({ content = "", onChange, placeholder = "
             </h3>
 
             <div className="aspect-[16/9] w-full rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
-              <img src={pendingImageUrl} alt="Preview" className="w-full h-full object-cover" />
+              <img
+                src={pendingImageUrl}
+                alt="Preview"
+                className="w-full h-full object-cover"
+              />
             </div>
 
             <div>
