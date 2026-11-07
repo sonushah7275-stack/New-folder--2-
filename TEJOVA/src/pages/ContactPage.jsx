@@ -74,9 +74,8 @@ export const ContactPage = () => {
 
             <div className="bg-[#0A2342] text-white p-7 sm:p-8 rounded-xs border-l-4 border-l-[#D4AF37] border-y border-r border-[#B87333]/30 space-y-3 shadow-xs">
               <span className="text-xs uppercase tracking-widest text-[#D4AF37] font-semibold block">Concierge Support</span>
-              <h4 className="font-serif text-xl sm:text-2xl text-white">Personal Botanical Consultations</h4>
+              <h4 className="font-serif text-xl sm:text-2xl text-white">Personal Diet Consultations</h4>
               <p className="text-xs sm:text-sm text-white/80 font-light leading-relaxed">
-              Personal Diet Consultations
               Secure a focused 1-on-1 session with our nutritional practice group to architect your personalized daily nourishment rhythm. Engineered to optimize cellular function, this protocol insulates your physical vessel against chronic lifestyle diseases and secures your long-term vitality.
               </p>
             </div>
