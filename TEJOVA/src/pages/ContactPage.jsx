@@ -76,7 +76,8 @@ export const ContactPage = () => {
               <span className="text-xs uppercase tracking-widest text-[#D4AF37] font-semibold block">Concierge Support</span>
               <h4 className="font-serif text-xl sm:text-2xl text-white">Personal Botanical Consultations</h4>
               <p className="text-xs sm:text-sm text-white/80 font-light leading-relaxed">
-                Schedule a 1-on-1 virtual session with our certified herbalists to tailor a personalized daily ritual for your unique biological goals.
+              Personal Diet Consultations
+              Secure a focused 1-on-1 session with our nutritional practice group to architect your personalized daily nourishment rhythm. Engineered to optimize cellular function, this protocol insulates your physical vessel against chronic lifestyle diseases and secures your long-term vitality.
               </p>
             </div>
           </div>
