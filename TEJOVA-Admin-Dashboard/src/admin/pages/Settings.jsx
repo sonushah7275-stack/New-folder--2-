@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SaveIcon from "@mui/icons-material/Save";
 import TuneIcon from "@mui/icons-material/Tune";
+import ShareIcon from "@mui/icons-material/Share";
 import PaletteIcon from "@mui/icons-material/Palette";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import PersonIcon from "@mui/icons-material/Person";
@@ -45,6 +46,7 @@ export default function Settings() {
 
   const navTabs = [
     { id: "general", label: "General Settings", icon: TuneIcon },
+    { id: "social", label: "Social Media & Channels", icon: ShareIcon },
     { id: "appearance", label: "Appearance & Brand", icon: PaletteIcon },
     { id: "notifications", label: "Notifications & Alerts", icon: NotificationsActiveIcon },
     { id: "account", label: "Account & Security", icon: PersonIcon },
@@ -204,7 +206,7 @@ export default function Settings() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
-                        Support Email
+                        Support / Concierge Email
                       </label>
                       <input
                         type="email"
@@ -218,10 +220,34 @@ export default function Settings() {
                             },
                           })
                         }
+                        placeholder="concierge@tejova.com"
                         className="w-full px-3.5 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
                       />
                     </div>
 
+                    <div>
+                      <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
+                        Client Care & Logistics Email
+                      </label>
+                      <input
+                        type="email"
+                        value={formSettings.general?.careEmail || ""}
+                        onChange={(e) =>
+                          setFormSettings({
+                            ...formSettings,
+                            general: {
+                              ...formSettings.general,
+                              careEmail: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="care@tejova.com"
+                        className="w-full px-3.5 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
                         Contact Phone
@@ -238,14 +264,27 @@ export default function Settings() {
                             },
                           })
                         }
+                        placeholder="+91 9155135139"
                         className="w-full px-3.5 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
+                        Website Verification Badge
+                      </label>
+                      <input
+                        type="text"
+                        disabled
+                        value="TEJOVA VERIFIED — Official Nagpur Registry"
+                        className="w-full px-3.5 py-2 text-xs md:text-sm bg-gray-50 border border-gray-200 rounded-xl text-gray-500 font-semibold cursor-not-allowed"
                       />
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
-                      Store Address
+                      Official Registered Base Address
                     </label>
                     <input
                       type="text"
@@ -256,8 +295,153 @@ export default function Settings() {
                           general: { ...formSettings.general, address: e.target.value },
                         })
                       }
+                      placeholder="C-148, Ramana Maroti Nagar, Nagpur, Maharashtra - 440024, India"
                       className="w-full px-3.5 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
                     />
+                    <p className="text-[11px] text-gray-500 mt-1 font-medium">
+                      Official Nagpur Base: C-148, Ramana Maroti Nagar, Nagpur, Maharashtra - 440024, India
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "social" && (
+                <div className="space-y-4">
+                  <div className="border-b border-gray-100 pb-2">
+                    <h3 className="text-base font-bold text-[#0A2342]">
+                      Official Social Media Links
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Configure verified client channels. Leave empty if unconfirmed by client.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
+                        Instagram URL
+                      </label>
+                      <input
+                        type="text"
+                        value={formSettings.socialLinks?.instagram || ""}
+                        onChange={(e) =>
+                          setFormSettings({
+                            ...formSettings,
+                            socialLinks: {
+                              ...formSettings.socialLinks,
+                              instagram: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="https://instagram.com/tejova"
+                        className="w-full px-3.5 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
+                        Facebook URL
+                      </label>
+                      <input
+                        type="text"
+                        value={formSettings.socialLinks?.facebook || ""}
+                        onChange={(e) =>
+                          setFormSettings({
+                            ...formSettings,
+                            socialLinks: {
+                              ...formSettings.socialLinks,
+                              facebook: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="https://facebook.com/tejova"
+                        className="w-full px-3.5 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
+                        YouTube Channel URL
+                      </label>
+                      <input
+                        type="text"
+                        value={formSettings.socialLinks?.youtube || ""}
+                        onChange={(e) =>
+                          setFormSettings({
+                            ...formSettings,
+                            socialLinks: {
+                              ...formSettings.socialLinks,
+                              youtube: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="https://youtube.com/@... (leave empty if pending)"
+                        className="w-full px-3.5 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
+                        LinkedIn Page URL
+                      </label>
+                      <input
+                        type="text"
+                        value={formSettings.socialLinks?.linkedin || ""}
+                        onChange={(e) =>
+                          setFormSettings({
+                            ...formSettings,
+                            socialLinks: {
+                              ...formSettings.socialLinks,
+                              linkedin: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="https://linkedin.com/company/... (leave empty if pending)"
+                        className="w-full px-3.5 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
+                        Twitter / X URL (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={formSettings.socialLinks?.twitter || ""}
+                        onChange={(e) =>
+                          setFormSettings({
+                            ...formSettings,
+                            socialLinks: {
+                              ...formSettings.socialLinks,
+                              twitter: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="https://x.com/tejova"
+                        className="w-full px-3.5 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#0A2342] uppercase mb-1">
+                        Pinterest URL (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={formSettings.socialLinks?.pinterest || ""}
+                        onChange={(e) =>
+                          setFormSettings({
+                            ...formSettings,
+                            socialLinks: {
+                              ...formSettings.socialLinks,
+                              pinterest: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="https://pinterest.com/tejova"
+                        className="w-full px-3.5 py-2 text-xs md:text-sm border border-[#0A2342]/30 rounded-xl text-[#0A2342] focus:outline-none focus:ring-2 focus:ring-[#B87333]"
+                      />
+                    </div>
                   </div>
                 </div>
               )}

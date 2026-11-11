@@ -11,6 +11,8 @@ import { JournalPage } from "../pages/JournalPage";
 import { ArticleDetailPage } from "../pages/ArticleDetailPage";
 import { AboutPage } from "../pages/AboutPage";
 import { ContactPage } from "../pages/ContactPage";
+import { PolicyPage } from "../pages/PolicyPage";
+import { FaqPage } from "../pages/FaqPage";
 import { LoginPage } from "../pages/auth/LoginPage";
 import { RegisterPage } from "../pages/auth/RegisterPage";
 import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
@@ -41,6 +43,21 @@ export const AppRoutes = () => {
       {/* Other pages */}
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contact" element={<ContactPage />} />
+
+      {/* Legal Policy Pages & Aliases */}
+      <Route path="/privacy-policy" element={<PolicyPage slug="privacy-policy" />} />
+      <Route path="/privacy" element={<PolicyPage slug="privacy-policy" />} />
+
+      <Route path="/terms-and-conditions" element={<PolicyPage slug="terms-and-conditions" />} />
+      <Route path="/terms" element={<PolicyPage slug="terms-and-conditions" />} />
+
+      <Route path="/shipping-policy" element={<PolicyPage slug="shipping-policy" />} />
+      <Route path="/shipping-returns" element={<PolicyPage slug="shipping-policy" />} />
+      <Route path="/refund-policy" element={<PolicyPage slug="shipping-policy" />} />
+
+      {/* FAQs & Aliases */}
+      <Route path="/faqs" element={<FaqPage />} />
+      <Route path="/faq" element={<FaqPage />} />
 
       {/* Authentication & Account */}
       <Route path="/login" element={<LoginPage />} />

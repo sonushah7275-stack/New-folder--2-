@@ -3,11 +3,12 @@ import api from "../../config/api.js";
 
 export const initialSettingsState = {
   general: {
-    siteName: "TEJOVA",
-    tagline: "Premium Pure Wellness & Sustainable Living",
-    supportEmail: "support@tejova.com",
-    contactPhone: "+91 98765 43210",
-    address: "123 Wellness Way, Green Park, New Delhi, India",
+    siteName: "TEJOVA VERIFIED",
+    tagline: "Expand Your Light",
+    supportEmail: "concierge@tejova.com",
+    careEmail: "care@tejova.com",
+    contactPhone: "+91 9155135139",
+    address: "C-148, Ramana Maroti Nagar, Nagpur, Maharashtra - 440024, India",
   },
   appearance: {
     theme: "light",
@@ -31,10 +32,12 @@ export const initialSettingsState = {
     sunday: "Closed",
   },
   socialLinks: {
-    facebook: "https://facebook.com/tejova",
-    instagram: "https://instagram.com/tejova",
-    twitter: "https://twitter.com/tejova",
-    pinterest: "https://pinterest.com/tejova",
+    facebook: "",
+    instagram: "",
+    youtube: "",
+    linkedin: "",
+    twitter: "",
+    pinterest: "",
   },
   maintenanceMode: false,
 };

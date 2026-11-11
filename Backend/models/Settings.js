@@ -8,11 +8,12 @@ import mongoose from "mongoose";
 const settingsSchema = new mongoose.Schema(
   {
     general: {
-      siteName: { type: String, default: "TEJOVA" },
-      tagline: { type: String, default: "Premium Pure Wellness & Sustainable Living" },
-      supportEmail: { type: String, default: "support@tejova.com" },
-      contactPhone: { type: String, default: "+91 98765 43210" },
-      address: { type: String, default: "123 Wellness Way, Green Park, New Delhi, India" },
+      siteName: { type: String, default: "TEJOVA VERIFIED" },
+      tagline: { type: String, default: "Expand Your Light" },
+      supportEmail: { type: String, default: "concierge@tejova.com" },
+      careEmail: { type: String, default: "care@tejova.com" },
+      contactPhone: { type: String, default: "" },
+      address: { type: String, default: "C-148, Ramana Maroti Nagar, Nagpur, Maharashtra - 440024, India" },
     },
     appearance: {
       theme: { type: String, default: "light" },
@@ -32,10 +33,12 @@ const settingsSchema = new mongoose.Schema(
       sunday: { type: String, default: "Closed" },
     },
     socialLinks: {
-      facebook: { type: String, default: "https://facebook.com/tejova" },
-      instagram: { type: String, default: "https://instagram.com/tejova" },
-      twitter: { type: String, default: "https://twitter.com/tejova" },
-      pinterest: { type: String, default: "https://pinterest.com/tejova" },
+      facebook: { type: String, default: "" },
+      instagram: { type: String, default: "" },
+      youtube: { type: String, default: "" },
+      linkedin: { type: String, default: "" },
+      twitter: { type: String, default: "" },
+      pinterest: { type: String, default: "" },
     },
     maintenanceMode: { type: Boolean, default: false },
     updatedBy: {

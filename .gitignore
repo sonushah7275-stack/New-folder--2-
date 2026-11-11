@@ -13,3 +13,13 @@ build/
 logs/
 *.log
 .DS_Store
+
+# Temporary backups & test records
+backups/
+Backend/backups/
+test_backups/
+Backend/tests/test_backups/
+
+# Postman local workspace
+.postman/
+postman/

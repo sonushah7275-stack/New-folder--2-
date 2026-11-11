@@ -2,29 +2,24 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { PageContainer } from "../components/layout/PageContainer";
 import { pillars as staticPillars } from "../data/pillars";
-import { products as staticProducts } from "../data/products";
 import { articles as staticArticles } from "../data/articles";
 import { SectionHeading } from "../components/common/SectionHeading";
-import { ProductGrid } from "../components/products/ProductGrid";
 import { ArticleGrid } from "../components/journal/ArticleGrid";
 import { TextReveal } from "../components/common/TextReveal";
 import { Button } from "../components/common/Button";
-import { Heart, Sparkles, Utensils, Droplets, Flame, Wind } from "lucide-react";
+import { Utensils, Droplets, Flame, Wind } from "lucide-react";
 import { fetchPillars } from "../Redux/slices/pillarSlice";
-import { fetchProducts } from "../Redux/slices/productSlice";
 import { fetchArticles } from "../Redux/slices/journalSlice";
 import { fetchPageBySlug } from "../Redux/slices/contentSlice";
 
 export const NourishmentPage = () => {
   const dispatch = useDispatch();
   const { pillars: apiPillars } = useSelector((state) => state.pillar);
-  const { products: apiProducts } = useSelector((state) => state.product);
   const { articles: apiArticles } = useSelector((state) => state.journal);
   const { pagesMap } = useSelector((state) => state.content);
 
   useEffect(() => {
     dispatch(fetchPillars());
-    dispatch(fetchProducts());
     dispatch(fetchArticles());
     dispatch(fetchPageBySlug("nourishment"));
   }, [dispatch]);
@@ -35,7 +30,7 @@ export const NourishmentPage = () => {
   );
   const fallbackPillar = staticPillars.find((p) => p.id === "nourishment") || staticPillars[1];
 
-  const heroSubtitle = nourishmentCmsPage?.hero?.subtitle || "Nourishment";
+  const heroSubtitle = nourishmentCmsPage?.hero?.subtitle || "Nourishment Protocol";
   const heroTitle = nourishmentCmsPage?.hero?.title || "Real Food. Cellular Renewal.";
   const heroDescription =
     nourishmentCmsPage?.hero?.description ||
@@ -44,49 +39,50 @@ export const NourishmentPage = () => {
   const heroMedia =
     nourishmentCmsPage?.hero?.mediaUrl || nourishmentCmsPage?.hero?.media?.url || fallbackPillar.heroImage;
 
-  // Quote Section
+  // Philosophy Quote Section (The Nourishment Ethos — Midnight Blue #0A2342)
   const quoteSection = nourishmentCmsPage?.sections?.find(
     (s) => s.type === "quote" || s.sectionId === "sec_nourishment_quote"
   );
-  const quoteBadge = quoteSection?.badge || "The Nourishment Ethos";
+  const quoteBadge = quoteSection?.badge || "TEJOVA LIFE";
+  const quoteTitle = quoteSection?.title || "The Nourishment Ethos";
   const quoteContent =
     quoteSection?.content ||
     '"Nourishment is not merely calories in a bowl; it is an active dialogue with your microbiome and cellular health."';
 
-  // Cards / Elemental Section
+  // Cards / Elemental Section (The 4 Pillars of Elemental Nourishment)
   const cardsSection = nourishmentCmsPage?.sections?.find(
-    (s) => s.type === "cards" || s.sectionId === "sec_elemental_nourishment"
+    (s) => (s.type === "cards" || s.sectionId === "sec_elemental_nourishment") && s.isVisible !== false
   );
-  const elementalItems = cardsSection?.items || [];
+  const elementalItems = cardsSection?.items?.filter((item) => item.isVisible !== false) || [];
 
-  const relatedProducts =
-    apiProducts && apiProducts.length > 0
-      ? apiProducts
-          .map((p) => ({
-            ...p,
-            id: p._id || p.id,
-            image:
-              p.image ||
-              (p.images && p.images[0]?.url ? p.images[0].url : p.images?.[0]) ||
-              "/assets/images/product-earth-serum.svg",
-            category: typeof p.category === "object" ? p.category?.name || "Nourishment" : p.category || "Nourishment",
-          }))
-          .slice(0, 2)
-      : staticProducts.filter(
-          (p) => p.category === "Nourishment" || p.slug === "earth-ritual-serum"
-        );
+  // Real published Nourishment journal articles
+  const nourishmentArticles = (apiArticles && apiArticles.length > 0 ? apiArticles : staticArticles)
+    .filter((a) => {
+      const cat = typeof a.category === "object" ? a.category?.name : a.category;
+      const catLower = (cat || "").toLowerCase();
+      const tags = (a.tags || []).map((t) => (t || "").toLowerCase());
+      return (
+        catLower === "nourishment" ||
+        tags.includes("nourishment") ||
+        catLower.includes("nourishment")
+      );
+    })
+    .map((a) => ({
+      ...a,
+      id: a._id || a.id,
+      category: typeof a.category === "object" ? a.category?.name || "Nourishment" : a.category || "Nourishment",
+      image: a.coverImage || a.image || a.featuredImage || "/assets/images/nourishment-bowl.svg",
+    }));
 
-  const relatedArticles =
-    apiArticles && apiArticles.length > 0
-      ? apiArticles
-          .map((a) => ({
-            ...a,
-            id: a._id || a.id,
-            category: typeof a.category === "object" ? a.category?.name || "Nourishment" : a.category || a.tags?.[0] || "Nourishment",
-            image: a.image || a.featuredImage || "/assets/images/nourishment-bowl.svg",
-          }))
-          .slice(0, 2)
-      : staticArticles.filter((a) => a.category === "Nourishment").slice(0, 2);
+  const displayArticles =
+    nourishmentArticles.length > 0
+      ? nourishmentArticles
+      : (apiArticles && apiArticles.length > 0 ? apiArticles : staticArticles).slice(0, 3).map((a) => ({
+          ...a,
+          id: a._id || a.id,
+          category: typeof a.category === "object" ? a.category?.name || "Nourishment" : a.category || "Nourishment",
+          image: a.coverImage || a.image || a.featuredImage || "/assets/images/nourishment-bowl.svg",
+        }));
 
   return (
     <PageContainer>
@@ -114,20 +110,23 @@ export const NourishmentPage = () => {
               {heroDescription}
             </p>
             <div className="pt-2">
-              <Button to="/products/earth-ritual-serum" variant="primary" icon>
-                {nourishmentCmsPage?.hero?.ctaText || "Discover Botanical Formulations"}
+              <Button to={nourishmentCmsPage?.hero?.ctaLink || "/contact"} variant="primary" icon>
+                {nourishmentCmsPage?.hero?.ctaText || "Explore Nourishment Protocol"}
               </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Philosophy Callout Quote */}
+      {/* Philosophy Callout Quote — Midnight Blue (#0A2342) */}
       <section className="py-16 bg-[#0A2342] text-white my-12 border-y border-[#B87333]/30">
         <div className="max-w-4xl mx-auto px-6 text-center space-y-6">
-          <span className="text-xs uppercase tracking-[0.3em] text-[#D4AF37] font-medium">
+          <span className="text-xs uppercase tracking-[0.3em] text-[#D4AF37] font-medium block">
             {quoteBadge}
           </span>
+          <h2 className="font-serif text-3xl sm:text-4xl text-[#F5F3EF] font-medium">
+            {quoteTitle}
+          </h2>
           <blockquote className="font-serif text-2xl sm:text-4xl leading-relaxed italic text-[#F5F3EF]">
             {quoteContent.replace(/<[^>]*>?/gm, '')}
           </blockquote>
@@ -137,12 +136,12 @@ export const NourishmentPage = () => {
         </div>
       </section>
 
-      {/* Highlights / Elemental Nourishment Grid */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Highlights / Elemental Nourishment Grid (Preserved sec_elemental_nourishment) */}
+      <section className="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          subtitle={cardsSection?.subtitle || "Microbiome & Whole Foods"}
+          subtitle={cardsSection?.subtitle || "MICROBIOME & WHOLE FOODS"}
           title={cardsSection?.title || "The 4 Pillars of Elemental Nourishment"}
-          description={cardsSection?.content}
+          description={cardsSection?.content || "Harmonize the four elemental gates of digestion, blood glucose stabilization, and living nutrition."}
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -182,9 +181,9 @@ export const NourishmentPage = () => {
                     {idx === 0 ? (
                       <Utensils className="w-5 h-5" />
                     ) : idx === 1 ? (
-                      <Heart className="w-5 h-5" />
+                      <Droplets className="w-5 h-5" />
                     ) : (
-                      <Sparkles className="w-5 h-5" />
+                      <Flame className="w-5 h-5" />
                     )}
                   </div>
                   <h3 className="font-serif text-2xl text-[#0A2342]">
@@ -198,24 +197,14 @@ export const NourishmentPage = () => {
         </div>
       </section>
 
-      {/* Formulations Grid */}
-      <section className="py-16 sm:py-20 bg-[#FAF9F6] border-t border-[#B87333]/30 my-12 sm:my-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            subtitle="Whole-Food Formulations"
-            title="Supplements & Botanicals"
-          />
-          <ProductGrid products={relatedProducts} columns={2} />
-        </div>
-      </section>
-
-      {/* Articles */}
-      <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Expanded Journal Editorial Feature (No ProductGrid) */}
+      <section className="py-16 sm:py-20 border-t border-[#B87333]/20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          subtitle="Nourishment Stories"
-          title="Insights & Articles"
+          subtitle="From The Journal"
+          title="Nourishment Stories & Metabolic Insights"
+          description="In-depth explorations into plant intelligence, micro-biome longevity, and unrefined living nutrition."
         />
-        <ArticleGrid articles={relatedArticles} />
+        <ArticleGrid articles={displayArticles} />
       </section>
     </PageContainer>
   );

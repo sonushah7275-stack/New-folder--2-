@@ -14,14 +14,19 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
 
 const PAGES_LIST = [
-  { slug: "home", label: "Home Page" },
-  { slug: "vitality", label: "Vitality Page" },
-  { slug: "nourishment", label: "Nourishment Page" },
-  { slug: "lifestyle", label: "Lifestyle Page" },
-  { slug: "longevity", label: "Longevity Page" },
-  { slug: "blog", label: "Blog Page" },
-  { slug: "about", label: "About Us Page" },
-  { slug: "contact", label: "Contact Us Page" },
+  { slug: "home", label: "Home" },
+  { slug: "vitality", label: "Vitality" },
+  { slug: "nourishment", label: "Nourishment" },
+  { slug: "lifestyle", label: "Lifestyle" },
+  { slug: "longevity", label: "Longevity" },
+  { slug: "products", label: "Products" },
+  { slug: "blog", label: "Blog" },
+  { slug: "about", label: "About Us" },
+  { slug: "contact", label: "Contact Us" },
+  { slug: "privacy-policy", label: "Privacy Policy" },
+  { slug: "terms-and-conditions", label: "Terms & Conditions" },
+  { slug: "shipping-policy", label: "Shipping Policy" },
+  { slug: "faqs", label: "FAQs" },
 ];
 
 const SECTION_TYPES = [
@@ -195,10 +200,10 @@ export default function PageCmsEditor() {
 
       currentItems.push({
         id: `item_${Date.now()}`,
-        kicker: "10 MINS",
-        title: "New Item Title",
+        kicker: "PILLAR",
+        title: "New Card Title",
         subtitle: "",
-        description: "Enter item description here...",
+        description: "Enter card description or protocol details...",
         image: "",
         link: "",
         order: currentItems.length,
@@ -206,6 +211,25 @@ export default function PageCmsEditor() {
       });
 
       targetSection.items = currentItems;
+      updatedSections[sectionIndex] = targetSection;
+      return { ...prev, sections: updatedSections };
+    });
+  };
+
+  const handleMoveItem = (sectionIndex, itemIndex, direction) => {
+    setPageData((prev) => {
+      const updatedSections = [...(prev.sections || [])];
+      const targetSection = { ...updatedSections[sectionIndex] };
+      const currentItems = [...(targetSection.items || [])];
+      const targetIndex = direction === "up" ? itemIndex - 1 : itemIndex + 1;
+
+      if (targetIndex < 0 || targetIndex >= currentItems.length) return prev;
+
+      const temp = currentItems[itemIndex];
+      currentItems[itemIndex] = currentItems[targetIndex];
+      currentItems[targetIndex] = temp;
+
+      targetSection.items = currentItems.map((item, idx) => ({ ...item, order: idx }));
       updatedSections[sectionIndex] = targetSection;
       return { ...prev, sections: updatedSections };
     });
@@ -579,24 +603,31 @@ export default function PageCmsEditor() {
                   </div>
                 </div>
 
-                {/* Sub-Items / Ritual Cards (For protocol_cards, four_pillars, cards, philosophy) */}
+                {/* Sub-Items / Ritual Cards Editor */}
                 {(sec.type === "protocol_cards" ||
                   sec.type === "four_pillars" ||
                   sec.type === "cards" ||
                   sec.type === "philosophy" ||
                   sec.type === "entry_sequence" ||
-                  sec.type === "blog_entry_photos") && (
+                  sec.type === "blog_entry_photos" ||
+                  (Array.isArray(sec.items) && sec.items.length > 0)) && (
                   <div className="pt-4 border-t border-gray-200 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-bold text-[#0A2342] uppercase tracking-wider">
-                        Section Sub-Cards / Rituals ({(sec.items || []).length})
-                      </h3>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-[#F5F3EF] p-3 rounded-xl border border-gray-200">
+                      <div>
+                        <h3 className="text-xs font-bold text-[#0A2342] uppercase tracking-wider">
+                          Section Sub-Cards & Rituals ({(sec.items || []).length} Cards)
+                        </h3>
+                        <p className="text-[11px] text-gray-500 font-medium">
+                          Manage 4-pillar foundations, daily rituals, protocol steps, and feature cards.
+                        </p>
+                      </div>
                       <button
                         type="button"
                         onClick={() => handleAddItem(secIdx)}
-                        className="px-3 py-1.5 bg-[#B87333] text-white rounded-xl text-xs font-bold hover:bg-[#A00000] cursor-pointer"
+                        className="px-3.5 py-1.5 bg-[#B87333] hover:bg-[#A00000] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5 self-start sm:self-auto"
                       >
-                        + Add Card / Ritual
+                        <AddIcon style={{ fontSize: 16 }} />
+                        <span>Add Card / Ritual</span>
                       </button>
                     </div>
 
@@ -604,61 +635,145 @@ export default function PageCmsEditor() {
                       {(sec.items || []).map((item, itemIdx) => (
                         <div
                           key={item.id || itemIdx}
-                          className="p-4 bg-[#FAF9F6] border border-gray-200 rounded-xl space-y-3 text-xs"
+                          className={`p-4 rounded-xl border transition-all text-xs space-y-3 ${
+                            item.isVisible !== false
+                              ? "bg-[#FAF9F6] border-gray-200 shadow-2xs"
+                              : "bg-gray-100 border-gray-300 opacity-75"
+                          }`}
                         >
+                          {/* Card Controls Bar */}
                           <div className="flex items-center justify-between border-b border-gray-200 pb-2">
-                            <span className="font-bold text-[#0A2342]">Card #{itemIdx + 1}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteItem(secIdx, itemIdx)}
-                              className="text-red-600 font-bold hover:underline cursor-pointer"
-                            >
-                              Remove
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-full bg-[#0A2342] text-white text-[10px] font-bold flex items-center justify-center">
+                                {itemIdx + 1}
+                              </span>
+                              <span className="font-bold text-[#0A2342] truncate max-w-[140px] sm:max-w-[180px]">
+                                {item.title || `Card #${itemIdx + 1}`}
+                              </span>
+                              {item.isVisible === false && (
+                                <span className="px-1.5 py-0.5 bg-gray-200 text-gray-600 rounded text-[10px] font-bold">
+                                  Hidden
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={() => handleMoveItem(secIdx, itemIdx, "up")}
+                                disabled={itemIdx === 0}
+                                className="p-1 rounded bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-30 cursor-pointer"
+                                title="Move Card Up"
+                              >
+                                <ArrowUpwardIcon style={{ fontSize: 14 }} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleMoveItem(secIdx, itemIdx, "down")}
+                                disabled={itemIdx === (sec.items || []).length - 1}
+                                className="p-1 rounded bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-30 cursor-pointer"
+                                title="Move Card Down"
+                              >
+                                <ArrowDownwardIcon style={{ fontSize: 14 }} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleItemChange(secIdx, itemIdx, "isVisible", item.isVisible === false)}
+                                className={`p-1 rounded border cursor-pointer ${
+                                  item.isVisible !== false
+                                    ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                                    : "bg-gray-200 text-gray-500 border-gray-300 hover:bg-gray-300"
+                                }`}
+                                title={item.isVisible !== false ? "Hide Card" : "Show Card"}
+                              >
+                                {item.isVisible !== false ? (
+                                  <VisibilityIcon style={{ fontSize: 14 }} />
+                                ) : (
+                                  <VisibilityOffIcon style={{ fontSize: 14 }} />
+                                )}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteItem(secIdx, itemIdx)}
+                                className="p-1 rounded bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 cursor-pointer"
+                                title="Remove Card"
+                              >
+                                <DeleteIcon style={{ fontSize: 14 }} />
+                              </button>
+                            </div>
                           </div>
 
-                          <div>
-                            <label className="block font-bold text-gray-700 mb-1">Time Kicker / Badge</label>
-                            <input
-                              type="text"
-                              value={item.kicker || item.tag || ""}
-                              onChange={(e) => handleItemChange(secIdx, itemIdx, "kicker", e.target.value)}
-                              className="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg"
-                              placeholder="e.g. 20 MINS or Yoga"
-                            />
-                          </div>
+                          {/* Card Editing Fields */}
+                          <div className="space-y-2.5">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              <div>
+                                <label className="block font-bold text-gray-700 mb-0.5">Card Title</label>
+                                <input
+                                  type="text"
+                                  value={item.title || ""}
+                                  onChange={(e) => handleItemChange(secIdx, itemIdx, "title", e.target.value)}
+                                  className="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg font-serif font-bold text-[#0A2342] focus:ring-1 focus:ring-[#B87333] focus:outline-none"
+                                  placeholder="e.g. Sovereign Yoga"
+                                />
+                              </div>
 
-                          <div>
-                            <label className="block font-bold text-gray-700 mb-1">Card Title</label>
-                            <input
-                              type="text"
-                              value={item.title || ""}
-                              onChange={(e) => handleItemChange(secIdx, itemIdx, "title", e.target.value)}
-                              className="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg font-serif font-bold text-[#0A2342]"
-                              placeholder="e.g. Sovereign Asana & Alignment"
-                            />
-                          </div>
+                              <div>
+                                <label className="block font-bold text-gray-700 mb-0.5">Kicker / Badge</label>
+                                <input
+                                  type="text"
+                                  value={item.kicker || item.tag || ""}
+                                  onChange={(e) => handleItemChange(secIdx, itemIdx, "kicker", e.target.value)}
+                                  className="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#B87333] focus:outline-none"
+                                  placeholder="e.g. PILLAR 01 or 20 MINS"
+                                />
+                              </div>
+                            </div>
 
-                          <div>
-                            <label className="block font-bold text-gray-700 mb-1">Description</label>
-                            <textarea
-                              rows={2}
-                              value={item.description || ""}
-                              onChange={(e) => handleItemChange(secIdx, itemIdx, "description", e.target.value)}
-                              className="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg"
-                              placeholder="Enter protocol details..."
-                            />
-                          </div>
+                            <div>
+                              <label className="block font-bold text-gray-700 mb-0.5">Subtitle / Secondary Label</label>
+                              <input
+                                type="text"
+                                value={item.subtitle || ""}
+                                onChange={(e) => handleItemChange(secIdx, itemIdx, "subtitle", e.target.value)}
+                                className="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#B87333] focus:outline-none"
+                                placeholder="e.g. Asana, Dynamic Movement, & Structural Radiance"
+                              />
+                            </div>
 
-                          <div>
-                            <label className="block font-bold text-gray-700 mb-1">Image / Media URL</label>
-                            <input
-                              type="text"
-                              value={item.image || ""}
-                              onChange={(e) => handleItemChange(secIdx, itemIdx, "image", e.target.value)}
-                              className="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg"
-                              placeholder="https://..."
-                            />
+                            <div>
+                              <label className="block font-bold text-gray-700 mb-0.5">Card Description / Content</label>
+                              <textarea
+                                rows={3}
+                                value={item.description || item.content || ""}
+                                onChange={(e) => handleItemChange(secIdx, itemIdx, "description", e.target.value)}
+                                className="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#B87333] focus:outline-none"
+                                placeholder="Enter full protocol or discipline details..."
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              <div>
+                                <label className="block font-bold text-gray-700 mb-0.5">Image / Media URL</label>
+                                <input
+                                  type="text"
+                                  value={item.image || ""}
+                                  onChange={(e) => handleItemChange(secIdx, itemIdx, "image", e.target.value)}
+                                  className="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#B87333] focus:outline-none"
+                                  placeholder="https://..."
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block font-bold text-gray-700 mb-0.5">Card Action / Blog Link</label>
+                                <input
+                                  type="text"
+                                  value={item.link || ""}
+                                  onChange={(e) => handleItemChange(secIdx, itemIdx, "link", e.target.value)}
+                                  className="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#B87333] focus:outline-none"
+                                  placeholder="e.g. /blog/sovereign-yoga"
+                                />
+                              </div>
+                            </div>
                           </div>
                         </div>
                       ))}

@@ -3,24 +3,39 @@ import { useSelector } from 'react-redux';
 import { TextReveal } from '../common/TextReveal';
 import { Button } from '../common/Button';
 import brandBotanical from '../../assets/images/brand-botanical.svg';
+import DOMPurify from 'dompurify';
 
 export const BrandIntro = () => {
   const { pagesMap } = useSelector((state) => state.content);
   const homePage = pagesMap?.home;
-  const sec = homePage?.sections?.find(
-    (s) => (s.type === "brand_philosophy" || s.type === "brand_story" || s.sectionId === "sec_brand_philosophy") && s.isVisible !== false
-  );
 
-  const title = sec?.title || "Beyond Wellness. A Sovereign Lifestyle.";
-  const subtitle = sec?.subtitle || sec?.kicker || "BRAND PHILOSOPHY";
-  const contentHtml = sec?.content || "<p>TEJOVA is a premium performance protocol dedicated to engineering your ultimate state of being. We unite ancient yogic wisdom with modern biological science to elevate your daily existence through our four core pillars: Vitality, Nourishment, Lifestyle, and Longevity.</p><p>We believe true luxury is a highly functioning body and a calm, commanding mind. By integrating conscious daily habits and pure, natural nourishment, we help you reclaim your life force and thrive from within.</p>";
+  // Prioritize sec_brand_story or fallback to sec_brand_philosophy
+  const sec =
+    homePage?.sections?.find(
+      (s) => (s.sectionId === 'sec_brand_story' || s.type === 'brand_story')
+    ) ||
+    homePage?.sections?.find(
+      (s) => (s.sectionId === 'sec_brand_philosophy' || s.type === 'brand_philosophy')
+    );
+
+  // If the section is explicitly disabled in the CMS, do not render
+  if (sec && sec.isVisible === false) {
+    return null;
+  }
+
+  const title = sec?.title || "We Believe Peak Vitality Should Build Your Life, Not Cost It.";
+  const subtitle = sec?.subtitle || sec?.kicker || "OUR BRAND STORY";
+  const contentHtml =
+    sec?.content ||
+    `<p>Tejova promises a higher standard of existence where longevity is built into your daily operations. By integrating Vitality, Nourishment, Lifestyle and Longevity, we move you beyond merely surviving to achieve peak-impact vitality. Reclaim your Prana and start ruling your life.</p>`;
+
   const ctaText = sec?.cta?.text || "Discover Our Protocol →";
   const ctaUrl = sec?.cta?.url || "/vitality";
   const mediaUrl = sec?.media?.url || sec?.mediaUrl || sec?.image || brandBotanical;
-  const badgeText = sec?.badge || "PEAK VITALITY";
+  const badgeText = sec?.badge || sec?.kicker || "PEAK VITALITY";
 
   return (
-    <section className="py-16 sm:py-20 lg:py-24 bg-[#F5F3EF] overflow-hidden">
+    <section id="sec_brand_story" data-section="brand-story" className="py-16 sm:py-20 lg:py-24 bg-[#F5F3EF] overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
@@ -42,7 +57,7 @@ export const BrandIntro = () => {
             <TextReveal delay={0.2}>
               <div
                 className="text-base sm:text-lg text-[#0A2342]/85 font-light leading-relaxed space-y-4"
-                dangerouslySetInnerHTML={{ __html: contentHtml }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(contentHtml) }}
               />
             </TextReveal>
 
@@ -56,10 +71,10 @@ export const BrandIntro = () => {
           {/* Right Column: Visual Composition */}
           <div className="lg:col-span-6 relative">
             <TextReveal delay={0.2}>
-              <div className="relative rounded-t-full overflow-hidden shadow-xs border border-[#B87333]/30 aspect-[4/5] max-w-md mx-auto lg:max-w-none">
+              <div className="relative rounded-t-full overflow-hidden shadow-xs border border-[#B87333]/30 aspect-[4/5] max-w-md mx-auto lg:max-w-none bg-[#FAF9F6]">
                 <img
                   src={mediaUrl}
-                  alt="Botanical plant leaves representing natural vitality"
+                  alt={sec?.alt || "Botanical plant leaves representing natural vitality"}
                   className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                 />
               </div>
@@ -85,3 +100,6 @@ export const BrandIntro = () => {
     </section>
   );
 };
+
+export const BrandStory = BrandIntro;
+export default BrandIntro;

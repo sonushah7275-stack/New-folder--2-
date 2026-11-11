@@ -35,11 +35,25 @@ export const Footer = () => {
     }
   }, [successMessage, newsletterError, dispatch]);
 
-  const supportEmail = publicSettings?.supportEmail || "care@tejova.com";
-  const address = publicSettings?.address || "San Francisco, CA • Zurich, Switzerland";
+  const brandName = publicSettings?.siteName || "TEJOVA VERIFIED";
+  const tagline = publicSettings?.tagline || "Expand Your Light";
+  
+  // Official emails per client mandate
+  const conciergeEmail =
+    publicSettings?.conciergeEmail ||
+    (publicSettings?.supportEmail && publicSettings.supportEmail !== "care@tejova.com"
+      ? publicSettings.supportEmail
+      : "concierge@tejova.com");
+  const careEmail = publicSettings?.careEmail || "care@tejova.com";
+
+  const address =
+    publicSettings?.address ||
+    "C-148, Ramana Maroti Nagar, Nagpur, Maharashtra - 440024, India";
   const hours = publicSettings?.businessHours?.mondayToFriday
     ? `Mon – Fri: ${publicSettings.businessHours.mondayToFriday}`
-    : "Mon – Fri: 9:00 AM – 6:00 PM EST";
+    : "Mon – Fri: 9:00 AM – 6:00 PM IST";
+
+  const social = publicSettings?.socialLinks || {};
 
   return (
     <footer className="bg-[#0A2342] text-[#FAF9F6] pt-16 pb-12 border-t border-[#B87333]/30">
@@ -48,10 +62,10 @@ export const Footer = () => {
         {/* Top Section: Newsletter Banner */}
         <div className="pb-16 border-b border-[#B87333]/30 max-w-3xl mx-auto text-center">
           <span className="font-serif text-3xl sm:text-4xl text-[#FAF9F6] block mb-3">
-            Expand Your Light
+            {tagline}
           </span>
           <p className="text-sm sm:text-base text-[#D4AF37] font-light mb-8 max-w-lg mx-auto leading-relaxed">
-            Stay connected for insights, biological wellness inspiration, and the latest organic botanical releases from TEJOVA.
+            Stay connected for evidence-based metabolic protocols, biological sovereignty insights, and restorative living guidance from TEJOVA.
           </p>
 
           <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
@@ -95,19 +109,19 @@ export const Footer = () => {
           <div className="lg:col-span-4 space-y-4">
             <Link to="/" className="inline-block focus:outline-none">
               <span className="font-serif text-3xl tracking-widest uppercase block text-[#FAF9F6]">
-                {publicSettings?.siteName || "TEJOVA"}
+                {brandName}
               </span>
               <span className="text-xs tracking-[0.25em] text-[#B87333] uppercase block font-light -mt-1">
-                {publicSettings?.tagline || "Expand Your Light"}
+                {tagline}
               </span>
             </Link>
             <p className="text-sm text-[#FAF9F6]/80 font-light leading-relaxed max-w-sm pt-2">
-              TEJOVA is a premium wellness brand dedicated to helping you live with greater awareness, natural vitality, and purpose. We unite ancient botanical wisdom and modern biological science to support lasting wellbeing.
+              TEJOVA is a sovereign performance lifestyle platform dedicated to engineering your ultimate state of being. We unite ancient restorative naturopathy and modern biological science to support enduring vitality.
             </p>
           </div>
 
           {/* Navigation Columns */}
-          <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8">
+          <div className="lg:col-span-4 grid grid-cols-2 gap-6 sm:gap-8">
             {footerColumns.map((col) => (
               <div key={col.title} className="space-y-4">
                 <h4 className="text-xs uppercase tracking-widest font-semibold text-[#B87333]">
@@ -130,48 +144,96 @@ export const Footer = () => {
           </div>
 
           {/* Contact Col */}
-          <div className="lg:col-span-3 space-y-4">
+          <div className="lg:col-span-4 space-y-4">
             <h4 className="text-xs uppercase tracking-widest font-semibold text-[#B87333]">
-              Client Care
+              Client Care & Concierge
             </h4>
             <ul className="space-y-3 text-sm text-[#FAF9F6]/80 font-light">
-              <li className="flex items-center space-x-2.5">
-                <Mail className="w-4 h-4 text-[#B87333] shrink-0" />
-                <a href={`mailto:${supportEmail}`} className="hover:text-[#D4AF37] transition-colors">
-                  {supportEmail}
-                </a>
+              <li className="flex items-start space-x-2.5">
+                <Mail className="w-4 h-4 text-[#B87333] shrink-0 mt-1" />
+                <div>
+                  <span className="text-[10px] uppercase tracking-wider text-[#D4AF37] block font-semibold">
+                    Concierge & Advisory
+                  </span>
+                  <a href={`mailto:${conciergeEmail}`} className="hover:text-[#D4AF37] transition-colors">
+                    {conciergeEmail}
+                  </a>
+                </div>
               </li>
               <li className="flex items-start space-x-2.5">
-                <MapPin className="w-4 h-4 text-[#B87333] shrink-0 mt-0.5" />
-                <span>{address}</span>
+                <Mail className="w-4 h-4 text-[#B87333] shrink-0 mt-1" />
+                <div>
+                  <span className="text-[10px] uppercase tracking-wider text-[#D4AF37] block font-semibold">
+                    Client Care & Operations
+                  </span>
+                  <a href={`mailto:${careEmail}`} className="hover:text-[#D4AF37] transition-colors">
+                    {careEmail}
+                  </a>
+                </div>
               </li>
               <li className="flex items-start space-x-2.5">
-                <Clock className="w-4 h-4 text-[#B87333] shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-[#B87333] shrink-0 mt-1" />
+                <span className="leading-relaxed">{address}</span>
+              </li>
+              <li className="flex items-start space-x-2.5">
+                <Clock className="w-4 h-4 text-[#B87333] shrink-0 mt-1" />
                 <span>{hours}</span>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom Section: Copyright & Social Links */}
+        {/* Bottom Section: Copyright & Confirmed Social Links */}
         <div className="pt-8 border-t border-[#B87333]/30 flex flex-col sm:flex-row items-center justify-between text-sm text-[#FAF9F6]/60 space-y-4 sm:space-y-0">
           <div>
-            &copy; {new Date().getFullYear()} {publicSettings?.siteName || "TEJOVA"}. All rights reserved.
+            &copy; {new Date().getFullYear()} {brandName}. All rights reserved.
           </div>
 
           <div className="flex items-center space-x-6">
-            <a href={publicSettings?.socialLinks?.instagram || "#"} aria-label="Instagram" className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors">
-              <InstagramIcon className="w-4 h-4" />
-            </a>
-            <a href={publicSettings?.socialLinks?.facebook || "#"} aria-label="Facebook" className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors">
-              <FacebookIcon className="w-4 h-4" />
-            </a>
-            <a href={publicSettings?.socialLinks?.twitter || "#"} aria-label="Twitter" className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors">
-              <YoutubeIcon className="w-4 h-4" />
-            </a>
-            <a href={publicSettings?.socialLinks?.pinterest || "#"} aria-label="Pinterest" className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors">
-              <LinkedinIcon className="w-4 h-4" />
-            </a>
+            {social.instagram && (
+              <a
+                href={social.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors"
+              >
+                <InstagramIcon className="w-4 h-4" />
+              </a>
+            )}
+            {social.facebook && (
+              <a
+                href={social.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors"
+              >
+                <FacebookIcon className="w-4 h-4" />
+              </a>
+            )}
+            {social.youtube && (
+              <a
+                href={social.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="YouTube"
+                className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors"
+              >
+                <YoutubeIcon className="w-4 h-4" />
+              </a>
+            )}
+            {social.linkedin && (
+              <a
+                href={social.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                className="text-[#FAF9F6]/70 hover:text-[#D4AF37] transition-colors"
+              >
+                <LinkedinIcon className="w-4 h-4" />
+              </a>
+            )}
           </div>
         </div>
       </div>

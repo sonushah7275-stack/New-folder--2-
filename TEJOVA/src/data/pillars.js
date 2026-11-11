@@ -5,8 +5,6 @@ import sunriseMountains from '../assets/images/sunrise-mountains.svg';
 import lifestyleMeditation from '../assets/images/lifestyle-meditation.svg';
 import brandBotanical from '../assets/images/brand-botanical.svg';
 import longevityForest from '../assets/images/longevity-forest.svg';
-import productVitalityTonic from '../assets/images/product-vitality-tonic.svg';
-import productEarthSerum from '../assets/images/product-earth-serum.svg';
 
 export const pillars = [
   {

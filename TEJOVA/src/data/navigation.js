@@ -37,10 +37,10 @@ export const footerColumns = [
   {
     title: "Legal",
     links: [
-      { name: "Privacy Policy", path: "#" },
-      { name: "Terms & Conditions", path: "#" },
-      { name: "Shipping & Returns", path: "#" },
-      { name: "FAQ", path: "#" },
+      { name: "Privacy Policy", path: "/privacy-policy" },
+      { name: "Terms & Conditions", path: "/terms-and-conditions" },
+      { name: "Shipping & Returns", path: "/shipping-policy" },
+      { name: "FAQ", path: "/faqs" },
     ]
   }
 ];

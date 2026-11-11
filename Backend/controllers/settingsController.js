@@ -112,12 +112,20 @@ export const getPublicSettings = async (req, res, next) => {
     }
 
     const publicData = {
-      siteName: settings.general?.siteName || "TEJOVA",
-      tagline: settings.general?.tagline || "",
-      supportEmail: settings.general?.supportEmail || "",
+      siteName: settings.general?.siteName || "TEJOVA VERIFIED",
+      tagline: settings.general?.tagline || "Expand Your Light",
+      supportEmail: settings.general?.supportEmail || "concierge@tejova.com",
+      careEmail: settings.general?.careEmail || "care@tejova.com",
       contactPhone: settings.general?.contactPhone || "",
-      address: settings.general?.address || "",
-      socialLinks: settings.socialLinks || {},
+      address: settings.general?.address || "C-148, Ramana Maroti Nagar, Nagpur, Maharashtra - 440024, India",
+      socialLinks: {
+        facebook: settings.socialLinks?.facebook || "",
+        instagram: settings.socialLinks?.instagram || "",
+        youtube: settings.socialLinks?.youtube || "",
+        linkedin: settings.socialLinks?.linkedin || "",
+        twitter: settings.socialLinks?.twitter || "",
+        pinterest: settings.socialLinks?.pinterest || "",
+      },
       businessHours: settings.businessHours || {},
       maintenanceMode: settings.maintenanceMode || false,
     };

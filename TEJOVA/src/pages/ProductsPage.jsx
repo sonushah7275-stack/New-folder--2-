@@ -5,23 +5,28 @@ import { ProductGrid } from "../components/products/ProductGrid";
 import { SectionHeading } from "../components/common/SectionHeading";
 import { fetchProducts } from "../Redux/slices/productSlice";
 import { fetchCategories } from "../Redux/slices/categorySlice";
+import { fetchPageBySlug } from "../Redux/slices/contentSlice";
 import { products as staticProducts } from "../data/products";
 
 export const ProductsPage = () => {
   const dispatch = useDispatch();
   const { products: apiProducts, loading, error } = useSelector((state) => state.product);
   const { categories: apiCategories } = useSelector((state) => state.category);
+  const { pagesMap } = useSelector((state) => state.content);
 
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   useEffect(() => {
     dispatch(fetchCategories());
+    dispatch(fetchPageBySlug("products"));
   }, [dispatch]);
 
   useEffect(() => {
     const params = selectedCategory !== "All" ? { categoryName: selectedCategory } : {};
     dispatch(fetchProducts(params));
   }, [dispatch, selectedCategory]);
+
+  const productsCmsPage = pagesMap?.products;
 
   // Transform / normalize items for UI compatibility
   const displayProducts =
@@ -48,9 +53,12 @@ export const ProductsPage = () => {
     <PageContainer>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-14">
         <SectionHeading
-          subtitle="Organic Botanical Formulations"
-          title="The TEJOVA Collection"
-          description="Ethically harvested, bio-available botanicals designed to restore your natural state of physical, mental and cellular vitality."
+          subtitle={productsCmsPage?.hero?.subtitle || "Organic Botanical Formulations"}
+          title={productsCmsPage?.hero?.title || "The TEJOVA Collection"}
+          description={
+            productsCmsPage?.hero?.description ||
+            "Ethically harvested, bio-available botanicals designed to restore your natural state of physical, mental and cellular vitality."
+          }
         />
 
         {/* Category Filters */}
@@ -70,37 +78,12 @@ export const ProductsPage = () => {
           ))}
         </div>
 
-        {/* API States */}
-        {loading && (
-          <div className="py-16 text-center">
-            <div className="w-10 h-10 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-sm font-medium text-[#0A2342]">Loading collection from MongoDB...</p>
-          </div>
-        )}
-
-        {error && !loading && (
-          <div className="p-4 mb-8 bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm font-medium rounded-xl text-center">
-            <span>⚠️ {error}</span>
-            <button
-              onClick={() => dispatch(fetchProducts())}
-              className="ml-4 underline font-bold hover:text-red-900 cursor-pointer"
-            >
-              Retry
-            </button>
-          </div>
-        )}
-
-        {!loading && !error && displayProducts.length === 0 && (
-          <div className="py-16 text-center bg-[#FAF9F6] rounded-xl border border-[#B87333]/20">
-            <p className="text-base font-serif font-medium text-[#0A2342]">No products found in this category.</p>
-            <p className="text-xs text-gray-500 mt-1">Try selecting another category or clear filters.</p>
-          </div>
-        )}
-
-        {/* Product Grid */}
-        {!loading && displayProducts.length > 0 && (
-          <ProductGrid products={displayProducts} columns={3} />
-        )}
+        {/* Product Catalog Display (Preserved independent catalog) */}
+        <ProductGrid
+          products={displayProducts}
+          loading={loading}
+          error={error}
+        />
       </div>
     </PageContainer>
   );
