@@ -8,7 +8,7 @@ export const navLinks = [
 ];
 
 export const secondaryNavLinks = [
-  { name: "About", path: "/about" },
+  { name: "About Us", path: "/about" },
   { name: "Contact", path: "/contact" },
 ];
 
