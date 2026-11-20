@@ -23,6 +23,9 @@ export const BrandIntro = () => {
     return null;
   }
 
+  const defaultBrandImage =
+    "https://res.cloudinary.com/dyqdgujiq/image/upload/v1794200747/TEJOVA/products/nmu8isvknd98yfapebmw.jpg";
+
   const title = sec?.title || "We Believe Peak Vitality Should Build Your Life, Not Cost It.";
   const subtitle = sec?.subtitle || sec?.kicker || "OUR BRAND STORY";
   const contentHtml =
@@ -31,8 +34,12 @@ export const BrandIntro = () => {
 
   const ctaText = sec?.cta?.text || "Discover Our Protocol →";
   const ctaUrl = sec?.cta?.url || "/vitality";
-  const mediaUrl = sec?.media?.url || sec?.mediaUrl || sec?.image || brandBotanical;
+  const mediaUrl = sec?.media?.url || sec?.mediaUrl || sec?.image || defaultBrandImage;
   const badgeText = sec?.badge || sec?.kicker || "PEAK VITALITY";
+  const quoteText =
+    sec?.items?.[0]?.description ||
+    sec?.items?.[0]?.title ||
+    "Definitive performance built into your daily operations.";
 
   return (
     <section id="sec_brand_story" data-section="brand-story" className="py-16 sm:py-20 lg:py-24 bg-[#F5F3EF] overflow-hidden">
@@ -89,7 +96,7 @@ export const BrandIntro = () => {
                 </span>
               </div>
               <p className="font-serif text-sm text-[#0A2342] italic">
-                "Definitive performance built into your daily operations."
+                "{quoteText}"
               </p>
             </TextReveal>
           </div>

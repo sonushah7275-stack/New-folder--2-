@@ -11,12 +11,17 @@ export const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { publicSettings } = useSelector((state) => state.settings);
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
   const isHome = location.pathname === "/";
+
+  const rawBrandName = publicSettings?.siteName || "TEJOVA";
+  const brandName = rawBrandName.replace(/\s+verified/i, "").trim() || "TEJOVA";
+  const tagline = publicSettings?.tagline || "Expand Your Light";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,33 +60,33 @@ export const Header = () => {
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${headerBgClass}`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+          <div className="flex items-center justify-between h-16 lg:h-20 gap-4 xl:gap-8">
             {/* Left: Brand Logo & Tagline */}
             <Link
               to="/"
-              className="flex flex-col items-center group focus:outline-none"
+              className="flex flex-col items-center group focus:outline-none shrink-0"
             >
               <span
                 className={`font-serif text-2xl lg:text-3xl tracking-[0.15em] font-medium uppercase transition-colors duration-300 ${logoColorClass}`}
               >
-                Tejova
+                {brandName}
               </span>
               <span
                 className={`text-[9px] lg:text-[10px] tracking-[0.3em] font-medium uppercase -mt-1 transition-colors duration-300 ${taglineColorClass}`}
               >
-                Expand Your Light
+                {tagline}
               </span>
             </Link>
 
             {/* Center: Primary Navigation (Desktop) */}
-            <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
+            <nav className="hidden lg:flex items-center space-x-5 xl:space-x-8">
               {navLinks.map((link) => {
                 const isActive = location.pathname === link.path;
                 return (
                   <Link
                     key={link.path}
                     to={link.path}
-                    className={`text-md tracking-wide transition-colors relative py-1 font-medium ${navLinkColorClass} ${
+                    className={`text-sm xl:text-base tracking-wide transition-colors relative py-1 font-medium ${navLinkColorClass} ${
                       isActive ? "font-semibold text-[#D4AF37]" : ""
                     }`}
                   >
@@ -95,12 +100,12 @@ export const Header = () => {
             </nav>
 
             {/* Right Actions */}
-            <div className="hidden lg:flex items-center space-x-4 lg:space-x-6">
+            <div className="hidden lg:flex items-center space-x-4 lg:space-x-6 shrink-0">
               {secondaryNavLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`text-sm tracking-wider uppercase font-medium transition-colors ${navLinkColorClass}`}
+                  className={`text-xs xl:text-sm tracking-wider uppercase font-medium transition-colors ${navLinkColorClass}`}
                 >
                   {link.name}
                 </Link>

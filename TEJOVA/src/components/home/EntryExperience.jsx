@@ -1,144 +1,126 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useSelector } from 'react-redux';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useMemo } from "react";
+import { useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
 
 const defaultItems = [
   {
-    title: 'TEJOVA',
-    kicker: 'ORIGIN & RADIANCE',
-    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1200'
+    image:
+      "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1200",
   },
   {
-    title: 'Vitality',
-    kicker: 'PILLAR 01',
-    image: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=1200'
+    image:
+      "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=1200",
   },
   {
-    title: 'Nourishment',
-    kicker: 'PILLAR 02',
-    image: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=1200'
+    image:
+      "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=1200",
   },
   {
-    title: 'Lifestyle',
-    kicker: 'PILLAR 03',
-    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=1200'
+    image:
+      "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=1200",
   },
   {
-    title: 'Longevity',
-    kicker: 'PILLAR 04',
-    image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=1200'
+    image:
+      "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=1200",
   },
   {
-    title: 'Expand Your Light',
-    kicker: 'SOVEREIGN PURPOSE',
-    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1200'
-  }
+    image:
+      "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1200",
+  },
 ];
 
 export const EntryExperience = () => {
   const { pagesMap } = useSelector((state) => state.content);
+
   const homePage = pagesMap?.home;
-  const seqSection = homePage?.sections?.find((s) => s.type === 'entry_sequence');
 
+  const seqSection = homePage?.sections?.find(
+    (section) => section.type === "entry_sequence",
+  );
+
+  // CMS-managed images only
   const items = useMemo(() => {
-    const rawItems = seqSection?.items && seqSection.items.length > 0
-      ? seqSection.items.filter((i) => i.isVisible !== false)
-      : [];
+    const rawItems = seqSection?.items?.filter(
+      (item) => item.isVisible !== false && item.image,
+    );
 
-    if (rawItems.length === 0) return defaultItems;
+    if (!rawItems || rawItems.length === 0) {
+      return defaultItems;
+    }
 
-    return rawItems.map((item, idx) => ({
-      title: item.title || item.kicker || defaultItems[idx % defaultItems.length].title,
-      kicker: item.kicker || item.subtitle || "CONSCIOUS LIVING",
-      image: item.image || defaultItems[idx % defaultItems.length].image
+    return rawItems.map((item, index) => ({
+      image: item.image || defaultItems[index % defaultItems.length].image,
     }));
   }, [seqSection]);
 
   const [index, setIndex] = useState(0);
-  const [visible, setVisible] = useState(() => !sessionStorage.getItem('tejova_entry_seen'));
 
+  const [visible, setVisible] = useState(
+    () => !sessionStorage.getItem("tejova_entry_seen"),
+  );
+
+  // Reset index if CMS items change
+  useEffect(() => {
+    setIndex(0);
+  }, [items.length]);
+
+  // Automatic image slideshow
   useEffect(() => {
     if (!visible || items.length === 0) return;
 
-    const interval = setInterval(() => {
-      setIndex((prev) => {
-        if (prev < items.length - 1) {
-          return prev + 1;
-        } else {
-          clearInterval(interval);
-          setTimeout(() => {
-            setVisible(false);
-            sessionStorage.setItem('tejova_entry_seen', 'true');
-          }, 1500);
-          return prev;
-        }
-      });
+    const timeout = setTimeout(() => {
+      if (index < items.length - 1) {
+        setIndex((prev) => prev + 1);
+      } else {
+        setVisible(false);
+        sessionStorage.setItem("tejova_entry_seen", "true");
+      }
     }, 2300);
 
-    return () => clearInterval(interval);
-  }, [visible, items]);
+    return () => clearTimeout(timeout);
+  }, [visible, index, items]);
 
   const handleSkip = () => {
     setVisible(false);
-    sessionStorage.setItem('tejova_entry_seen', 'true');
+    sessionStorage.setItem("tejova_entry_seen", "true");
   };
 
-  const currentItem = items[index] || items[0] || defaultItems[0];
+  const currentItem = items[index] || items[0];
 
   return (
     <AnimatePresence>
-      {visible && (
+      {visible && currentItem && (
         <motion.div
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.9, ease: 'easeInOut' }}
-          className="fixed inset-0 z-50 bg-[#0A2342] text-white flex flex-col items-center justify-center p-6 select-none overflow-hidden"
+          transition={{ duration: 1, ease: "easeInOut" }}
+          className="fixed inset-0 z-[9999] bg-[#0A2342] overflow-hidden select-none"
         >
-          {/* Animated Background Image Layer */}
+          {/* Full Screen Image */}
           <AnimatePresence mode="wait">
-            {currentItem?.image && (
-              <motion.div
-                key={`bg-${index}-${currentItem.image}`}
-                initial={{ opacity: 2, scale: 1.08 }}
-                animate={{ opacity: 1, scale: 1.0 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
-                className="absolute inset-0 z-0 bg-cover bg-center pointer-events-none"
-                style={{ backgroundImage: `url(${currentItem.image})` }}
-              />
-            )}
+            <motion.div
+              key={`image-${index}`}
+              initial={{ opacity: 0, scale: 1.08 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{
+                duration: 1.3,
+                ease: [0.25, 1, 0.5, 1],
+              }}
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${currentItem.image})`,
+              }}
+            />
           </AnimatePresence>
 
-          {/* Dark TEJOVA Midnight Gradient Overlay */}
-          <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0A2342]/90 via-[#0A2342]/75 to-[#0A2342]/95 pointer-events-none" />
+          {/* Subtle Cinematic Overlay */}
+          <div className="absolute inset-0 bg-[#0A2342]/15 pointer-events-none" />
 
-          {/* Animated Text & Kicker Content */}
-          <div className="relative z-10 text-center px-6 max-w-4xl flex flex-col items-center justify-center min-h-[180px]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`text-${index}-${currentItem.title}`}
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -18 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
-                className="flex flex-col items-center justify-center"
-              >
-                {currentItem.kicker && (
-                  <span className="text-xs uppercase tracking-[0.35em] text-[#D4AF37] mb-3 font-semibold">
-                    {currentItem.kicker}
-                  </span>
-                )}
-                <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl tracking-wider text-white drop-shadow-lg">
-                  {currentItem.title}
-                </h1>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Skip Intro Button */}
+          {/* Skip Intro */}
           <button
             onClick={handleSkip}
-            className="absolute bottom-10 z-20 text-xs tracking-widest uppercase text-white/80 hover:text-white transition-all py-2.5 px-6 border border-[#B87333]/50 rounded-full hover:border-[#D4AF37] bg-[#0A2342]/40 backdrop-blur-sm"
+            className="absolute bottom-8 right-8 z-20 text-xs tracking-[0.2em] uppercase text-white/90 hover:text-white transition-all py-3 px-6 border border-white/40 rounded-full hover:border-white bg-black/20 backdrop-blur-md"
           >
             Skip Intro
           </button>

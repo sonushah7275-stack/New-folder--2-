@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import api from "../../config/api.js";
 import RichTextEditor from "../components/RichTextEditor.jsx";
+import ImageUploader from "../components/ImageUploader.jsx";
 
 import SaveIcon from "@mui/icons-material/Save";
 import AddIcon from "@mui/icons-material/Add";
@@ -323,6 +325,25 @@ export default function PageCmsEditor() {
         ))}
       </div>
 
+      {activeSlug === "home" && (
+        <div className="p-4 bg-[#B87333]/10 border border-[#B87333]/40 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+          <div>
+            <h4 className="font-serif font-bold text-sm text-[#0A2342]">
+              ✨ Dedicated Homepage Architecture CMS Available
+            </h4>
+            <p className="text-xs text-gray-600 mt-0.5">
+              Manage section ordering, live previews, individual pillar cards, banners, and direct Cloudinary image uploads in one unified space.
+            </p>
+          </div>
+          <Link
+            to="/admin/homepage-cms"
+            className="px-4 py-2 bg-[#B87333] hover:bg-[#A00000] text-white text-xs font-bold rounded-xl shadow-xs transition-colors shrink-0"
+          >
+            Open Dedicated Homepage CMS &rarr;
+          </Link>
+        </div>
+      )}
+
       {loading ? (
         <div className="py-20 text-center space-y-3">
           <CircularProgress style={{ color: "#B87333" }} />
@@ -392,27 +413,18 @@ export default function PageCmsEditor() {
                 />
               </div>
 
-              <div>
-                <label className="block font-bold text-gray-700 mb-1">Hero Image / Video URL</label>
-                <input
-                  type="text"
-                  value={pageData.hero?.mediaUrl || ""}
-                  onChange={(e) => handleHeroChange("mediaUrl", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-1 focus:ring-[#B87333] focus:outline-none"
-                  placeholder="https://..."
+              <div className="md:col-span-2">
+                <ImageUploader
+                  label="Hero Visual Media (Cloudinary)"
+                  imageUrl={pageData.hero?.mediaUrl}
+                  resourceType={pageData.hero?.resourceType}
+                  folder="content"
+                  allowVideo={true}
+                  onImageChange={(url, type) => {
+                    handleHeroChange("mediaUrl", url);
+                    if (type) handleHeroChange("resourceType", type);
+                  }}
                 />
-              </div>
-
-              <div>
-                <label className="block font-bold text-gray-700 mb-1">Hero Media Type</label>
-                <select
-                  value={pageData.hero?.resourceType || "image"}
-                  onChange={(e) => handleHeroChange("resourceType", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-1 focus:ring-[#B87333] focus:outline-none"
-                >
-                  <option value="image">Image Asset</option>
-                  <option value="video">Video Player</option>
-                </select>
               </div>
 
               <div>
@@ -555,27 +567,18 @@ export default function PageCmsEditor() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block font-bold text-gray-700 mb-1">Section Media Asset URL</label>
-                    <input
-                      type="text"
-                      value={sec.media?.url || ""}
-                      onChange={(e) => handleSectionMediaChange(secIdx, "url", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-1 focus:ring-[#B87333] focus:outline-none"
-                      placeholder="https://..."
+                  <div className="md:col-span-2">
+                    <ImageUploader
+                      label="Section Visual Media (Cloudinary)"
+                      imageUrl={sec.media?.url}
+                      resourceType={sec.media?.resourceType}
+                      folder="content"
+                      allowVideo={true}
+                      onImageChange={(url, type) => {
+                        handleSectionMediaChange(secIdx, "url", url);
+                        if (type) handleSectionMediaChange(secIdx, "resourceType", type);
+                      }}
                     />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-gray-700 mb-1">Section Media Type</label>
-                    <select
-                      value={sec.media?.resourceType || "image"}
-                      onChange={(e) => handleSectionMediaChange(secIdx, "resourceType", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-1 focus:ring-[#B87333] focus:outline-none"
-                    >
-                      <option value="image">Image</option>
-                      <option value="video">Video Player</option>
-                    </select>
                   </div>
 
                   <div>

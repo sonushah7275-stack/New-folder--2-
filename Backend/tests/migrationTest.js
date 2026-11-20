@@ -223,7 +223,7 @@ async function runTests() {
   console.log('Test 6: Verifying Public Settings API Controller Output');
   Settings.findOne = async () => ({
     general: {
-      siteName: 'TEJOVA VERIFIED',
+      siteName: 'TEJOVA',
       tagline: 'Sovereign Wellness',
       supportEmail: 'concierge@tejova.com',
       careEmail: 'care@tejova.com',
@@ -254,7 +254,7 @@ async function runTests() {
 
   await getPublicSettings({}, mockRes, (err) => { throw err; });
   assert.strictEqual(responseData.success, true);
-  assert.strictEqual(responseData.data.siteName, 'TEJOVA VERIFIED');
+  assert.strictEqual(responseData.data.siteName, 'TEJOVA');
   assert.strictEqual(responseData.data.address, 'C-148, Ramana Maroti Nagar, Nagpur, Maharashtra - 440024, India');
   assert.strictEqual(responseData.data.careEmail, 'care@tejova.com');
   assert.strictEqual(responseData.data.supportEmail, 'concierge@tejova.com');

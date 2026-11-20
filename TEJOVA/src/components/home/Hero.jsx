@@ -9,14 +9,32 @@ export const Hero = () => {
   const { pagesMap } = useSelector((state) => state.content);
   const homeHero = pagesMap?.home?.hero;
 
+  const defaultHeroImage =
+    "https://res.cloudinary.com/dyqdgujiq/image/upload/v1794188197/TEJOVA/products/oem6zcgywdd0qaniukju.jpg";
+
   const subtitle = homeHero?.subtitle || "TEJOVA — Conscious Living";
   const title = homeHero?.title || "Master Your Sovereignty. Unleash Your Vitality.";
   const description =
     homeHero?.description ||
     "Elevate your daily harmony with pure, natural vitality and conscious wellness rituals. Rooted in ancient wisdom, refined for modern living.";
-  const ctaText = homeHero?.ctaText || "Begin Your Journey";
+  const rawCtaText = homeHero?.ctaText || "Begin Your Journey";
+  const ctaText = rawCtaText.replace(/\s*→+\s*$/, "").trim() || "Begin Your Journey";
   const ctaLink = homeHero?.ctaLink || "/products";
-  const mediaUrl = homeHero?.mediaUrl || homeHero?.media?.url || homeHero?.image || heroLandscape;
+  const secondaryCtaText = homeHero?.secondaryCtaText || "Discover TEJOVA";
+  const secondaryCtaLink = homeHero?.secondaryCtaLink || "/about";
+  const mediaUrl = homeHero?.mediaUrl || homeHero?.media?.url || homeHero?.image || defaultHeroImage;
+  const isVideo = homeHero?.resourceType === "video";
+
+  const floatingBadgeTitle = homeHero?.floatingBadgeTitle || "Holistic Wellness";
+  const floatingBadgeSubtitle = homeHero?.floatingBadgeSubtitle || "Pure Vitality & Longevity";
+
+  const defaultFeatures = ["100% Pure Ingredients", "Ancient Wisdom", "Conscious Living"];
+  const featuresList =
+    Array.isArray(homeHero?.features) && homeHero.features.length > 0
+      ? homeHero.features
+      : defaultFeatures;
+
+  const featureIcons = [Leaf, Sun, ShieldCheck];
 
   return (
     <section className="relative bg-[#F5F3EF] text-[#0A2342] pt-24 pb-16 sm:pt-28 sm:pb-20 lg:pt-36 lg:pb-24 overflow-hidden">
@@ -74,31 +92,32 @@ export const Hero = () => {
               <Button to={ctaLink} variant="primary" size="lg" icon className="w-full sm:w-auto">
                 {ctaText}
               </Button>
-              <Button to="/about" variant="secondary" size="lg" className="w-full sm:w-auto">
-                Discover TEJOVA
-              </Button>
+              {secondaryCtaText && (
+                <Button to={secondaryCtaLink} variant="secondary" size="lg" className="w-full sm:w-auto">
+                  {secondaryCtaText}
+                </Button>
+              )}
             </motion.div>
 
             {/* Subtle Feature Highlights in Copper/Midnight */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="pt-6 border-t border-[#B87333]/20 w-full grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-[#0A2342]/80 uppercase tracking-wider font-medium"
-            >
-              <div className="flex items-center space-x-2">
-                <Leaf className="w-4 h-4 text-[#B87333] shrink-0" />
-                <span>100% Pure Ingredients</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Sun className="w-4 h-4 text-[#B87333] shrink-0" />
-                <span>Ancient Wisdom</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <ShieldCheck className="w-4 h-4 text-[#B87333] shrink-0" />
-                <span>Conscious Living</span>
-              </div>
-            </motion.div>
+            {featuresList.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="pt-6 border-t border-[#B87333]/20 w-full grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-[#0A2342]/80 uppercase tracking-wider font-medium"
+              >
+                {featuresList.slice(0, 3).map((feat, idx) => {
+                  const IconComp = featureIcons[idx % featureIcons.length];
+                  return (
+                    <div key={idx} className="flex items-center space-x-2">
+                      <IconComp className="w-4 h-4 text-[#B87333] shrink-0" />
+                      <span>{feat}</span>
+                    </div>
+                  );
+                })}
+              </motion.div>
+            )}
 
           </div>
 
@@ -111,19 +130,30 @@ export const Hero = () => {
               className="relative rounded-2xl overflow-hidden shadow-2xl border border-[#B87333]/30 bg-[#FAF9F6]"
             >
               <div className="aspect-4/5 sm:aspect-4/3 lg:aspect-4/5 w-full overflow-hidden relative">
-                <img
-                  src={mediaUrl}
-                  alt="Serene nature landscape representing TEJOVA conscious vitality"
-                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-                />
+                {isVideo ? (
+                  <video
+                    src={mediaUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src={mediaUrl}
+                    alt="Serene nature landscape representing TEJOVA conscious vitality"
+                    className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                  />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0A2342]/60 via-transparent to-transparent" />
               </div>
 
               {/* Floating Overlay Badge */}
               <div className="absolute bottom-6 left-6 right-6 p-4 rounded-xl bg-[#0A2342]/90 backdrop-blur-md border border-[#B87333]/40 text-white flex items-center justify-between shadow-lg">
                 <div>
-                  <p className="text-xs uppercase tracking-widest text-[#D4AF37] font-medium">Holistic Wellness</p>
-                  <p className="text-sm font-serif font-medium text-white/95">Pure Vitality & Longevity</p>
+                  <p className="text-xs uppercase tracking-widest text-[#D4AF37] font-medium">{floatingBadgeTitle}</p>
+                  <p className="text-sm font-serif font-medium text-white/95">{floatingBadgeSubtitle}</p>
                 </div>
                 <div className="w-9 h-9 rounded-full bg-[#D4AF37] text-[#0A2342] flex items-center justify-center shrink-0 shadow-sm">
                   <ArrowRight className="w-4 h-4" />

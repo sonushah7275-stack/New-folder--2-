@@ -35,8 +35,12 @@ export const Footer = () => {
     }
   }, [successMessage, newsletterError, dispatch]);
 
-  const brandName = publicSettings?.siteName || "TEJOVA VERIFIED";
+  const rawBrandName = publicSettings?.siteName || "TEJOVA";
+  const brandName = rawBrandName.replace(/\s+verified/i, "").trim() || "TEJOVA";
   const tagline = publicSettings?.tagline || "Expand Your Light";
+  const brandDescription =
+    publicSettings?.description ||
+    "TEJOVA is a sovereign performance lifestyle platform dedicated to engineering your ultimate state of being. We unite ancient restorative naturopathy and modern biological science to support enduring vitality.";
   
   // Official emails per client mandate
   const conciergeEmail =
@@ -116,7 +120,7 @@ export const Footer = () => {
               </span>
             </Link>
             <p className="text-sm text-[#FAF9F6]/80 font-light leading-relaxed max-w-sm pt-2">
-              TEJOVA is a sovereign performance lifestyle platform dedicated to engineering your ultimate state of being. We unite ancient restorative naturopathy and modern biological science to support enduring vitality.
+              {brandDescription}
             </p>
           </div>
 

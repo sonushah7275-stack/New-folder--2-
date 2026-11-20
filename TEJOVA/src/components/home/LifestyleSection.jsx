@@ -8,10 +8,29 @@ export const LifestyleSection = () => {
   const { pagesMap } = useSelector((state) => state.content);
   const homePage = pagesMap?.home;
   const sec = homePage?.sections?.find(
-    (s) => (s.type === "lifestyle" || s.sectionId === "sec_lifestyle") && s.isVisible !== false
+    (s) => s.sectionId === "sec_lifestyle" || s.type === "lifestyle"
   );
 
+  if (sec && sec.isVisible === false) {
+    return null;
+  }
+
+  const kicker = sec?.kicker || "Pillar 03";
+  const title = sec?.title || "Lifestyle";
+  const subtitle = sec?.subtitle || "Awareness. Growth. Potential.";
+  const content =
+    sec?.content ||
+    "Live with intention. Cultivate mindfulness, nurture mental clarity, and unlock your potential through daily rituals aligned with natural rhythms.";
+  const ctaText = sec?.cta?.text || "Explore Lifestyle";
+  const ctaUrl = sec?.cta?.url || "/lifestyle";
   const mediaUrl = sec?.media?.url || sec?.mediaUrl || sec?.image || lifestyleMeditation;
+  const isVideo = sec?.media?.resourceType === "video";
+  const altText = sec?.media?.alt || "Person practicing meditation at sunrise in nature";
+
+  const badgeRaw = sec?.badge || "Sovereign Mind | Restorative Circadian Rhythms";
+  const badgeParts = badgeRaw && badgeRaw.includes("|")
+    ? badgeRaw.split("|").map((p) => p.trim())
+    : [badgeRaw, "Restorative Circadian Rhythms"];
 
   return (
     <section className="py-16 sm:py-20 lg:py-24 bg-[#F5F3EF]">
@@ -22,42 +41,68 @@ export const LifestyleSection = () => {
           {/* Left Wide Image */}
           <div className="lg:col-span-7 relative">
             <TextReveal>
-              <div className="aspect-[16/10] overflow-hidden rounded-xs border border-[#B87333]/30 shadow-xs">
-                <img
-                  src={mediaUrl}
-                  alt="Person practicing meditation at sunrise in nature"
-                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-                />
+              <div className="aspect-[16/10] overflow-hidden rounded-xs border border-[#B87333]/30 shadow-xs bg-[#FAF9F6]">
+                {isVideo ? (
+                  <video
+                    src={mediaUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src={mediaUrl}
+                    alt={altText}
+                    className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                  />
+                )}
               </div>
             </TextReveal>
+
+            {badgeParts[0] && (
+              <div className="absolute top-6 left-6 bg-[#FAF9F6] px-5 py-3 rounded-xs border-l-4 border-l-[#B87333] border-y border-r border-[#B87333]/20 shadow-sm hidden sm:block">
+                <span className="text-xs uppercase tracking-wider text-[#B87333] font-semibold block">
+                  {badgeParts[0]}
+                </span>
+                {badgeParts[1] && (
+                  <span className="text-xs text-[#0A2342]/90 font-medium">
+                    {badgeParts[1]}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Right Text */}
           <div className="lg:col-span-5 space-y-6">
             <TextReveal delay={0.1}>
               <span className="text-xs uppercase tracking-[0.25em] text-[#B87333] font-semibold block">
-                Pillar 03
+                {kicker}
               </span>
             </TextReveal>
 
             <TextReveal delay={0.2}>
               <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[40px] text-[#0A2342] font-medium tracking-tight">
-                Lifestyle
+                {title}
               </h2>
-              <h3 className="text-lg text-[#B87333] font-serif italic mt-1">
-                Awareness. Growth. Potential.
-              </h3>
+              {subtitle && (
+                <h3 className="text-lg text-[#B87333] font-serif italic mt-1">
+                  {subtitle}
+                </h3>
+              )}
             </TextReveal>
 
             <TextReveal delay={0.3}>
               <p className="text-base sm:text-lg text-[#0A2342]/85 font-light leading-relaxed">
-                Live with intention. Cultivate mindfulness, nurture mental clarity, and unlock your potential through daily rituals aligned with natural rhythms.
+                {content}
               </p>
             </TextReveal>
 
             <TextReveal delay={0.4} className="pt-2">
-              <Button to="/lifestyle" variant="secondary" icon>
-                Explore Lifestyle
+              <Button to={ctaUrl} variant="secondary" icon>
+                {ctaText}
               </Button>
             </TextReveal>
           </div>

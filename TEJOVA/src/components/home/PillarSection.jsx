@@ -9,8 +9,12 @@ export const PillarSection = () => {
   const { pagesMap } = useSelector((state) => state.content);
   const homePage = pagesMap?.home;
   const pillarSec = homePage?.sections?.find(
-    (s) => (s.type === "four_pillars" || s.sectionId === "sec_four_pillars") && s.isVisible !== false
+    (s) => s.type === "four_pillars" || s.sectionId === "sec_four_pillars"
   );
+
+  if (pillarSec && pillarSec.isVisible === false) {
+    return null;
+  }
 
   const sectionSubtitle = pillarSec?.subtitle || "A COMPLETE APPROACH";
   const sectionTitle = pillarSec?.title || "Built Upon Four Pillars";

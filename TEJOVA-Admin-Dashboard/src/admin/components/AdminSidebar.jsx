@@ -14,6 +14,7 @@ import EditNoteIcon from "@mui/icons-material/EditNote";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import ViewQuiltIcon from "@mui/icons-material/ViewQuilt";
 
 const iconMap = {
   Dashboard: DashboardIcon,
@@ -27,6 +28,7 @@ const iconMap = {
   PermMedia: PermMediaIcon,
   EditNote: EditNoteIcon,
   Settings: SettingsIcon,
+  ViewQuilt: ViewQuiltIcon,
 };
 
 const mainNavItems = [
@@ -42,6 +44,7 @@ const mainNavItems = [
 ];
 
 const secondaryNavItems = [
+  { name: "Homepage CMS", icon: "ViewQuilt", path: "/admin/homepage-cms" },
   { name: "Pages (CMS)", icon: "EditNote", path: "/admin/pages" },
   { name: "Content", icon: "EditNote", path: "/admin/content" },
   { name: "Settings", icon: "Settings", path: "/admin/settings" },

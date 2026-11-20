@@ -112,7 +112,7 @@ export const getPublicSettings = async (req, res, next) => {
     }
 
     const publicData = {
-      siteName: settings.general?.siteName || "TEJOVA VERIFIED",
+      siteName: settings.general?.siteName || "TEJOVA",
       tagline: settings.general?.tagline || "Expand Your Light",
       supportEmail: settings.general?.supportEmail || "concierge@tejova.com",
       careEmail: settings.general?.careEmail || "care@tejova.com",

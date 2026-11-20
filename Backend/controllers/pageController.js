@@ -46,6 +46,7 @@ export const getPageBySlug = async (req, res, next) => {
     }
 
     const isAdmin = req.user && (req.user.role === 'ADMIN' || req.user.role === 'admin');
+    const isPreview = req.query.preview === 'true';
 
     if (page.isPublished === false && !isAdmin) {
       return res.status(403).json({
@@ -54,9 +55,31 @@ export const getPageBySlug = async (req, res, next) => {
       });
     }
 
+    let pageObj = page.toObject();
+
+    // For public requests (non-admin or when preview is not requested),
+    // only return active (isVisible !== false) sections and items, sorted by order
+    if (!isAdmin || (!isPreview && req.query.adminView !== 'true')) {
+      if (Array.isArray(pageObj.sections)) {
+        pageObj.sections = pageObj.sections
+          .filter((s) => s.isVisible !== false)
+          .map((s) => {
+            if (Array.isArray(s.items)) {
+              s.items = s.items.filter((item) => item.isVisible !== false);
+            }
+            return s;
+          })
+          .sort((a, b) => (a.order || 0) - (b.order || 0));
+      }
+    } else {
+      if (Array.isArray(pageObj.sections)) {
+        pageObj.sections = pageObj.sections.sort((a, b) => (a.order || 0) - (b.order || 0));
+      }
+    }
+
     return res.status(200).json({
       success: true,
-      data: normalizeCloudinaryData(page)
+      data: normalizeCloudinaryData(pageObj)
     });
   } catch (error) {
     next(error);

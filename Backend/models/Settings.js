@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 const settingsSchema = new mongoose.Schema(
   {
     general: {
-      siteName: { type: String, default: "TEJOVA VERIFIED" },
+      siteName: { type: String, default: "TEJOVA" },
       tagline: { type: String, default: "Expand Your Light" },
       supportEmail: { type: String, default: "concierge@tejova.com" },
       careEmail: { type: String, default: "care@tejova.com" },

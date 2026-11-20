@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
-import Page from '../models/Page.js';
-import Settings from '../models/Settings.js';
+import fs from "fs";
+import path from "path";
+import Page from "../models/Page.js";
+import Settings from "../models/Settings.js";
 
 class CmsMigrationService {
   constructor(options = {}) {
@@ -13,19 +13,29 @@ class CmsMigrationService {
    */
   static async backupData(customDir) {
     try {
-      const backupDir = customDir || path.resolve('C:/Users/Sonu/.gemini/antigravity/brain/a00b4b42-bd2e-47e1-92d9-1a7d0bd21b91/scratch/backups');
+      const backupDir =
+        customDir ||
+        path.resolve(
+          "C:/Users/Sonu/.gemini/antigravity/brain/a00b4b42-bd2e-47e1-92d9-1a7d0bd21b91/scratch/backups",
+        );
       if (!fs.existsSync(backupDir)) {
         fs.mkdirSync(backupDir, { recursive: true });
       }
 
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+
       const existingSettings = await Settings.find().lean();
       const existingPages = await Page.find().lean();
 
-      const settingsBackupFile = path.join(backupDir, `settings_${timestamp}.json`);
+      const settingsBackupFile = path.join(
+        backupDir,
+        `settings_${timestamp}.json`,
+      );
       const pagesBackupFile = path.join(backupDir, `pages_${timestamp}.json`);
-      const combinedBackupFile = path.join(backupDir, `tejova_pre_migration_backup_${timestamp}.json`);
+      const combinedBackupFile = path.join(
+        backupDir,
+        `tejova_pre_migration_backup_${timestamp}.json`,
+      );
 
       const backupPayload = {
         timestamp: new Date().toISOString(),
@@ -35,11 +45,25 @@ class CmsMigrationService {
         pages: existingPages,
       };
 
-      fs.writeFileSync(settingsBackupFile, JSON.stringify(existingSettings, null, 2), 'utf8');
-      fs.writeFileSync(pagesBackupFile, JSON.stringify(existingPages, null, 2), 'utf8');
-      fs.writeFileSync(combinedBackupFile, JSON.stringify(backupPayload, null, 2), 'utf8');
+      fs.writeFileSync(
+        settingsBackupFile,
+        JSON.stringify(existingSettings, null, 2),
+        "utf8",
+      );
+      fs.writeFileSync(
+        pagesBackupFile,
+        JSON.stringify(existingPages, null, 2),
+        "utf8",
+      );
+      fs.writeFileSync(
+        combinedBackupFile,
+        JSON.stringify(backupPayload, null, 2),
+        "utf8",
+      );
 
-      console.log(`📦 [Migration Backup] Pre-migration snapshot saved: ${combinedBackupFile} (${existingPages.length} pages, ${existingSettings.length} settings)`);
+      console.log(
+        `📦 [Migration Backup] Pre-migration snapshot saved: ${combinedBackupFile} (${existingPages.length} pages, ${existingSettings.length} settings)`,
+      );
       return {
         settingsBackupFile,
         pagesBackupFile,
@@ -48,7 +72,9 @@ class CmsMigrationService {
         pagesCount: existingPages.length,
       };
     } catch (err) {
-      console.warn(`⚠️ [Migration Backup] Could not write snapshot to scratch: ${err.message}. Proceeding with safe memory backup.`);
+      console.warn(
+        `⚠️ [Migration Backup] Could not write snapshot to scratch: ${err.message}. Proceeding with safe memory backup.`,
+      );
       return null;
     }
   }
@@ -82,67 +108,94 @@ class CmsMigrationService {
 
     // Preserve existing customized siteName, or set approved default
     if (!settings.general) settings.general = {};
-    if (!settings.general.siteName || settings.general.siteName === 'TEJOVA') {
-      settings.general.siteName = 'TEJOVA VERIFIED';
+    if (!settings.general.siteName || settings.general.siteName.includes("VERIFIED")) {
+      settings.general.siteName = "TEJOVA";
       modified = true;
     }
     if (!settings.general.tagline) {
-      settings.general.tagline = 'Expand Your Light';
+      settings.general.tagline = "Expand Your Light";
       modified = true;
     }
 
     // Preserve existing customized address or update if placeholder
-    const currentAddress = settings.general.address || '';
+    const currentAddress = settings.general.address || "";
     if (
       !currentAddress ||
-      currentAddress.includes('123 Wellness Way') ||
-      currentAddress.includes('San Francisco')
+      currentAddress.includes("123 Wellness Way") ||
+      currentAddress.includes("San Francisco")
     ) {
-      settings.general.address = 'C-148, Ramana Maroti Nagar, Nagpur, Maharashtra - 440024, India';
+      settings.general.address =
+        "C-148, Ramana Maroti Nagar, Nagpur, Maharashtra - 440024, India";
       modified = true;
     }
 
     // Check raw underlying document directly from MongoDB collection (before schema defaults are applied)
     let rawCollectionDoc = null;
     try {
-      if (Settings.collection && typeof Settings.collection.findOne === 'function') {
+      if (
+        Settings.collection &&
+        typeof Settings.collection.findOne === "function"
+      ) {
         rawCollectionDoc = await Settings.collection.findOne();
       }
     } catch (e) {
       // In-memory or mock test environment fallback
     }
 
-    const rawGeneral = (rawCollectionDoc && rawCollectionDoc.general) || (settings._doc && settings._doc.general) || {};
-    const rawSocial = (rawCollectionDoc && rawCollectionDoc.socialLinks) || (settings._doc && settings._doc.socialLinks) || {};
+    const rawGeneral =
+      (rawCollectionDoc && rawCollectionDoc.general) ||
+      (settings._doc && settings._doc.general) ||
+      {};
+    const rawSocial =
+      (rawCollectionDoc && rawCollectionDoc.socialLinks) ||
+      (settings._doc && settings._doc.socialLinks) ||
+      {};
 
     // Preserve existing emails or set official defaults
-    if (!settings.general.supportEmail || settings.general.supportEmail === 'support@tejova.com') {
-      settings.general.supportEmail = 'concierge@tejova.com';
-      if (typeof settings.markModified === 'function') settings.markModified('general');
+    if (
+      !settings.general.supportEmail ||
+      settings.general.supportEmail === "support@tejova.com"
+    ) {
+      settings.general.supportEmail = "concierge@tejova.com";
+      if (typeof settings.markModified === "function")
+        settings.markModified("general");
       modified = true;
     }
     if (rawGeneral.careEmail === undefined) {
-      settings.general.careEmail = 'care@tejova.com';
-      if (typeof settings.markModified === 'function') settings.markModified('general');
+      settings.general.careEmail = "care@tejova.com";
+      if (typeof settings.markModified === "function")
+        settings.markModified("general");
       modified = true;
     }
 
     // Ensure socialLinks structure without assumed fake URLs
     if (!settings.socialLinks) settings.socialLinks = {};
-    const socialFields = ['facebook', 'instagram', 'youtube', 'linkedin', 'twitter', 'pinterest'];
+    const socialFields = [
+      "facebook",
+      "instagram",
+      "youtube",
+      "linkedin",
+      "twitter",
+      "pinterest",
+    ];
     for (const f of socialFields) {
       if (rawSocial[f] === undefined) {
-        settings.socialLinks[f] = settings.socialLinks[f] || '';
-        if (typeof settings.markModified === 'function') settings.markModified('socialLinks');
+        settings.socialLinks[f] = settings.socialLinks[f] || "";
+        if (typeof settings.markModified === "function")
+          settings.markModified("socialLinks");
         modified = true;
       }
     }
 
     if (modified || wasCreated) {
       await settings.save();
-      console.log('✅ [Migration Settings] Settings successfully updated to official Nagpur base and verified defaults.');
+      console.log(
+        "✅ [Migration Settings] Settings successfully updated to official Nagpur base and verified defaults.",
+      );
     } else {
-      console.log('ℹ️ [Migration Settings] Settings already up to date. Preserving existing customized values.');
+      console.log(
+        "ℹ️ [Migration Settings] Settings already up to date. Preserving existing customized values.",
+      );
     }
 
     return settings;
@@ -155,26 +208,28 @@ class CmsMigrationService {
     return [
       // 1. PRIVACY POLICY
       {
-        slug: 'privacy-policy',
-        title: 'Privacy Policy — TEJOVA',
-        subtitle: 'Effective Date: 07.11.2026 | Tejova Life',
+        slug: "privacy-policy",
+        title: "Privacy Policy — TEJOVA",
+        subtitle: "Effective Date: 07.11.2026 | Tejova Life",
         hero: {
-          title: 'Privacy Policy',
-          subtitle: 'BIOLOGICAL SOVEREIGNTY & DATA PROTECTION',
-          description: 'At Tejova Life ("Tejova," "we," "us," or "our"), we are committed to protecting the privacy, security, and Biological Sovereignty of our clients. Compliant with DPDPA (India), GDPR (EU/UK), and CCPA (USA).',
-          mediaUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1200',
-          resourceType: 'image',
-          alt: 'Tejova Privacy Policy',
-          ctaText: 'Contact Data Protection Officer',
-          ctaLink: '/contact',
+          title: "Privacy Policy",
+          subtitle: "BIOLOGICAL SOVEREIGNTY & DATA PROTECTION",
+          description:
+            'At Tejova Life ("Tejova," "we," "us," or "our"), we are committed to protecting the privacy, security, and Biological Sovereignty of our clients. Compliant with DPDPA (India), GDPR (EU/UK), and CCPA (USA).',
+          mediaUrl:
+            "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1200",
+          resourceType: "image",
+          alt: "Tejova Privacy Policy",
+          ctaText: "Contact Data Protection Officer",
+          ctaLink: "/contact",
         },
         sections: [
           {
-            sectionId: 'sec_privacy_policy_content',
-            type: 'rich_content',
-            title: 'Privacy Policy Guidelines & Legal Provisions',
-            subtitle: 'LEGAL NOTICE',
-            kicker: 'TEJOVA LIFE',
+            sectionId: "sec_privacy_policy_content",
+            type: "rich_content",
+            title: "Privacy Policy Guidelines & Legal Provisions",
+            subtitle: "LEGAL NOTICE",
+            kicker: "TEJOVA LIFE",
             content: `
               <h3>Effective Date: 07.11.2026</h3>
               <p><strong>Website:</strong> www.tejova.com | <strong>Company:</strong> Tejova Life</p>
@@ -253,26 +308,28 @@ class CmsMigrationService {
 
       // 2. TERMS AND CONDITIONS
       {
-        slug: 'terms-and-conditions',
-        title: 'Terms and Conditions — TEJOVA',
-        subtitle: 'Effective Date: 07.11.2026 | Tejova Life',
+        slug: "terms-and-conditions",
+        title: "Terms and Conditions — TEJOVA",
+        subtitle: "Effective Date: 07.11.2026 | Tejova Life",
         hero: {
-          title: 'Terms and Conditions of Service',
-          subtitle: 'LEGAL AGREEMENT & PROTOCOL TERMS',
-          description: 'Welcome to Tejova Life. These Terms and Conditions govern your access to and use of the Tejova.com website, digital platforms, educational materials, and the Tejova Protocols.',
-          mediaUrl: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=1200',
-          resourceType: 'image',
-          alt: 'Tejova Terms and Conditions',
-          ctaText: 'Client Care Support',
-          ctaLink: '/contact',
+          title: "Terms and Conditions of Service",
+          subtitle: "LEGAL AGREEMENT & PROTOCOL TERMS",
+          description:
+            "Welcome to Tejova Life. These Terms and Conditions govern your access to and use of the Tejova.com website, digital platforms, educational materials, and the Tejova Protocols.",
+          mediaUrl:
+            "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=1200",
+          resourceType: "image",
+          alt: "Tejova Terms and Conditions",
+          ctaText: "Client Care Support",
+          ctaLink: "/contact",
         },
         sections: [
           {
-            sectionId: 'sec_terms_conditions_content',
-            type: 'rich_content',
-            title: 'Terms of Service & Medical Disclaimer',
-            subtitle: 'TERMS & CONDITIONS',
-            kicker: 'TEJOVA LIFE',
+            sectionId: "sec_terms_conditions_content",
+            type: "rich_content",
+            title: "Terms of Service & Medical Disclaimer",
+            subtitle: "TERMS & CONDITIONS",
+            kicker: "TEJOVA LIFE",
             content: `
               <h3>Effective Date: 07.11.2026</h3>
               <p><strong>Website:</strong> www.tejova.com | <strong>Company:</strong> Tejova Life</p>
@@ -340,26 +397,28 @@ class CmsMigrationService {
 
       // 3. SHIPPING, DELIVERY, AND REFUND POLICY
       {
-        slug: 'shipping-policy',
-        title: 'Shipping, Delivery & Refund Policy — TEJOVA',
-        subtitle: 'Effective Date: 07.11.2026 | Tejova Life',
+        slug: "shipping-policy",
+        title: "Shipping, Delivery & Refund Policy — TEJOVA",
+        subtitle: "Effective Date: 07.11.2026 | Tejova Life",
         hero: {
-          title: 'Shipping, Delivery, and Refund Policy',
-          subtitle: 'OPERATIONAL LOGISTICS & CLIENT CARE',
-          description: 'This policy outlines operational guidelines for the delivery of digital protocols, executive consultation scheduling, physical materials shipping, and our authoritative return policies.',
-          mediaUrl: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=1200',
-          resourceType: 'image',
-          alt: 'Tejova Shipping and Refunds',
-          ctaText: 'Operations Help Desk',
-          ctaLink: '/contact',
+          title: "Shipping, Delivery, and Refund Policy",
+          subtitle: "OPERATIONAL LOGISTICS & CLIENT CARE",
+          description:
+            "This policy outlines operational guidelines for the delivery of digital protocols, executive consultation scheduling, physical materials shipping, and our authoritative return policies.",
+          mediaUrl:
+            "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=1200",
+          resourceType: "image",
+          alt: "Tejova Shipping and Refunds",
+          ctaText: "Operations Help Desk",
+          ctaLink: "/contact",
         },
         sections: [
           {
-            sectionId: 'sec_shipping_policy_content',
-            type: 'rich_content',
-            title: 'Operational Guidelines & Refund Policy',
-            subtitle: 'LOGISTICS & POLICIES',
-            kicker: 'TEJOVA LIFE',
+            sectionId: "sec_shipping_policy_content",
+            type: "rich_content",
+            title: "Operational Guidelines & Refund Policy",
+            subtitle: "LOGISTICS & POLICIES",
+            kicker: "TEJOVA LIFE",
             content: `
               <h3>Effective Date: 07.11.2026</h3>
               <p><strong>Website:</strong> www.tejova.com | <strong>Company:</strong> Tejova Life</p>
@@ -410,88 +469,106 @@ class CmsMigrationService {
 
       // 4. FAQS
       {
-        slug: 'faqs',
-        title: 'Frequently Asked Questions — TEJOVA',
-        subtitle: 'Biological Sovereignty & Operational Protocols',
+        slug: "faqs",
+        title: "Frequently Asked Questions — TEJOVA",
+        subtitle: "Biological Sovereignty & Operational Protocols",
         hero: {
-          title: 'Frequently Asked Questions',
-          subtitle: 'CLINICAL INQUIRIES & PROTOCOL GUIDANCE',
-          description: 'Answers to the most common questions regarding our evidence-based nutritional protocols, time-restricted eating, executive travel rhythms, and 1-on-1 consultations.',
-          mediaUrl: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=1200',
-          resourceType: 'image',
-          alt: 'Tejova FAQs',
-          ctaText: 'Book a Consultation',
-          ctaLink: '/contact',
+          title: "Frequently Asked Questions",
+          subtitle: "CLINICAL INQUIRIES & PROTOCOL GUIDANCE",
+          description:
+            "Answers to the most common questions regarding our evidence-based nutritional protocols, time-restricted eating, executive travel rhythms, and 1-on-1 consultations.",
+          mediaUrl:
+            "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=1200",
+          resourceType: "image",
+          alt: "Tejova FAQs",
+          ctaText: "Book a Consultation",
+          ctaLink: "/contact",
         },
         sections: [
           {
-            sectionId: 'sec_faqs_list',
-            type: 'cards',
-            title: 'Common Questions on the Tejova Protocols',
-            subtitle: 'FREQUENTLY ASKED QUESTIONS',
-            kicker: 'EXECUTIVE ADVISORY',
+            sectionId: "sec_faqs_list",
+            type: "cards",
+            title: "Common Questions on the Tejova Protocols",
+            subtitle: "FREQUENTLY ASKED QUESTIONS",
+            kicker: "EXECUTIVE ADVISORY",
             items: [
               {
-                id: 'faq_1',
-                kicker: 'NUTRITION & CUISINE',
-                title: 'Does the Tejova nutritional protocol require a specific regional cuisine or strictly Indian foods?',
-                description: 'No. Biology is universal. While our foundational base is in India, our protocols are rooted in global metabolic science and cellular architecture. Whether you reside in New York, London, or Mumbai, we design your bespoke dietary protocol around the high-quality, plant-aligned foods native to and accessible in your specific geographical location. We focus on the glycemic load and nutritional density of your meals, adapting our nature-based principles to your culture and executive lifestyle.',
+                id: "faq_1",
+                kicker: "NUTRITION & CUISINE",
+                title:
+                  "Does the Tejova nutritional protocol require a specific regional cuisine or strictly Indian foods?",
+                description:
+                  "No. Biology is universal. While our foundational base is in India, our protocols are rooted in global metabolic science and cellular architecture. Whether you reside in New York, London, or Mumbai, we design your bespoke dietary protocol around the high-quality, plant-aligned foods native to and accessible in your specific geographical location. We focus on the glycemic load and nutritional density of your meals, adapting our nature-based principles to your culture and executive lifestyle.",
                 order: 0,
                 isVisible: true,
               },
               {
-                id: 'faq_2',
-                kicker: 'METABOLIC METHODOLOGY',
-                title: 'Are your diet plans based on calorie counting or restrictive macro-tracking?',
-                description: 'We reject tedious calorie counting and algorithmic biohacking. High-functioning leaders do not have the time or decision capital for disjointed, restrictive tracking. Instead, our protocols focus on metabolic rest and time-restricted eating. We architect a rhythm of nourishment that naturally stabilizes your blood sugar, honors your chronobiology, and fuels cellular regeneration without adding daily friction to your schedule.',
+                id: "faq_2",
+                kicker: "METABOLIC METHODOLOGY",
+                title:
+                  "Are your diet plans based on calorie counting or restrictive macro-tracking?",
+                description:
+                  "We reject tedious calorie counting and algorithmic biohacking. High-functioning leaders do not have the time or decision capital for disjointed, restrictive tracking. Instead, our protocols focus on metabolic rest and time-restricted eating. We architect a rhythm of nourishment that naturally stabilizes your blood sugar, honors your chronobiology, and fuels cellular regeneration without adding daily friction to your schedule.",
                 order: 1,
                 isVisible: true,
               },
               {
-                id: 'faq_3',
-                kicker: 'EXECUTIVE TRAVEL',
-                title: 'I have a demanding global travel schedule. How do I maintain these dietary rhythms across different time zones?',
-                description: 'True Biological Sovereignty means your health does not collapse when your environment changes. We engineer your protocols with executive travel in mind. By teaching you how to strategically leverage time-restricted eating, hydration, and conscious elemental immersion, we help you anchor your circadian rhythm and defend your metabolic health, effectively insulating your physical vessel against jet lag and travel-induced systemic stress.',
+                id: "faq_3",
+                kicker: "EXECUTIVE TRAVEL",
+                title:
+                  "I have a demanding global travel schedule. How do I maintain these dietary rhythms across different time zones?",
+                description:
+                  "True Biological Sovereignty means your health does not collapse when your environment changes. We engineer your protocols with executive travel in mind. By teaching you how to strategically leverage time-restricted eating, hydration, and conscious elemental immersion, we help you anchor your circadian rhythm and defend your metabolic health, effectively insulating your physical vessel against jet lag and travel-induced systemic stress.",
                 order: 2,
                 isVisible: true,
               },
               {
-                id: 'faq_4',
-                kicker: 'METABOLIC DEFENSE',
-                title: 'I have been informed that I have pre-diabetic markers. Is this protocol designed to address metabolic decline?',
-                description: 'Yes. Proactively defending against modern lifestyle diseases is the cornerstone of our Longevity pillar. Our evidence-based nutritional architecture is specifically designed to address metabolic decline at its root. Through pure, plant-aligned nourishment and precise eating windows, we aim to reverse the wear and tear caused by chronic stress, optimize body composition, and protect your long-term biological future. (Note: Tejova provides architectural blueprints for health optimization; our protocols should be implemented alongside the guidance of your primary medical physician).',
+                id: "faq_4",
+                kicker: "METABOLIC DEFENSE",
+                title:
+                  "I have been informed that I have pre-diabetic markers. Is this protocol designed to address metabolic decline?",
+                description:
+                  "Yes. Proactively defending against modern lifestyle diseases is the cornerstone of our Longevity pillar. Our evidence-based nutritional architecture is specifically designed to address metabolic decline at its root. Through pure, plant-aligned nourishment and precise eating windows, we aim to reverse the wear and tear caused by chronic stress, optimize body composition, and protect your long-term biological future. (Note: Tejova provides architectural blueprints for health optimization; our protocols should be implemented alongside the guidance of your primary medical physician).",
                 order: 3,
                 isVisible: true,
               },
               {
-                id: 'faq_5',
-                kicker: 'RESTORATIVE NATUROPATHY',
-                title: 'Do the Tejova Protocols rely heavily on synthetic supplements and extreme clinical interventions?',
-                description: "No. Led by Archana C Parate’s expertise in restorative naturopathy, we believe profound biological shifts come from consistent, natural rhythms, not extreme interventions. While highly targeted supplementation may be utilized for specific deficiencies, our primary mechanism for healing is pure, whole-food nourishment. We translate the theoretical frameworks of nature-based living into practical, daily executive action, prioritizing plant-aligned intelligence over synthetic shortcuts.",
+                id: "faq_5",
+                kicker: "RESTORATIVE NATUROPATHY",
+                title:
+                  "Do the Tejova Protocols rely heavily on synthetic supplements and extreme clinical interventions?",
+                description:
+                  "No. Led by Archana C Parate’s expertise in restorative naturopathy, we believe profound biological shifts come from consistent, natural rhythms, not extreme interventions. While highly targeted supplementation may be utilized for specific deficiencies, our primary mechanism for healing is pure, whole-food nourishment. We translate the theoretical frameworks of nature-based living into practical, daily executive action, prioritizing plant-aligned intelligence over synthetic shortcuts.",
                 order: 4,
                 isVisible: true,
               },
               {
-                id: 'faq_6',
-                kicker: 'THE 4 PILLARS',
-                title: 'How exactly do the four pillars—Vitality, Nourishment, Lifestyle, and Longevity—work together in my diet?',
-                description: 'They operate as a single, unified ecosystem. Nourishment provides the raw, cellular building blocks and stabilizes your metabolic markers. This pure fuel directly ignites your baseline Vitality and cognitive stamina. We map this diet onto your executive Lifestyle using time-restricted eating and circadian alignment so it requires zero decision fatigue. Together, this unified approach proactively defends against lifestyle diseases, securing your ultimate Longevity and healthspan.',
+                id: "faq_6",
+                kicker: "THE 4 PILLARS",
+                title:
+                  "How exactly do the four pillars—Vitality, Nourishment, Lifestyle, and Longevity—work together in my diet?",
+                description:
+                  "They operate as a single, unified ecosystem. Nourishment provides the raw, cellular building blocks and stabilizes your metabolic markers. This pure fuel directly ignites your baseline Vitality and cognitive stamina. We map this diet onto your executive Lifestyle using time-restricted eating and circadian alignment so it requires zero decision fatigue. Together, this unified approach proactively defends against lifestyle diseases, securing your ultimate Longevity and healthspan.",
                 order: 5,
                 isVisible: true,
               },
               {
-                id: 'faq_7',
-                kicker: 'TIME EFFICIENCY',
-                title: 'My schedule is incredibly demanding. Will implementing this protocol require a massive daily time commitment?',
-                description: 'No. The Tejova methodology is explicitly designed to eliminate friction, not add to it. We do not prescribe complex, hours-long meal prep or disjointed routines. Archana specializes in translating nature-based living into streamlined, time-efficient systems that integrate seamlessly into a high-pressure executive schedule. You are investing in efficiency—a unified protocol that frees up your decision capital rather than draining it.',
+                id: "faq_7",
+                kicker: "TIME EFFICIENCY",
+                title:
+                  "My schedule is incredibly demanding. Will implementing this protocol require a massive daily time commitment?",
+                description:
+                  "No. The Tejova methodology is explicitly designed to eliminate friction, not add to it. We do not prescribe complex, hours-long meal prep or disjointed routines. Archana specializes in translating nature-based living into streamlined, time-efficient systems that integrate seamlessly into a high-pressure executive schedule. You are investing in efficiency—a unified protocol that frees up your decision capital rather than draining it.",
                 order: 6,
                 isVisible: true,
               },
               {
-                id: 'faq_8',
-                kicker: 'CONSULTATION ROADMAP',
-                title: 'What happens after I book a 1-on-1 private consultation?',
-                description: 'Once your consultation is secured, our practice group will conduct a deep, clinical assessment of your current metabolic state, lifestyle rhythms, and biological goals based on your provided medical reports. Following this session, Archana will engineer your bespoke architectural blueprint—a highly personalized metabolic and dietary protocol designed to fuel your cellular architecture. This protocol is delivered directly to you within 48 to 72 hours, accompanied by ongoing concierge support to ensure seamless integration into your life.',
+                id: "faq_8",
+                kicker: "CONSULTATION ROADMAP",
+                title:
+                  "What happens after I book a 1-on-1 private consultation?",
+                description:
+                  "Once your consultation is secured, our practice group will conduct a deep, clinical assessment of your current metabolic state, lifestyle rhythms, and biological goals based on your provided medical reports. Following this session, Archana will engineer your bespoke architectural blueprint—a highly personalized metabolic and dietary protocol designed to fuel your cellular architecture. This protocol is delivered directly to you within 48 to 72 hours, accompanied by ongoing concierge support to ensure seamless integration into your life.",
                 order: 7,
                 isVisible: true,
               },
@@ -505,64 +582,74 @@ class CmsMigrationService {
 
       // 5. VITALITY (Adding 4 Sovereign Disciplines while preserving existing protocol cards)
       {
-        slug: 'vitality',
-        title: 'Vitality — TEJOVA',
-        subtitle: 'Natural Energy. Peak Vigor.',
+        slug: "vitality",
+        title: "Vitality — TEJOVA",
+        subtitle: "Natural Energy. Peak Vigor.",
         hero: {
-          title: 'Master Your Physical Sovereignty. Unleash Your Vitality.',
-          subtitle: 'VITALITY PROTOCOL',
-          description: 'Integrate the four essential disciplines—Yoga, Breath, Health, and Fitness—for a definitive performance protocol built for longevity. Move beyond surviving into peak physical and mental sovereignty.',
-          mediaUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1200',
-          resourceType: 'image',
-          alt: 'Sovereign Vitality Hero',
-          ctaText: 'Explore Vitality Protocol →',
-          ctaLink: '/contact',
+          title: "Master Your Physical Sovereignty. Unleash Your Vitality.",
+          subtitle: "VITALITY PROTOCOL",
+          description:
+            "Integrate the four essential disciplines—Yoga, Breath, Health, and Fitness—for a definitive performance protocol built for longevity. Move beyond surviving into peak physical and mental sovereignty.",
+          mediaUrl:
+            "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1200",
+          resourceType: "image",
+          alt: "Sovereign Vitality Hero",
+          ctaText: "Explore Vitality Protocol →",
+          ctaLink: "/contact",
         },
         sections: [
           {
-            sectionId: 'sec_vitality_foundations',
-            type: 'cards',
-            title: 'The 4 Pillars of Vitality',
-            subtitle: 'BIOLOGICAL FOUNDATION',
-            kicker: 'CORE DISCIPLINES',
+            sectionId: "sec_vitality_foundations",
+            type: "cards",
+            title: "The 4 Pillars of Vitality",
+            subtitle: "BIOLOGICAL FOUNDATION",
+            kicker: "CORE DISCIPLINES",
             items: [
               {
-                id: 'vit_pillar_1',
-                kicker: '1. YOGA',
-                title: 'Sovereign Yoga',
-                subtitle: 'Structural Alignment',
-                description: 'Decompress the spine and unlock structural mobility to reverse daily sedentary wear.',
-                image: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=800',
+                id: "vit_pillar_1",
+                kicker: "1. YOGA",
+                title: "Sovereign Yoga",
+                subtitle: "Structural Alignment",
+                description:
+                  "Decompress the spine and unlock structural mobility to reverse daily sedentary wear.",
+                image:
+                  "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=800",
                 order: 0,
                 isVisible: true,
               },
               {
-                id: 'vit_pillar_2',
-                kicker: '2. BREATH',
-                title: 'Autonomic Breath',
-                subtitle: 'Nervous System Command',
-                description: 'Regulate your nervous system to instantly clear stress and restore focus.',
-                image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=800',
+                id: "vit_pillar_2",
+                kicker: "2. BREATH",
+                title: "Autonomic Breath",
+                subtitle: "Nervous System Command",
+                description:
+                  "Regulate your nervous system to instantly clear stress and restore focus.",
+                image:
+                  "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=800",
                 order: 1,
                 isVisible: true,
               },
               {
-                id: 'vit_pillar_3',
-                kicker: '3. HEALTH',
-                title: 'Cellular Health',
-                subtitle: 'Metabolic Repair',
-                description: 'Fuel natural cellular repair and metabolic rest to maximize your disease-free years.',
-                image: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=800',
+                id: "vit_pillar_3",
+                kicker: "3. HEALTH",
+                title: "Cellular Health",
+                subtitle: "Metabolic Repair",
+                description:
+                  "Fuel natural cellular repair and metabolic rest to maximize your disease-free years.",
+                image:
+                  "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=800",
                 order: 2,
                 isVisible: true,
               },
               {
-                id: 'vit_pillar_4',
-                kicker: '4. FITNESS',
-                title: 'Adaptive Fitness',
-                subtitle: 'Physical Resilience',
-                description: 'Build muscle, bone density, and vital stamina to ensure lifelong independence.',
-                image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=800',
+                id: "vit_pillar_4",
+                kicker: "4. FITNESS",
+                title: "Adaptive Fitness",
+                subtitle: "Physical Resilience",
+                description:
+                  "Build muscle, bone density, and vital stamina to ensure lifelong independence.",
+                image:
+                  "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=800",
                 order: 3,
                 isVisible: true,
               },
@@ -577,79 +664,90 @@ class CmsMigrationService {
 
       // 6. LIFESTYLE (Adding 4 Lifestyle Pillars with Blue background while preserving body)
       {
-        slug: 'lifestyle',
-        title: 'Lifestyle — TEJOVA',
-        subtitle: 'Awareness. Growth. Human Potential.',
+        slug: "lifestyle",
+        title: "Lifestyle — TEJOVA",
+        subtitle: "Awareness. Growth. Human Potential.",
         hero: {
-          title: 'Mindful Architecture for Daily Operations',
-          subtitle: 'SOVEREIGN LIFESTYLE',
-          description: 'Build formidable biological resilience and maximise your healthspan by uniting precise circadian alignment, proactive stress regulation, clean environmental living, and deep, purpose-driven community connection.',
-          mediaUrl: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=1200',
-          resourceType: 'image',
-          alt: 'Sovereign Lifestyle Hero',
-          ctaText: 'Architect Your Routine →',
-          ctaLink: '/contact',
+          title: "Mindful Architecture for Daily Operations",
+          subtitle: "SOVEREIGN LIFESTYLE",
+          description:
+            "Build formidable biological resilience and maximise your healthspan by uniting precise circadian alignment, proactive stress regulation, clean environmental living, and deep, purpose-driven community connection.",
+          mediaUrl:
+            "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=1200",
+          resourceType: "image",
+          alt: "Sovereign Lifestyle Hero",
+          ctaText: "Architect Your Routine →",
+          ctaLink: "/contact",
         },
         sections: [
           {
-            sectionId: 'sec_lifestyle_body',
-            type: 'rich_content',
-            title: 'Mindful Architecture for Daily Operations',
-            subtitle: 'DAILY BLUEPRINT',
-            kicker: 'CONSCIOUS LIVING',
-            content: '<p>Build formidable biological resilience and maximise your healthspan by uniting precise circadian alignment, proactive stress regulation, clean environmental living, and deep, purpose-driven community connection.</p>',
+            sectionId: "sec_lifestyle_body",
+            type: "rich_content",
+            title: "Mindful Architecture for Daily Operations",
+            subtitle: "DAILY BLUEPRINT",
+            kicker: "CONSCIOUS LIVING",
+            content:
+              "<p>Build formidable biological resilience and maximise your healthspan by uniting precise circadian alignment, proactive stress regulation, clean environmental living, and deep, purpose-driven community connection.</p>",
             settings: {
-              backgroundColor: '#0A2342',
-              textColor: '#FAF9F6',
-              borderColor: '#B87333',
+              backgroundColor: "#0A2342",
+              textColor: "#FAF9F6",
+              borderColor: "#B87333",
             },
             order: 0,
             isVisible: true,
           },
           {
-            sectionId: 'sec_lifestyle_pillars',
-            type: 'cards',
-            title: 'The 4 Pillars of Conscious Lifestyle',
-            subtitle: 'LIFESTYLE ARCHITECTURE',
-            kicker: 'INNER ALIGNMENT',
+            sectionId: "sec_lifestyle_pillars",
+            type: "cards",
+            title: "The 4 Pillars of Conscious Lifestyle",
+            subtitle: "LIFESTYLE ARCHITECTURE",
+            kicker: "INNER ALIGNMENT",
             items: [
               {
-                id: 'life_pillar_1',
-                kicker: '01. BREATH & MIND',
-                title: 'Cognitive Resilience',
-                subtitle: 'Mental Clarity',
-                description: 'Actionable breathwork practices that shift nervous system arousal to immediately improve mental clarity.',
-                image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=800',
+                id: "life_pillar_1",
+                kicker: "01. BREATH & MIND",
+                title: "Cognitive Resilience",
+                subtitle: "Mental Clarity",
+                description:
+                  "Actionable breathwork practices that shift nervous system arousal to immediately improve mental clarity.",
+                image:
+                  "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=800",
                 order: 0,
                 isVisible: true,
               },
               {
-                id: 'life_pillar_2',
-                kicker: '02. CHRONOBIOLOGY',
-                title: 'Circadian Alignment',
-                subtitle: 'Hormonal Harmony',
-                description: 'Anchoring your internal biological clock to natural light cycles to optimize hormone secretion and eliminate chronic fatigue.',
-                image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=800',
+                id: "life_pillar_2",
+                kicker: "02. CHRONOBIOLOGY",
+                title: "Circadian Alignment",
+                subtitle: "Hormonal Harmony",
+                description:
+                  "Anchoring your internal biological clock to natural light cycles to optimize hormone secretion and eliminate chronic fatigue.",
+                image:
+                  "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=800",
                 order: 1,
                 isVisible: true,
               },
               {
-                id: 'life_pillar_3',
-                kicker: '03. ENVIRONMENT',
-                title: 'Ecological Symbiosis',
-                subtitle: 'Clean Living',
-                description: 'Optimizing your internal biology through sustainable, eco-conscious daily habits and clean environmental immersion.',
-                image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=800',
+                id: "life_pillar_3",
+                kicker: "03. ENVIRONMENT",
+                title: "Ecological Symbiosis",
+                subtitle: "Clean Living",
+                description:
+                  "Optimizing your internal biology through sustainable, eco-conscious daily habits and clean environmental immersion.",
+                image:
+                  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=800",
                 order: 2,
                 isVisible: true,
               },
               {
-                id: 'life_pillar_4',
-                kicker: '04. COMMUNITY',
-                title: 'Collective Vitality',
-                subtitle: 'Deep Belonging',
-                description: 'Redefining longevity through shared community goals, collective joy, and deep relational belonging.',
-                image: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=800',
+                id: "life_pillar_4",
+                kicker: "04. COMMUNITY",
+                title: "Collective Vitality",
+                subtitle: "Deep Belonging",
+                description:
+                  "Redefining longevity through shared community goals, collective joy, and deep relational belonging.",
+                image:
+                  "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=800",
                 order: 3,
                 isVisible: true,
               },
@@ -663,79 +761,90 @@ class CmsMigrationService {
 
       // 7. LONGEVITY (Adding 4 Longevity Pillars with Blue background while preserving body)
       {
-        slug: 'longevity',
-        title: 'Longevity — TEJOVA',
-        subtitle: 'Cellular Restoration & Bio-Energetic Resilience',
+        slug: "longevity",
+        title: "Longevity — TEJOVA",
+        subtitle: "Cellular Restoration & Bio-Energetic Resilience",
         hero: {
-          title: 'The Tejova Longevity Architecture',
-          subtitle: 'BIOLOGICAL RESILIENCE',
-          description: 'The ultimate goal is not merely lifespan extension, but the absolute maximization of your disease-free healthspan. We focus on unified natural protocols that actively resist cellular decay and unlock human potential.',
-          mediaUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=1200',
-          resourceType: 'image',
-          alt: 'Sovereign Longevity Hero',
-          ctaText: 'Explore Longevity Protocol →',
-          ctaLink: '/contact',
+          title: "The Tejova Longevity Architecture",
+          subtitle: "BIOLOGICAL RESILIENCE",
+          description:
+            "The ultimate goal is not merely lifespan extension, but the absolute maximization of your disease-free healthspan. We focus on unified natural protocols that actively resist cellular decay and unlock human potential.",
+          mediaUrl:
+            "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=1200",
+          resourceType: "image",
+          alt: "Sovereign Longevity Hero",
+          ctaText: "Explore Longevity Protocol →",
+          ctaLink: "/contact",
         },
         sections: [
           {
-            sectionId: 'sec_longevity_body',
-            type: 'rich_content',
-            title: 'Cellular Restoration & Bio-Energetic Resilience',
-            subtitle: 'THE LONGEVITY ARCHITECTURE',
-            kicker: 'HEALTHSPAN MAXIMIZATION',
-            content: '<p>The ultimate goal is not merely lifespan extension, but the absolute maximization of your disease-free healthspan. We focus on unified natural protocols that actively resist cellular decay and unlock human potential.</p>',
+            sectionId: "sec_longevity_body",
+            type: "rich_content",
+            title: "Cellular Restoration & Bio-Energetic Resilience",
+            subtitle: "THE LONGEVITY ARCHITECTURE",
+            kicker: "HEALTHSPAN MAXIMIZATION",
+            content:
+              "<p>The ultimate goal is not merely lifespan extension, but the absolute maximization of your disease-free healthspan. We focus on unified natural protocols that actively resist cellular decay and unlock human potential.</p>",
             settings: {
-              backgroundColor: '#0A2342',
-              textColor: '#FAF9F6',
-              borderColor: '#B87333',
+              backgroundColor: "#0A2342",
+              textColor: "#FAF9F6",
+              borderColor: "#B87333",
             },
             order: 0,
             isVisible: true,
           },
           {
-            sectionId: 'sec_longevity_pillars',
-            type: 'cards',
-            title: 'The 4 Keys to Cellular Longevity',
-            subtitle: 'LONGEVITY FOUNDATIONS',
-            kicker: 'BIOLOGICAL DEFENSE',
+            sectionId: "sec_longevity_pillars",
+            type: "cards",
+            title: "The 4 Keys to Cellular Longevity",
+            subtitle: "LONGEVITY FOUNDATIONS",
+            kicker: "BIOLOGICAL DEFENSE",
             items: [
               {
-                id: 'long_pillar_1',
-                kicker: '01. METABOLIC HEALTH',
-                title: 'Nutrition and Metabolic Health',
-                subtitle: 'Cellular Repair',
-                description: 'Our protocol employs plant-aligned whole foods, time-restricted eating and proactive caloric control to repair your cellular architecture, sustain elite cognitive energy, and defend against lifestyle diseases.',
-                image: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=800',
+                id: "long_pillar_1",
+                kicker: "01. METABOLIC HEALTH",
+                title: "Nutrition and Metabolic Health",
+                subtitle: "Cellular Repair",
+                description:
+                  "Our protocol employs plant-aligned whole foods, time-restricted eating and proactive caloric control to repair your cellular architecture, sustain elite cognitive energy, and defend against lifestyle diseases.",
+                image:
+                  "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=800",
                 order: 0,
                 isVisible: true,
               },
               {
-                id: 'long_pillar_2',
-                kicker: '02. RECOVERY & REST',
-                title: 'Regeneration, Biological Aging, and Deep Recovery',
-                subtitle: 'Systemic Resilience',
-                description: 'Our recovery protocol balances deep regenerative rest with controlled environmental stress to repair your cellular architecture, build systemic resilience, and decelerate biological aging.',
-                image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=800',
+                id: "long_pillar_2",
+                kicker: "02. RECOVERY & REST",
+                title: "Regeneration, Biological Aging, and Deep Recovery",
+                subtitle: "Systemic Resilience",
+                description:
+                  "Our recovery protocol balances deep regenerative rest with controlled environmental stress to repair your cellular architecture, build systemic resilience, and decelerate biological aging.",
+                image:
+                  "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=800",
                 order: 1,
                 isVisible: true,
               },
               {
-                id: 'long_pillar_3',
-                kicker: '03. NEURO-REGULATION',
-                title: 'Psychological Coherence & Brain Longevity',
-                subtitle: 'Autonomic Regulation',
-                description: 'By discharging chronic stress and actively balancing your nervous system, we halt stress-induced aging and protect your lifelong brain health through a calm, regulated mind.',
-                image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=800',
+                id: "long_pillar_3",
+                kicker: "03. NEURO-REGULATION",
+                title: "Psychological Coherence & Brain Longevity",
+                subtitle: "Autonomic Regulation",
+                description:
+                  "By discharging chronic stress and actively balancing your nervous system, we halt stress-induced aging and protect your lifelong brain health through a calm, regulated mind.",
+                image:
+                  "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=800",
                 order: 2,
                 isVisible: true,
               },
               {
-                id: 'long_pillar_4',
-                kicker: '04. PURPOSE & ECOLOGY',
-                title: 'Socio-Environmental Connection and Purpose',
-                subtitle: 'Healthy Healthspan',
-                description: 'Our longevity lifestyle extends your healthspan by removing isolation-induced aging through deep community connection, clear life goals and alignment with clean, natural environments.',
-                image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=800',
+                id: "long_pillar_4",
+                kicker: "04. PURPOSE & ECOLOGY",
+                title: "Socio-Environmental Connection and Purpose",
+                subtitle: "Healthy Healthspan",
+                description:
+                  "Our longevity lifestyle extends your healthspan by removing isolation-induced aging through deep community connection, clear life goals and alignment with clean, natural environments.",
+                image:
+                  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=800",
                 order: 3,
                 isVisible: true,
               },
@@ -749,40 +858,42 @@ class CmsMigrationService {
 
       // 8. ABOUT US (Adding missing sections so admin can edit all entries)
       {
-        slug: 'about',
-        title: 'About Us — TEJOVA',
-        subtitle: 'Our Story & Brand Philosophy',
+        slug: "about",
+        title: "About Us — TEJOVA",
+        subtitle: "Our Story & Brand Philosophy",
         hero: {
-          title: 'We Believe Wellness Should Expand Your Life, Not Limit It.',
-          subtitle: 'OUR BRAND STORY',
-          description: "TEJOVA was born out of a quiet realization: true health isn't found in rigid routines or synthetic quick fixes, but in living in harmonious resonance with natural biological laws.",
-          mediaUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1200',
-          resourceType: 'image',
-          alt: 'Tejova Brand Story Hero',
-          ctaText: 'Discover Our Protocol',
-          ctaLink: '/vitality',
+          title: "We Believe Wellness Should Expand Your Life, Not Limit It.",
+          subtitle: "OUR BRAND STORY",
+          description:
+            "TEJOVA was born out of a quiet realization: true health isn't found in rigid routines or synthetic quick fixes, but in living in harmonious resonance with natural biological laws.",
+          mediaUrl:
+            "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1200",
+          resourceType: "image",
+          alt: "Tejova Brand Story Hero",
+          ctaText: "Discover Our Protocol",
+          ctaLink: "/vitality",
         },
         sections: [
           {
-            sectionId: 'sec_about_philosophy',
-            type: 'brand_philosophy',
-            title: 'Expand Your Light',
-            subtitle: 'THE PHILOSOPHY',
-            kicker: 'TEJOVA ORIGIN',
+            sectionId: "sec_about_philosophy",
+            type: "brand_philosophy",
+            title: "Expand Your Light",
+            subtitle: "THE PHILOSOPHY",
+            kicker: "TEJOVA ORIGIN",
             content: `
               <p>"Tej" in ancient Sanskrit represents inner radiance, biological brilliance, and vital heat. "Ova" signifies origin and continuous growth. Together, <strong>TEJOVA</strong> embodies the expansion of your innate physical and mental radiance.</p>
               <p>Every formulation we create, every article we write, and every ritual we share is designed to nurture your light — helping you show up fully for yourself, your loved ones, and the world around you.</p>
             `,
-            badge: 'PRANA RADIANCE',
+            badge: "PRANA RADIANCE",
             order: 0,
             isVisible: true,
           },
           {
-            sectionId: 'sec_about_commitments',
-            type: 'rich_content',
-            title: 'Our Core Commitments',
-            subtitle: 'STANDARDS OF PURITY',
-            kicker: 'ETHICAL SOURCING',
+            sectionId: "sec_about_commitments",
+            type: "rich_content",
+            title: "Our Core Commitments",
+            subtitle: "STANDARDS OF PURITY",
+            kicker: "ETHICAL SOURCING",
             content: `
               <ul>
                 <li><strong>Purity Without Compromise:</strong> Wildcrafted, 100% organic ingredients sourced directly from ethical bio-farms.</li>
@@ -794,17 +905,42 @@ class CmsMigrationService {
             isVisible: true,
           },
           {
-            sectionId: 'sec_about_pillars',
-            type: 'cards',
-            title: 'Built Upon Five Pillars',
-            subtitle: 'A COMPLETE APPROACH',
-            kicker: 'FOUNDATIONS',
+            sectionId: "sec_about_pillars",
+            type: "cards",
+            title: "Built Upon Five Pillars",
+            subtitle: "A COMPLETE APPROACH",
+            kicker: "FOUNDATIONS",
             items: [
-              { id: 'p_1', title: 'Vitality', subtitle: 'Pillar 01', description: 'Natural energy and somatic vigor.' },
-              { id: 'p_2', title: 'Nourishment', subtitle: 'Pillar 02', description: 'Cellular renewal and organic nutrition.' },
-              { id: 'p_3', title: 'Lifestyle', subtitle: 'Pillar 03', description: 'Awareness and purposeful daily rituals.' },
-              { id: 'p_4', title: 'Longevity', subtitle: 'Pillar 04', description: 'Enduring biological resilience.' },
-              { id: 'p_5', title: 'Conscious Mind', subtitle: 'Pillar 05', description: 'Inner calm and cognitive clarity.' },
+              {
+                id: "p_1",
+                title: "Vitality",
+                subtitle: "Pillar 01",
+                description: "Natural energy and somatic vigor.",
+              },
+              {
+                id: "p_2",
+                title: "Nourishment",
+                subtitle: "Pillar 02",
+                description: "Cellular renewal and organic nutrition.",
+              },
+              {
+                id: "p_3",
+                title: "Lifestyle",
+                subtitle: "Pillar 03",
+                description: "Awareness and purposeful daily rituals.",
+              },
+              {
+                id: "p_4",
+                title: "Longevity",
+                subtitle: "Pillar 04",
+                description: "Enduring biological resilience.",
+              },
+              {
+                id: "p_5",
+                title: "Conscious Mind",
+                subtitle: "Pillar 05",
+                description: "Inner calm and cognitive clarity.",
+              },
             ],
             order: 2,
             isVisible: true,
@@ -815,26 +951,28 @@ class CmsMigrationService {
 
       // 9. CONTACT US (Adding concierge section for Archana C Parate)
       {
-        slug: 'contact',
-        title: 'Contact Us — TEJOVA',
-        subtitle: 'Connect with the TEJOVA Protocol Team',
+        slug: "contact",
+        title: "Contact Us — TEJOVA",
+        subtitle: "Connect with the TEJOVA Protocol Team",
         hero: {
-          title: 'Contact TEJOVA',
-          subtitle: 'GET IN TOUCH',
-          description: 'Have questions about our nutritional protocols, conscious living philosophy, or clinical advisory? We are here to support your journey.',
-          mediaUrl: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=1200',
-          resourceType: 'image',
-          alt: 'Contact Tejova Hero',
-          ctaText: 'Schedule Consultation',
-          ctaLink: '#contact-form',
+          title: "Contact TEJOVA",
+          subtitle: "GET IN TOUCH",
+          description:
+            "Have questions about our nutritional protocols, conscious living philosophy, or clinical advisory? We are here to support your journey.",
+          mediaUrl:
+            "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=1200",
+          resourceType: "image",
+          alt: "Contact Tejova Hero",
+          ctaText: "Schedule Consultation",
+          ctaLink: "#contact-form",
         },
         sections: [
           {
-            sectionId: 'sec_contact_concierge',
-            type: 'rich_content',
-            title: 'Personal Consultations with Archana C Parate',
-            subtitle: 'CONCIERGE SUPPORT',
-            kicker: 'CLINICAL ADVISORY',
+            sectionId: "sec_contact_concierge",
+            type: "rich_content",
+            title: "Personal Consultations with Archana C Parate",
+            subtitle: "CONCIERGE SUPPORT",
+            kicker: "CLINICAL ADVISORY",
             content: `
               <p>Schedule a 1-on-1 virtual or in-person session with Archana C Parate and the Tejova Research &amp; Practice Group to tailor a personalized metabolic and dietary protocol for your biological goals.</p>
               <p><strong>Nagpur Center:</strong> C-148, Ramana Maroti Nagar, Nagpur, Maharashtra - 440024, India</p>
@@ -849,27 +987,30 @@ class CmsMigrationService {
 
       // 10. PRODUCTS HEADER (Enables editing "The TEJOVA Collection" in Admin)
       {
-        slug: 'products',
-        title: 'Formulations & Products — TEJOVA',
-        subtitle: 'The TEJOVA Collection',
+        slug: "products",
+        title: "Formulations & Products — TEJOVA",
+        subtitle: "The TEJOVA Collection",
         hero: {
-          title: 'The TEJOVA Collection',
-          subtitle: 'ORGANIC BOTANICAL FORMULATIONS',
-          description: 'Ethically harvested, bio-available botanicals designed to restore your natural state of physical, mental and cellular vitality.',
-          mediaUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1200',
-          resourceType: 'image',
-          alt: 'Tejova Products Collection',
-          ctaText: 'Explore Categories',
-          ctaLink: '#catalog',
+          title: "The TEJOVA Collection",
+          subtitle: "ORGANIC BOTANICAL FORMULATIONS",
+          description:
+            "Ethically harvested, bio-available botanicals designed to restore your natural state of physical, mental and cellular vitality.",
+          mediaUrl:
+            "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1200",
+          resourceType: "image",
+          alt: "Tejova Products Collection",
+          ctaText: "Explore Categories",
+          ctaLink: "#catalog",
         },
         sections: [
           {
-            sectionId: 'sec_products_header',
-            type: 'rich_content',
-            title: 'Ethical Botanical Standards',
-            subtitle: 'COLLECTION ARCHITECTURE',
-            kicker: 'PURE INGREDIENTS',
-            content: '<p>Every product is formulated without synthetic fillers, artificial binders, or harsh chemical extracts.</p>',
+            sectionId: "sec_products_header",
+            type: "rich_content",
+            title: "Ethical Botanical Standards",
+            subtitle: "COLLECTION ARCHITECTURE",
+            kicker: "PURE INGREDIENTS",
+            content:
+              "<p>Every product is formulated without synthetic fillers, artificial binders, or harsh chemical extracts.</p>",
             order: 0,
             isVisible: true,
           },
@@ -878,143 +1019,220 @@ class CmsMigrationService {
       },
       // 11. HOME PAGE
       {
-        slug: 'home',
-        title: 'Home — TEJOVA',
-        subtitle: 'Expand Your Light. Sovereign Performance Living.',
+        slug: "home",
+        title: "Home — TEJOVA",
+        subtitle: "Expand Your Light. Sovereign Performance Living.",
         hero: {
-          backgroundMediaUrl: '',
-          title: 'Master Your Sovereignty. Unleash Your Vitality.',
-          subtitle: 'TEJOVA — VITALITY PROTOCOL',
-          description: 'Integrate the four essential pillars—Yoga, Breath, Health, and Fitness—for a definitive performance protocol built for longevity. Move beyond "not being sick" to a state of peak-impact vitality. Discover the Sovereign Body and rule your life.',
-          mediaUrl: 'https://res.cloudinary.com/dyqdgujiq/image/upload/v1794188197/TEJOVA/products/oem6zcgywdd0qaniukju.jpg',
-          resourceType: 'image',
-          alt: 'Sovereign Living Hero',
-          ctaText: 'Begin Your Journey →',
-          ctaLink: '/blog',
+          backgroundMediaUrl: "",
+          title: "Master Your Sovereignty. Unleash Your Vitality.",
+          subtitle: "TEJOVA — CONSCIOUS LIVING",
+          description:
+            "Elevate your daily harmony with pure, natural vitality and conscious wellness rituals. Rooted in ancient wisdom, refined for modern living.",
+          mediaUrl:
+            "https://res.cloudinary.com/dyqdgujiq/image/upload/v1794188197/TEJOVA/products/oem6zcgywdd0qaniukju.jpg",
+          resourceType: "image",
+          alt: "Master Your Sovereignty Hero",
+          ctaText: "Begin Your Journey",
+          ctaLink: "/products",
+          secondaryCtaText: "Discover TEJOVA",
+          secondaryCtaLink: "/about",
+          floatingBadgeTitle: "Holistic Wellness",
+          floatingBadgeSubtitle: "Pure Vitality & Longevity",
+          features: [
+            "100% Pure Ingredients",
+            "Ancient Wisdom",
+            "Conscious Living"
+          ]
         },
         sections: [
           {
-            sectionId: 'sec_entry_sequence',
-            type: 'entry_sequence',
-            title: 'Entry Sequence Words',
-            subtitle: 'Conscious Living',
-            kicker: '',
-            content: '',
-            badge: '',
-            media: { url: '', resourceType: 'image', alt: '', poster: '' },
-            cta: { text: '', url: '', variant: 'primary' },
-            items: [
-              {
-                id: 'seq_1',
-                kicker: 'ORIGIN & RADIANCE',
-                title: 'TEJOVA',
-                subtitle: 'Sovereign Command',
-                description: 'The expansion of innate physical and mental radiance.',
-                image: 'https://res.cloudinary.com/dyqdgujiq/image/upload/v1794200747/TEJOVA/products/nmu8isvknd98yfapebmw.jpg',
-                order: 0,
-                isVisible: true,
-              },
-              {
-                id: 'seq_2',
-                kicker: 'PILLAR 01',
-                title: 'Vitality',
-                subtitle: 'Peak-Impact Energy',
-                description: 'Mastery of Yoga, Breath, and biological heat.',
-                image: 'https://res.cloudinary.com/dyqdgujiq/image/upload/v1794200766/TEJOVA/products/p1nmetvakpcvsuheuo99.jpg',
-                order: 1,
-                isVisible: true,
-              },
-              {
-                id: 'seq_3',
-                kicker: 'PILLAR 02',
-                title: 'Nourishment',
-                subtitle: 'Cellular Restoration',
-                description: 'Conscious nutrition and pure biological formulations.',
-                image: 'https://res.cloudinary.com/dyqdgujiq/image/upload/v1794200779/TEJOVA/products/xu3xwrbgjtkcxran5tdh.jpg',
-                order: 2,
-                isVisible: true,
-              },
-              {
-                id: 'seq_4',
-                kicker: 'PILLAR 03',
-                title: 'Lifestyle',
-                subtitle: 'Conscious Habits',
-                description: 'Grounding rituals and sovereign daily routine.',
-                image: 'https://res.cloudinary.com/dyqdgujiq/image/upload/v1794200805/TEJOVA/products/qk3h8av7qqyivvxyzl1b.jpg',
-                order: 3,
-                isVisible: true,
-              },
-              {
-                id: 'seq_5',
-                kicker: 'PILLAR 04',
-                title: 'Longevity',
-                subtitle: 'Sovereign Future',
-                description: 'Cellular protection and enduring biological vigor.',
-                image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=1200',
-                order: 4,
-                isVisible: true,
-              },
-              {
-                id: 'seq_6',
-                kicker: 'SOVEREIGN PURPOSE',
-                title: 'Expand Your Light',
-                subtitle: 'Rule Your Life',
-                description: 'Move beyond surviving into peak physical and mental sovereignty.',
-                image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1200',
-                order: 5,
-                isVisible: true,
-              },
-            ],
+            sectionId: "sec_announcement",
+            type: "announcement",
+            title: "Top Announcement Bar",
+            subtitle: "CONSCIOUS LIVING",
+            kicker: "ANNOUNCEMENT",
+            content: "Complimentary nationwide delivery on sovereign formulations over ₹999.",
+            badge: "FREE SHIPPING",
+            media: { url: "", resourceType: "image", alt: "", poster: "" },
+            cta: { text: "Explore Formulations", url: "/products", variant: "primary" },
             order: 0,
             isVisible: true,
           },
           {
-            sectionId: 'sec_brand_philosophy',
-            type: 'brand_philosophy',
-            title: 'Beyond Wellness. A Sovereign Lifestyle.',
-            subtitle: 'BRAND PHILOSOPHY',
-            kicker: 'TEJOVA PROTOCOL',
-            content: '<p style="text-align: justify">We believe that human beings are not meant to merely survive. You are engineered to command your mind, elevate your biological energy, and rule your life with undeniable impact.</p>',
-            order: 1,
-            isVisible: true,
-          },
-          {
-            sectionId: 'sec_brand_story',
-            type: 'brand_story',
-            title: 'The Origin of Radiance',
-            subtitle: 'OUR ESSENCE',
-            kicker: 'TEJOVA ROOTS',
-            content: '<p style="text-align: justify">Originating from Nagpur, the heart of central India, TEJOVA unites timeless bio-energetic wisdom with pure elemental formulations.</p>',
-            order: 2,
-            isVisible: true,
-          },
-          {
-            sectionId: 'sec_philosophy',
-            type: 'philosophy',
-            title: 'Our Core Philosophy',
-            subtitle: 'THE THREE PILLARS OF SOVEREIGNTY',
-            kicker: '',
-            content: 'Vitality, Nourishment, and Lifestyle form the sovereign triquetra.',
+            sectionId: "sec_entry_sequence",
+            type: "entry_sequence",
+            title: "Entry Sequence Words",
+            subtitle: "Conscious Living",
+            kicker: "",
+            content: "",
+            badge: "",
+            media: { url: "", resourceType: "image", alt: "", poster: "" },
+            cta: { text: "", url: "", variant: "primary" },
             items: [
               {
-                id: 'item_p1',
-                title: 'High-Impact Vitality',
-                description: 'Electrifying life-force energy through dynamic movement and breath mastery.',
+                id: "seq_1",
+                kicker: "ORIGIN & RADIANCE",
+                title: "TEJOVA",
+                subtitle: "Sovereign Command",
+                description:
+                  "The expansion of innate physical and mental radiance.",
+                image:
+                  "https://res.cloudinary.com/dyqdgujiq/image/upload/v1794200747/TEJOVA/products/nmu8isvknd98yfapebmw.jpg",
                 order: 0,
                 isVisible: true,
               },
               {
-                id: 'item_p2',
-                title: 'Pure Nourishment',
-                description: 'Dietary protocols and natural insights crafted to complement natural biological laws.',
+                id: "seq_2",
+                kicker: "PILLAR 01",
+                title: "Vitality",
+                subtitle: "Peak-Impact Energy",
+                description: "Mastery of Yoga, Breath, and biological heat.",
+                image:
+                  "https://res.cloudinary.com/dyqdgujiq/image/upload/v1794200766/TEJOVA/products/p1nmetvakpcvsuheuo99.jpg",
                 order: 1,
                 isVisible: true,
               },
               {
-                id: 'item_p3',
-                title: 'Sovereign Lifestyle',
-                description: 'Elevating everyday routines to move you beyond merely surviving.',
+                id: "seq_3",
+                kicker: "PILLAR 02",
+                title: "Nourishment",
+                subtitle: "Cellular Restoration",
+                description:
+                  "Conscious nutrition and pure biological formulations.",
+                image:
+                  "https://res.cloudinary.com/dyqdgujiq/image/upload/v1794200779/TEJOVA/products/xu3xwrbgjtkcxran5tdh.jpg",
                 order: 2,
+                isVisible: true,
+              },
+              {
+                id: "seq_4",
+                kicker: "PILLAR 03",
+                title: "Lifestyle",
+                subtitle: "Conscious Habits",
+                description: "Grounding rituals and sovereign daily routine.",
+                image:
+                  "https://res.cloudinary.com/dyqdgujiq/image/upload/v1794200805/TEJOVA/products/qk3h8av7qqyivvxyzl1b.jpg",
+                order: 3,
+                isVisible: true,
+              },
+              {
+                id: "seq_5",
+                kicker: "PILLAR 04",
+                title: "Longevity",
+                subtitle: "Sovereign Future",
+                description:
+                  "Cellular protection and enduring biological vigor.",
+                image:
+                  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=1200",
+                order: 4,
+                isVisible: true,
+              },
+              {
+                id: "seq_6",
+                kicker: "SOVEREIGN PURPOSE",
+                title: "Expand Your Light",
+                subtitle: "Rule Your Life",
+                description:
+                  "Move beyond surviving into peak physical and mental sovereignty.",
+                image:
+                  "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1200",
+                order: 5,
+                isVisible: true,
+              },
+            ],
+            order: 1,
+            isVisible: true,
+          },
+          {
+            sectionId: "sec_brand_story",
+            type: "brand_story",
+            title: "We Believe Peak Vitality Should Build Your Life, Not Cost It.",
+            subtitle: "OUR BRAND STORY",
+            kicker: "TEJOVA PROTOCOL",
+            badge: "PEAK VITALITY",
+            content:
+              '<p>Tejova promises a higher standard of existence where longevity is built into your daily operations. By integrating Vitality, Nourishment, Lifestyle and Longevity, we move you beyond merely surviving to achieve peak-impact vitality. Reclaim your Prana and start ruling your life.</p>',
+            media: {
+              url: "https://res.cloudinary.com/dyqdgujiq/image/upload/v1794200747/TEJOVA/products/nmu8isvknd98yfapebmw.jpg",
+              resourceType: "image",
+              alt: "Botanical plant leaves representing natural vitality"
+            },
+            cta: {
+              text: "Discover Our Protocol →",
+              url: "/vitality"
+            },
+            items: [
+              {
+                id: "item_brand_quote",
+                kicker: "PEAK VITALITY",
+                title: "Brand Accent Quote",
+                description: "Definitive performance built into your daily operations.",
+                order: 0,
+                isVisible: true
+              }
+            ],
+            order: 2,
+            isVisible: true,
+          },
+          {
+            sectionId: "sec_four_pillars",
+            type: "four_pillars",
+            title: "Built Upon Four Pillars",
+            subtitle: "A COMPLETE APPROACH",
+            kicker: "HOLISTIC FRAMEWORK",
+            content:
+              "We view wellbeing through four interconnected dimensions that work together to create a vibrant life.",
+            items: [
+              {
+                id: "pil_vitality",
+                kicker: "PILLAR 01",
+                title: "Vitality",
+                subtitle: "Peak-Impact Energy. Sovereign Living.",
+                description:
+                  "Move beyond simply surviving your day to a state of peak-impact performance.",
+                image:
+                  "https://res.cloudinary.com/dyqdgujiq/image/upload/v1790263270/TEJOVA/journal/irqh7kefwz7yi2e4xhw6.jpg",
+                link: "/vitality",
+                order: 0,
+                isVisible: true,
+              },
+              {
+                id: "pil_nourishment",
+                kicker: "PILLAR 02",
+                title: "Nourishment",
+                subtitle: "Real Food. Lasting Health.",
+                description:
+                  "Conscious nutrition and pure, natural formulations fuel your highest potential.",
+                image:
+                  "https://res.cloudinary.com/dyqdgujiq/image/upload/v1790139882/TEJOVA/journal/en32pciwriebtmewizo2.jpg",
+                link: "/nourishment",
+                order: 1,
+                isVisible: true,
+              },
+              {
+                id: "pil_lifestyle",
+                kicker: "PILLAR 03",
+                title: "Lifestyle",
+                subtitle: "Conscious Habits. Sovereign Mind.",
+                description:
+                  "Integrate grounding rituals, restorative rest, and natural rhythms.",
+                image:
+                  "https://res.cloudinary.com/dyqdgujiq/image/upload/v1791129153/TEJOVA/journal/hjhrnfqwizhi8eagtb3d.jpg",
+                link: "/lifestyle",
+                order: 2,
+                isVisible: true,
+              },
+              {
+                id: "pil_longevity",
+                kicker: "PILLAR 04",
+                title: "Longevity",
+                subtitle: "Longer Life. Deeper Wellbeing.",
+                description:
+                  "Protect your cellular health and nurture your spirit for enduring vigor.",
+                image:
+                  "https://res.cloudinary.com/dyqdgujiq/image/upload/v1790947825/TEJOVA/products/bfffppvrou9plxoy75bt.jpg",
+                link: "/longevity",
+                order: 3,
                 isVisible: true,
               },
             ],
@@ -1022,59 +1240,138 @@ class CmsMigrationService {
             isVisible: true,
           },
           {
-            sectionId: 'sec_four_pillars',
-            type: 'four_pillars',
-            title: 'Built Upon Four Pillars',
-            subtitle: 'A COMPLETE APPROACH',
-            kicker: '',
-            content: 'We view wellbeing through four interconnected dimensions that work together to create a vibrant life.',
-            items: [
-              {
-                id: 'pil_vitality',
-                kicker: 'PILLAR 01',
-                title: 'Vitality',
-                subtitle: 'Peak-Impact Energy. Sovereign Living.',
-                description: 'Move beyond simply surviving your day to a state of peak-impact performance.',
-                image: 'https://res.cloudinary.com/dyqdgujiq/image/upload/v1790263270/TEJOVA/journal/irqh7kefwz7yi2e4xhw6.jpg',
-                link: '/vitality',
-                order: 0,
-                isVisible: true,
-              },
-              {
-                id: 'pil_nourishment',
-                kicker: 'PILLAR 02',
-                title: 'Nourishment',
-                subtitle: 'Real Food. Lasting Health.',
-                description: 'Conscious nutrition and pure, natural formulations fuel your highest potential.',
-                image: 'https://res.cloudinary.com/dyqdgujiq/image/upload/v1790139882/TEJOVA/journal/en32pciwriebtmewizo2.jpg',
-                link: '/nourishment',
-                order: 1,
-                isVisible: true,
-              },
-              {
-                id: 'pil_lifestyle',
-                kicker: 'PILLAR 03',
-                title: 'Lifestyle',
-                subtitle: 'Conscious Habits. Sovereign Mind.',
-                description: 'Integrate grounding rituals, restorative rest, and natural rhythms.',
-                image: 'https://res.cloudinary.com/dyqdgujiq/image/upload/v1791129153/TEJOVA/journal/hjhrnfqwizhi8eagtb3d.jpg',
-                link: '/lifestyle',
-                order: 2,
-                isVisible: true,
-              },
-              {
-                id: 'pil_longevity',
-                kicker: 'PILLAR 04',
-                title: 'Longevity',
-                subtitle: 'Longer Life. Deeper Wellbeing.',
-                description: 'Protect your cellular health and nurture your spirit for enduring vigor.',
-                image: 'https://res.cloudinary.com/dyqdgujiq/image/upload/v1790947825/TEJOVA/products/bfffppvrou9plxoy75bt.jpg',
-                link: '/longevity',
-                order: 3,
-                isVisible: true,
-              },
-            ],
+            sectionId: "sec_vitality",
+            type: "vitality",
+            title: "Vitality",
+            subtitle: "Natural Energy. True Wellbeing.",
+            kicker: "Pillar 01",
+            badge: "Biological Architecture | Indoor Yoga & Mindful Movement",
+            content: "Feel more energized, focused, and aligned through mindful somatic movement, organic spaces, and nature's most powerful adaptogenic formulations. Vitality is about nurturing your total biological potential.",
+            media: {
+              url: "https://res.cloudinary.com/dyqdgujiq/image/upload/v1790263270/TEJOVA/journal/irqh7kefwz7yi2e4xhw6.jpg",
+              resourceType: "image",
+              alt: "Indoor yoga practice in a modern biological architecture studio with natural lighting"
+            },
+            cta: {
+              text: "Explore Vitality",
+              url: "/vitality"
+            },
             order: 4,
+            isVisible: true,
+          },
+          {
+            sectionId: "sec_nourishment",
+            type: "nourishment",
+            title: "Nourishment",
+            subtitle: "Real Food. Lasting Health.",
+            kicker: "Pillar 02",
+            badge: "Conscious Food | Microbiome & metabolic balance",
+            content: "Whole foods, natural nutrition, and conscious eating fuel your body, balance your microbiome, and support long-term cellular resilience.",
+            media: {
+              url: "https://res.cloudinary.com/dyqdgujiq/image/upload/v1790139882/TEJOVA/journal/en32pciwriebtmewizo2.jpg",
+              resourceType: "image",
+              alt: "Fresh organic whole food bowl symbolizing natural nourishment"
+            },
+            cta: {
+              text: "Explore Nourishment",
+              url: "/nourishment"
+            },
+            order: 5,
+            isVisible: true,
+          },
+          {
+            sectionId: "sec_lifestyle",
+            type: "lifestyle",
+            title: "Lifestyle",
+            subtitle: "Awareness. Growth. Potential.",
+            kicker: "Pillar 03",
+            badge: "Sovereign Mind | Restorative Circadian Rhythms",
+            content: "Live with intention. Cultivate mindfulness, nurture mental clarity, and unlock your potential through daily rituals aligned with natural rhythms.",
+            media: {
+              url: "https://res.cloudinary.com/dyqdgujiq/image/upload/v1791129153/TEJOVA/journal/hjhrnfqwizhi8eagtb3d.jpg",
+              resourceType: "image",
+              alt: "Person practicing meditation at sunrise in nature"
+            },
+            cta: {
+              text: "Explore Lifestyle",
+              url: "/lifestyle"
+            },
+            order: 6,
+            isVisible: true,
+          },
+          {
+            sectionId: "sec_longevity",
+            type: "longevity",
+            title: "Longevity",
+            subtitle: "Longer Life. Deeper Wellbeing.",
+            kicker: "Pillar 04",
+            badge: "Cellular Renewal | Bio-Energetic Resilience",
+            content: "Protect your cellular health, restore quiet mind spaces, and nurture your spirit for a longer, happier life rooted in inner balance.",
+            media: {
+              url: "https://res.cloudinary.com/dyqdgujiq/image/upload/v1790947825/TEJOVA/products/bfffppvrou9plxoy75bt.jpg",
+              resourceType: "image",
+              alt: "Ancient evergreen forest symbolizing biological longevity and cellular vitality"
+            },
+            cta: {
+              text: "Explore Longevity",
+              url: "/longevity"
+            },
+            order: 7,
+            isVisible: true,
+          },
+          {
+            sectionId: "sec_products",
+            type: "products",
+            title: "Our Products",
+            subtitle: "Featured Formulations",
+            kicker: "FEATURED FORMULATIONS",
+            content: "Ethically harvested, scientifically formulated botanicals for a healthier, more vibrant life.",
+            cta: {
+              text: "Explore All Formulations",
+              url: "/products"
+            },
+            settings: {
+              layout: "grid",
+              alignment: "center"
+            },
+            order: 8,
+            isVisible: true,
+          },
+          {
+            sectionId: "sec_journal",
+            type: "journal",
+            title: "From Our Journal",
+            subtitle: "Editorial & Philosophy",
+            kicker: "EDITORIAL & PHILOSOPHY",
+            content: "Insights, research, and reflections for a more conscious, vibrant life.",
+            cta: {
+              text: "View All Articles",
+              url: "/journal"
+            },
+            settings: {
+              layout: "grid",
+              alignment: "center"
+            },
+            order: 9,
+            isVisible: true,
+          },
+          {
+            sectionId: "sec_cta",
+            type: "cta",
+            title: "Your best years are ahead of you.",
+            subtitle: "Embrace Your Potential",
+            kicker: "EMBRACE YOUR POTENTIAL",
+            content: "Explore TEJOVA and take the first step on your journey toward natural vitality, conscious living, and purpose.",
+            media: {
+              url: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=1600",
+              resourceType: "image",
+              alt: "Majestic sunrise over mountain peaks"
+            },
+            cta: {
+              text: "Begin Your Journey",
+              url: "/products"
+            },
+            order: 10,
             isVisible: true,
           },
         ],
@@ -1129,7 +1426,9 @@ class CmsMigrationService {
         for (const sec of pageItem.sections || []) {
           stats.sectionsAdded.push(`${pageItem.slug}:${sec.sectionId}`);
         }
-        console.log(`🌱 [Migration CMS] Created missing page '${pageItem.slug}' with ${(pageItem.sections || []).length} sections.`);
+        console.log(
+          `🌱 [Migration CMS] Created missing page '${pageItem.slug}' with ${(pageItem.sections || []).length} sections.`,
+        );
       } else {
         // Page exists -> check each section by stable sectionId
         stats.pagesExisting.push(pageItem.slug);
@@ -1137,27 +1436,37 @@ class CmsMigrationService {
         if (!Array.isArray(page.sections)) page.sections = [];
 
         for (const reqSec of pageItem.sections || []) {
-          const exists = page.sections.some((s) => s.sectionId === reqSec.sectionId);
+          const exists = page.sections.some(
+            (s) => s.sectionId === reqSec.sectionId,
+          );
           if (exists) {
-            stats.sectionsPreserved.push(`${pageItem.slug}:${reqSec.sectionId}`);
+            stats.sectionsPreserved.push(
+              `${pageItem.slug}:${reqSec.sectionId}`,
+            );
           } else {
             // Append missing section only
             page.sections.push(reqSec);
             pageModified = true;
             stats.sectionsAdded.push(`${pageItem.slug}:${reqSec.sectionId}`);
-            console.log(`➕ [Migration CMS] Added missing section '${reqSec.sectionId}' to page '${pageItem.slug}'.`);
+            console.log(
+              `➕ [Migration CMS] Added missing section '${reqSec.sectionId}' to page '${pageItem.slug}'.`,
+            );
           }
         }
 
         if (pageModified) {
-          if (page.markModified) page.markModified('sections');
+          if (page.markModified) page.markModified("sections");
           await page.save();
-          console.log(`💾 [Migration CMS] Saved updated section manifest for page '${pageItem.slug}'.`);
+          console.log(
+            `💾 [Migration CMS] Saved updated section manifest for page '${pageItem.slug}'.`,
+          );
         }
       }
     }
 
-    console.log(`📊 [Migration CMS Summary] Pages: ${stats.pagesCreated.length} created, ${stats.pagesExisting.length} preserved | Sections: ${stats.sectionsAdded.length} added, ${stats.sectionsPreserved.length} preserved.`);
+    console.log(
+      `📊 [Migration CMS Summary] Pages: ${stats.pagesCreated.length} created, ${stats.pagesExisting.length} preserved | Sections: ${stats.sectionsAdded.length} added, ${stats.sectionsPreserved.length} preserved.`,
+    );
     return stats;
   }
 
@@ -1173,11 +1482,15 @@ class CmsMigrationService {
    * Primary entry point: runs backup, settings migration, and CMS migration
    */
   static async runFullMigration() {
-    console.log('🚀 [Migration Engine] Starting safe, idempotent Phase 1 database migration...');
+    console.log(
+      "🚀 [Migration Engine] Starting safe, idempotent Phase 1 database migration...",
+    );
     const backupPath = await this.backupCurrentData();
     const settings = await this.migrateSettings();
     const cmsStats = await this.migrateCmsPages();
-    console.log('🏁 [Migration Engine] Phase 1 database migration finished successfully.');
+    console.log(
+      "🏁 [Migration Engine] Phase 1 database migration finished successfully.",
+    );
     return {
       success: true,
       backupPath,
