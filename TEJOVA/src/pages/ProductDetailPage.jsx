@@ -205,7 +205,7 @@ export const ProductDetailPage = () => {
                   <Button
   variant="secondary"
   size="lg"
-  className="w-full sm:w-auto text-center"
+  className="cursor-pointer w-full sm:w-auto text-center"
   onClick={() => navigate("/contact")}
 >
   Inquire
