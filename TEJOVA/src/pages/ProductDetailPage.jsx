@@ -7,9 +7,11 @@ import { Button } from '../components/common/Button';
 import { Star, CheckCircle2, ShieldCheck, Leaf, Truck, RefreshCw } from 'lucide-react';
 import { fetchProductBySlug, fetchRelatedProducts } from '../Redux/slices/productSlice';
 import { products as staticProducts } from '../data/products';
+import { useNavigate } from "react-router-dom";
 
 export const ProductDetailPage = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { selectedProduct: apiProduct, detailLoading: loading, detailError: error, relatedProducts: apiRelated } = useSelector((state) => state.product);
 
@@ -200,9 +202,14 @@ export const ProductDetailPage = () => {
                     Begin Journey (₹{product.price * quantity})
                   </Button>
 
-                  <Button variant="secondary" size="lg" className="w-full sm:w-auto text-center">
-                    Inquire
-                  </Button>
+                  <Button
+  variant="secondary"
+  size="lg"
+  className="w-full sm:w-auto text-center"
+  onClick={() => navigate("/contact")}
+>
+  Inquire
+</Button>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 pt-5 border-t border-[#B87333]/20 text-center text-xs text-[#0A2342]/80 font-light">
