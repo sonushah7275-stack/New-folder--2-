@@ -58,8 +58,21 @@ const pageSectionSchema = new mongoose.Schema({
   title: { type: String, default: '' },
   subtitle: { type: String, default: '' },
   kicker: { type: String, default: '' },
-  content: { type: String, default: '' },
+  content: { type: mongoose.Schema.Types.Mixed, default: '' },
   badge: { type: String, default: '' },
+  leftColumn: {
+    label: { type: String, default: '' },
+    heading: { type: String, default: '' },
+    paragraphs: [{ type: String }],
+    paragraph1: { type: String, default: '' },
+    paragraph2: { type: String, default: '' }
+  },
+  rightColumn: {
+    label: { type: String, default: '' },
+    heading: { type: String, default: '' },
+    highlightedTitle: { type: String, default: '' },
+    description: { type: String, default: '' }
+  },
   media: {
     url: { type: String, default: '' },
     resourceType: { type: String, enum: ['image', 'video'], default: 'image' },
@@ -144,6 +157,37 @@ const pageSchema = new mongoose.Schema(
     timestamps: true
   }
 );
+
+pageSchema.pre('save', function (next) {
+  if (Array.isArray(this.sections)) {
+    this.sections.forEach((sec) => {
+      if (
+        sec.type === 'philosophy' ||
+        sec.type === 'brand_philosophy' ||
+        sec.sectionId === 'sec_about_philosophy'
+      ) {
+        if (sec.leftColumn) {
+          if (sec.leftColumn.heading && !sec.title) sec.title = sec.leftColumn.heading;
+          if (sec.leftColumn.label && !sec.subtitle) sec.subtitle = sec.leftColumn.label;
+          if (Array.isArray(sec.leftColumn.paragraphs)) {
+            if (sec.leftColumn.paragraphs[0] && !sec.leftColumn.paragraph1) {
+              sec.leftColumn.paragraph1 = sec.leftColumn.paragraphs[0];
+            }
+            if (sec.leftColumn.paragraphs[1] && !sec.leftColumn.paragraph2) {
+              sec.leftColumn.paragraph2 = sec.leftColumn.paragraphs[1];
+            }
+          } else if (sec.leftColumn.paragraph1 || sec.leftColumn.paragraph2) {
+            sec.leftColumn.paragraphs = [
+              sec.leftColumn.paragraph1 || '',
+              sec.leftColumn.paragraph2 || ''
+            ];
+          }
+        }
+      }
+    });
+  }
+  next();
+});
 
 const Page = mongoose.model('Page', pageSchema);
 

@@ -2,6 +2,74 @@ import Page from '../models/Page.js';
 import { normalizeCloudinaryData } from '../utils/cloudinaryHelper.js';
 
 /**
+ * Normalizes and guarantees the structure of the Philosophy Section (Two Columns)
+ */
+export const ensurePhilosophySectionStructure = (sec) => {
+  if (!sec) return sec;
+  if (
+    sec.sectionId === 'sec_about_philosophy' ||
+    sec.type === 'philosophy' ||
+    sec.type === 'brand_philosophy'
+  ) {
+    if (!sec.leftColumn) sec.leftColumn = {};
+    if (!sec.rightColumn) sec.rightColumn = {};
+
+    // Support payload where content holds leftColumn / rightColumn
+    if (sec.content && typeof sec.content === 'object') {
+      if (sec.content.leftColumn && Object.keys(sec.content.leftColumn).length > 0) {
+        sec.leftColumn = { ...sec.content.leftColumn, ...sec.leftColumn };
+      }
+      if (sec.content.rightColumn && Object.keys(sec.content.rightColumn).length > 0) {
+        sec.rightColumn = { ...sec.content.rightColumn, ...sec.rightColumn };
+      }
+    }
+
+    if (!sec.leftColumn.label) sec.leftColumn.label = sec.subtitle || 'THE PHILOSOPHY';
+    if (!sec.leftColumn.heading) sec.leftColumn.heading = sec.title || 'Expand Your Light';
+
+    if (!sec.leftColumn.paragraph1 && Array.isArray(sec.leftColumn.paragraphs) && sec.leftColumn.paragraphs[0]) {
+      sec.leftColumn.paragraph1 = sec.leftColumn.paragraphs[0];
+    }
+    if (!sec.leftColumn.paragraph2 && Array.isArray(sec.leftColumn.paragraphs) && sec.leftColumn.paragraphs[1]) {
+      sec.leftColumn.paragraph2 = sec.leftColumn.paragraphs[1];
+    }
+
+    if (!sec.leftColumn.paragraph1) {
+      sec.leftColumn.paragraph1 =
+        '"Tej" in ancient Sanskrit represents inner radiance, biological brilliance, and vital heat. "Ova" signifies origin and continuous growth. Together, <strong>TEJOVA</strong> embodies the expansion of your innate physical and mental radiance.';
+    }
+    if (!sec.leftColumn.paragraph2) {
+      sec.leftColumn.paragraph2 =
+        'Every formulation we create, every article we write, and every ritual we share is designed to nurture your light — helping you show up fully for yourself, your loved ones, and the world around you.';
+    }
+    if (!Array.isArray(sec.leftColumn.paragraphs) || sec.leftColumn.paragraphs.length === 0) {
+      sec.leftColumn.paragraphs = [sec.leftColumn.paragraph1, sec.leftColumn.paragraph2];
+    }
+
+    if (!sec.rightColumn.label) sec.rightColumn.label = 'STANDARDS OF PURITY';
+    if (!sec.rightColumn.heading) sec.rightColumn.heading = 'About Tejova';
+    if (!sec.rightColumn.highlightedTitle) {
+      sec.rightColumn.highlightedTitle = 'The Architecture of Biological Sovereignty';
+    }
+    if (!sec.rightColumn.description) {
+      sec.rightColumn.description =
+        'For the Driven Professionals, energy is the ultimate currency. You architect organizations, drive market growth, and lead with relentless precision—but the true mark of elite leadership is absolute command over your own biology.';
+    }
+
+    // Keep top-level title and subtitle synced for standard CMS listings
+    if (sec.leftColumn.heading) sec.title = sec.leftColumn.heading;
+    if (sec.leftColumn.label) sec.subtitle = sec.leftColumn.label;
+
+    // Synchronize content object as well
+    sec.content = {
+      leftColumn: sec.leftColumn,
+      rightColumn: sec.rightColumn
+    };
+  }
+  return sec;
+};
+
+/**
  * Get all pages
  * GET /api/pages
  * Public / Admin
@@ -57,6 +125,11 @@ export const getPageBySlug = async (req, res, next) => {
 
     let pageObj = page.toObject();
 
+    // Ensure philosophy section structure is normalized
+    if (Array.isArray(pageObj.sections)) {
+      pageObj.sections = pageObj.sections.map(ensurePhilosophySectionStructure);
+    }
+
     // For public requests (non-admin or when preview is not requested),
     // only return active (isVisible !== false) sections and items, sorted by order
     if (!isAdmin || (!isPreview && req.query.adminView !== 'true')) {
@@ -96,6 +169,10 @@ export const upsertPage = async (req, res, next) => {
   try {
     const slug = req.params.slug.toLowerCase().trim();
     const updateData = { ...req.body, slug };
+
+    if (Array.isArray(updateData.sections)) {
+      updateData.sections = updateData.sections.map(ensurePhilosophySectionStructure);
+    }
 
     if (req.user) {
       updateData.updatedBy = req.user._id;
@@ -179,11 +256,13 @@ export const updateSection = async (req, res, next) => {
       });
     }
 
-    page.sections[sectionIndex] = {
+    const updatedSectionData = ensurePhilosophySectionStructure({
       ...page.sections[sectionIndex].toObject(),
       ...req.body,
       sectionId
-    };
+    });
+
+    page.sections[sectionIndex] = updatedSectionData;
 
     if (req.user) page.updatedBy = req.user._id;
     await page.save();

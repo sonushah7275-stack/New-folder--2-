@@ -880,10 +880,38 @@ class CmsMigrationService {
             title: "Expand Your Light",
             subtitle: "THE PHILOSOPHY",
             kicker: "TEJOVA ORIGIN",
-            content: `
-              <p>"Tej" in ancient Sanskrit represents inner radiance, biological brilliance, and vital heat. "Ova" signifies origin and continuous growth. Together, <strong>TEJOVA</strong> embodies the expansion of your innate physical and mental radiance.</p>
-              <p>Every formulation we create, every article we write, and every ritual we share is designed to nurture your light — helping you show up fully for yourself, your loved ones, and the world around you.</p>
-            `,
+            leftColumn: {
+              label: "THE PHILOSOPHY",
+              heading: "Expand Your Light",
+              paragraphs: [
+                "\"Tej\" in ancient Sanskrit represents inner radiance, biological brilliance, and vital heat. \"Ova\" signifies origin and continuous growth. Together, TEJOVA embodies the expansion of your innate physical and mental radiance.",
+                "Every formulation we create, every article we write, and every ritual we share is designed to nurture your light — helping you show up fully for yourself, your loved ones, and the world around you."
+              ],
+              paragraph1: "\"Tej\" in ancient Sanskrit represents inner radiance, biological brilliance, and vital heat. \"Ova\" signifies origin and continuous growth. Together, TEJOVA embodies the expansion of your innate physical and mental radiance.",
+              paragraph2: "Every formulation we create, every article we write, and every ritual we share is designed to nurture your light — helping you show up fully for yourself, your loved ones, and the world around you."
+            },
+            rightColumn: {
+              label: "STANDARDS OF PURITY",
+              heading: "About Tejova",
+              highlightedTitle: "The Architecture of Biological Sovereignty",
+              description: "For the Driven Professionals, energy is the ultimate currency. You architect organizations, drive market growth, and lead with relentless precision—but the true mark of elite leadership is absolute command over your own biology."
+            },
+            content: {
+              leftColumn: {
+                label: "THE PHILOSOPHY",
+                heading: "Expand Your Light",
+                paragraphs: [
+                  "\"Tej\" in ancient Sanskrit represents inner radiance, biological brilliance, and vital heat. \"Ova\" signifies origin and continuous growth. Together, TEJOVA embodies the expansion of your innate physical and mental radiance.",
+                  "Every formulation we create, every article we write, and every ritual we share is designed to nurture your light — helping you show up fully for yourself, your loved ones, and the world around you."
+                ]
+              },
+              rightColumn: {
+                label: "STANDARDS OF PURITY",
+                heading: "About Tejova",
+                highlightedTitle: "The Architecture of Biological Sovereignty",
+                description: "For the Driven Professionals, energy is the ultimate currency. You architect organizations, drive market growth, and lead with relentless precision—but the true mark of elite leadership is absolute command over your own biology."
+              }
+            },
             badge: "PRANA RADIANCE",
             order: 0,
             isVisible: true,

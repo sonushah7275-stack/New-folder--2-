@@ -38,7 +38,10 @@ export const AboutPage = () => {
   const sections = aboutCmsPage?.sections || [];
 
   const philosophySection = sections.find(
-    (s) => (s.sectionId === "sec_about_philosophy" || s.type === "brand_philosophy") && s.isVisible !== false
+    (s) =>
+      s.sectionId === "sec_about_philosophy" ||
+      s.type === "philosophy" ||
+      s.type === "brand_philosophy"
   );
 
   const commitmentsSection = sections.find(
@@ -49,12 +52,15 @@ export const AboutPage = () => {
     (s) => (s.sectionId === "sec_about_pillars" || s.type === "cards") && s.isVisible !== false
   );
 
-  // Additional rich content if added via CMS (e.g. sec_1794271169058)
+  // Additional rich content if added via CMS (excluding philosophy and commitments)
   const additionalRichSections = sections.filter(
     (s) =>
       s.sectionId !== "sec_about_philosophy" &&
       s.sectionId !== "sec_about_commitments" &&
       s.sectionId !== "sec_about_pillars" &&
+      s.sectionId !== "sec_1794271169058" &&
+      s.type !== "philosophy" &&
+      s.type !== "brand_philosophy" &&
       s.isVisible !== false &&
       s.content
   );
@@ -63,6 +69,40 @@ export const AboutPage = () => {
     pillarsSection?.items && pillarsSection.items.length > 0
       ? pillarsSection.items.filter((item) => item.isVisible !== false)
       : fallbackPillars;
+
+  // Philosophy section dynamic content resolution with fallbacks
+  const leftData = philosophySection?.leftColumn || philosophySection?.content?.leftColumn || {};
+  const rightData = philosophySection?.rightColumn || philosophySection?.content?.rightColumn || {};
+
+  const leftLabel = leftData.label || philosophySection?.subtitle || "THE PHILOSOPHY";
+  const leftHeading = leftData.heading || philosophySection?.title || "Expand Your Light";
+
+  const defaultLeftP1 =
+    '"Tej" in ancient Sanskrit represents inner radiance, biological brilliance, and vital heat. "Ova" signifies origin and continuous growth. Together, <strong>TEJOVA</strong> embodies the expansion of your innate physical and mental radiance.';
+  const defaultLeftP2 =
+    "Every formulation we create, every article we write, and every ritual we share is designed to nurture your light — helping you show up fully for yourself, your loved ones, and the world around you.";
+
+  const leftP1 =
+    leftData.paragraph1 ||
+    (Array.isArray(leftData.paragraphs) ? leftData.paragraphs[0] : null) ||
+    defaultLeftP1;
+  const leftP2 =
+    leftData.paragraph2 ||
+    (Array.isArray(leftData.paragraphs) ? leftData.paragraphs[1] : null) ||
+    defaultLeftP2;
+
+  const rightLabel = rightData.label || "STANDARDS OF PURITY";
+  const rightHeading = rightData.heading || "About Tejova";
+  const rightHighlightedTitle =
+    rightData.highlightedTitle || "The Architecture of Biological Sovereignty";
+  const defaultRightDesc =
+    "For the Driven Professionals, energy is the ultimate currency. You architect organizations, drive market growth, and lead with relentless precision—but the true mark of elite leadership is absolute command over your own biology.";
+  const rightDesc = rightData.description || defaultRightDesc;
+
+  // Visibility logic: if CMS is loaded, respect section.isVisible; if loading, show fallback
+  const isPhilosophyVisible = philosophySection
+    ? philosophySection.isVisible !== false
+    : !aboutCmsPage;
 
   return (
     <PageContainer>
@@ -115,72 +155,57 @@ export const AboutPage = () => {
         </section>
       ))}
 
-      {/* Philosophy Section (CMS sec_about_philosophy & sec_about_commitments) */}
-      <section className="py-16 sm:py-20 bg-[#FAF9F6] border-y border-[#B87333]/30 my-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
-            
-            {/* Left: Brand Philosophy */}
-            <div className="lg:col-span-6 space-y-6">
-              <span className="text-xs uppercase tracking-widest text-[#B87333] font-semibold block">
-                {philosophySection?.subtitle || "THE PHILOSOPHY"}
-              </span>
-              <h2 className="font-serif text-3xl sm:text-4xl lg:text-[40px] text-[#0A2342] leading-tight font-medium">
-                {philosophySection?.title || "Expand Your Light"}
-              </h2>
-              {philosophySection?.content ? (
-                <div
-                  className="text-base sm:text-lg text-[#0A2342]/85 font-light leading-relaxed space-y-4"
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(philosophySection.content) }}
-                />
-              ) : (
-                <>
-                  <p className="text-base sm:text-lg text-[#0A2342]/85 font-light leading-relaxed">
-                    "Tej" in ancient Sanskrit represents inner radiance, biological brilliance, and vital heat. "Ova" signifies origin and continuous growth. Together, <strong>TEJOVA</strong> embodies the expansion of your innate physical and mental radiance.
-                  </p>
-                  <p className="text-sm sm:text-base text-[#0A2342]/75 font-light leading-relaxed">
-                    Every formulation we create, every article we write, and every ritual we share is designed to nurture your light — helping you show up fully for yourself, your loved ones, and the world around you.
-                  </p>
-                </>
-              )}
-            </div>
-
-            {/* Right: Core Commitments */}
-            <div className="lg:col-span-6">
-              <div className="bg-[#FAF9F6] p-8 md:p-10 rounded-xs border-l-4 border-l-[#B87333] border-y border-r border-[#B87333]/20 shadow-xs space-y-6">
+      {/* Philosophy Section (Two Columns CMS Integrated) */}
+      {isPhilosophyVisible && (
+        <section className="py-16 sm:py-20 bg-[#FAF9F6] border-y border-[#B87333]/30 my-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+              
+              {/* Left Column: The Philosophy */}
+              <div className="lg:col-span-6 space-y-6">
                 <span className="text-xs uppercase tracking-widest text-[#B87333] font-semibold block">
-                  {commitmentsSection?.subtitle || "STANDARDS OF PURITY"}
+                  {leftLabel}
                 </span>
-                <h3 className="font-serif text-2xl text-[#0A2342]">
-                  {commitmentsSection?.title || "Our Core Commitments"}
-                </h3>
-                {commitmentsSection?.content ? (
+                <h2 className="font-serif text-3xl sm:text-4xl lg:text-[40px] text-[#0A2342] leading-tight font-medium">
+                  {leftHeading}
+                </h2>
+                <div
+                  className="text-base sm:text-lg text-[#0A2342]/85 font-light leading-relaxed space-y-4 [&>p]:mb-3 last:[&>p]:mb-0"
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(leftP1) }}
+                />
+                {leftP2 && (
                   <div
-                    className="space-y-4 text-sm sm:text-base text-[#0A2342]/80 font-light leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(commitmentsSection.content) }}
+                    className="text-sm sm:text-base text-[#0A2342]/75 font-light leading-relaxed space-y-4 [&>p]:mb-3 last:[&>p]:mb-0"
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(leftP2) }}
                   />
-                ) : (
-                  <ul className="space-y-4 text-sm sm:text-base text-[#0A2342]/80 font-light">
-                    <li className="flex items-start">
-                      <span className="w-2 h-2 rounded-full bg-[#B87333] mt-2 mr-3 shrink-0" />
-                      <span><strong>Purity Without Compromise:</strong> Wildcrafted, 100% organic ingredients sourced directly from ethical bio-farms.</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="w-2 h-2 rounded-full bg-[#B87333] mt-2 mr-3 shrink-0" />
-                      <span><strong>Biological Synergy:</strong> Formulas designed to complement natural metabolic pathways rather than override them.</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="w-2 h-2 rounded-full bg-[#B87333] mt-2 mr-3 shrink-0" />
-                      <span><strong>Mindful Living:</strong> Elevating everyday routines into conscious, grounding daily rituals.</span>
-                    </li>
-                  </ul>
                 )}
               </div>
-            </div>
 
+              {/* Right Column: Standards of Purity Card */}
+              <div className="lg:col-span-6">
+                <div className="bg-[#FAF9F6] p-8 md:p-10 rounded-xs border-l-4 border-l-[#B87333] border-y border-r border-[#B87333]/20 shadow-xs space-y-6">
+                  <span className="text-xs uppercase tracking-widest text-[#B87333] font-semibold block">
+                    {rightLabel}
+                  </span>
+                  <h3 className="font-serif text-2xl sm:text-3xl text-[#0A2342] font-medium leading-snug">
+                    {rightHeading}
+                  </h3>
+                  {rightHighlightedTitle && (
+                    <h4 className="font-serif text-lg sm:text-xl text-[#B87333] font-semibold leading-relaxed">
+                      {rightHighlightedTitle}
+                    </h4>
+                  )}
+                  <div
+                    className="space-y-4 text-sm sm:text-base text-[#0A2342]/80 font-light leading-relaxed [&>p]:mb-3 last:[&>p]:mb-0"
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(rightDesc) }}
+                  />
+                </div>
+              </div>
+
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Advisory Leadership & Practice Group (Archana C Parate) */}
       <section className="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

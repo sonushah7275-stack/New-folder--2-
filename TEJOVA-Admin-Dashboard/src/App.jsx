@@ -44,6 +44,8 @@ export default function App() {
           {/* Secondary Navigation */}
           <Route path="homepage-cms" element={<HomepageCms />} />
           <Route path="pages" element={<PageCmsEditor />} />
+          <Route path="pages/:slug" element={<PageCmsEditor />} />
+          <Route path="pages/about/philosophy" element={<PageCmsEditor />} />
           <Route path="content" element={<Content />} />
           <Route path="settings" element={<Settings />} />
 

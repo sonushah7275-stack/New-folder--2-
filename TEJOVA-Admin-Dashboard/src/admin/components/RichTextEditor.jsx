@@ -475,6 +475,7 @@ export default function RichTextEditor({
   content = "",
   onChange,
   placeholder = "Write your article content...",
+  minHeight = "260px",
 }) {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageError, setImageError] = useState(null);
@@ -1433,7 +1434,7 @@ export default function RichTextEditor({
       )}
 
       {/* Editor Content Area with Responsive Table Container */}
-      <div className="p-4 min-h-[260px] max-h-[500px] overflow-y-auto prose prose-sm max-w-none focus:outline-none">
+      <div style={{ minHeight }} className="p-4 max-h-[500px] overflow-y-auto prose prose-sm max-w-none focus:outline-none">
         <div className="overflow-x-auto w-full max-w-full [&_table]:min-w-[480px] [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:border [&_th]:border-gray-300 [&_th]:px-3 [&_th]:py-2 [&_th]:bg-[#FAF9F6] [&_th]:font-serif [&_th]:font-bold [&_th]:text-[#0A2342] [&_td]:border [&_td]:border-gray-300 [&_td]:px-3 [&_td]:py-2 [&_td]:text-[#0A2342]">
           <EditorContent editor={editor} />
         </div>

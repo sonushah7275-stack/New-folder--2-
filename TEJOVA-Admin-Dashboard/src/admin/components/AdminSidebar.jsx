@@ -46,6 +46,7 @@ const mainNavItems = [
 const secondaryNavItems = [
   { name: "Homepage CMS", icon: "ViewQuilt", path: "/admin/homepage-cms" },
   { name: "Pages (CMS)", icon: "EditNote", path: "/admin/pages" },
+  { name: "About Philosophy", icon: "EditNote", path: "/admin/pages?page=about&section=philosophy" },
   { name: "Content", icon: "EditNote", path: "/admin/content" },
   { name: "Settings", icon: "Settings", path: "/admin/settings" },
 ];
@@ -57,6 +58,13 @@ export default function AdminSidebar({ onItemClick }) {
   const isNavItemActive = (itemPath) => {
     if (itemPath === "/admin") {
       return location.pathname === "/admin" || location.pathname === "/admin/";
+    }
+    const [pathOnly, queryOnly] = itemPath.split("?");
+    if (queryOnly) {
+      return location.pathname === pathOnly && location.search.includes(queryOnly);
+    }
+    if (itemPath === "/admin/pages" && location.search.includes("section=philosophy")) {
+      return false;
     }
     return (
       location.pathname === itemPath ||

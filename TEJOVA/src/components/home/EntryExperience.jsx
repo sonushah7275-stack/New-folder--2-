@@ -75,7 +75,7 @@ export const EntryExperience = () => {
         setVisible(false);
         sessionStorage.setItem("tejova_entry_seen", "true");
       }
-    }, 2300);
+    }, 5000);
 
     return () => clearTimeout(timeout);
   }, [visible, index, items]);
